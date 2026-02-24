@@ -65,6 +65,7 @@ func (ilr *inventoryLogRepository) GetByProductId(ctx *context.Context, productI
 	var logs []entities.InventoryLog
 	res := ilr.WithDB(ctx).
 		Scopes(scopes.Channel(), scopes.IsActive()).
+		Scopes(scopes.WithAuditInfo()).
 		Where("product_id = ?", productId).
 		Preload("Product").
 		Order("logged_at DESC").

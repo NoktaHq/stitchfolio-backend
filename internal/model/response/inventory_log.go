@@ -18,8 +18,8 @@ type InventoryLog struct {
 	Product      *Product `json:"product,omitempty"`
 	ProductName  string   `json:"productName,omitempty"`
 	ProductSKU   string   `json:"productSku,omitempty"`
-	NetChange    int      `json:"netChange,omitempty"`    // Calculated net change
-	StockAfter   int      `json:"stockAfter,omitempty"`   // Stock quantity after this movement
+	NetChange    string   `json:"netChange,omitempty"`   // e.g. "0(+20)" = 0 before, +20 added; "20(-5)" = 20 before, -5
+	StockAfter   int      `json:"stockAfter,omitempty"`  // Stock quantity after this movement
 	LoggedByName string   `json:"loggedByName,omitempty"` // User who logged
 }
 

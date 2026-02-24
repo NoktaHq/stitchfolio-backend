@@ -74,7 +74,9 @@ func (or *orderRepository) GetAll(ctx *context.Context, search string) ([]entiti
 			(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems" 
 			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_quantity,
 			(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" 
-			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`).
+			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value,
+			 (SELECT MIN(expected_delivery_date) FROM "stich"."OrderItems" 
+			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as expected_delivery_date`).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.GetOrders_Search(search)).
 		Scopes(scopes.GetOrders_Filter(filter)).

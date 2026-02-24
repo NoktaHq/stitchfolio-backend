@@ -1135,8 +1135,8 @@ definitions:
         description: User who logged
         type: string
       netChange:
-        description: Calculated net change
-        type: integer
+        description: e.g. "0(+20)" = 0 before, +20 added; "20(-5)" = 20 before, -5
+        type: string
       notes:
         type: string
       product:

@@ -2,6 +2,8 @@ package mapper
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
 	"time"
 
 	"github.com/imkarthi24/sf-backend/internal/entities"
@@ -851,7 +853,17 @@ func (m *responseMapper) Inventories(items []entities.Inventory) ([]responseMode
 	return result, nil
 }
 
-func (m *responseMapper) InventoryLog(e *entities.InventoryLog) (*responseModel.InventoryLog, error) {
+// netChangeString formats quantity before and delta as "quantityBefore(+delta)" or "quantityBefore(-delta)".
+// If stockAfter is nil (single log without context), returns just "(+delta)" or "(-delta)".
+func netChangeString(delta int, stockAfter *int) string {
+	if stockAfter == nil {
+		return fmt.Sprintf("(%+d)", delta)
+	}
+	qtyBefore := *stockAfter - delta
+	return fmt.Sprintf("%d(%+d)", qtyBefore, delta)
+}
+
+func (m *responseMapper) inventoryLogWithStock(e *entities.InventoryLog, stockAfter *int) (*responseModel.InventoryLog, error) {
 	if e == nil {
 		return nil, nil
 	}
@@ -869,7 +881,11 @@ func (m *responseMapper) InventoryLog(e *entities.InventoryLog) (*responseModel.
 		productSKU = e.Product.SKU
 	}
 
-	netChange := e.CalculateNetChange()
+	delta := e.CalculateNetChange()
+	stockAfterVal := 0
+	if stockAfter != nil {
+		stockAfterVal = *stockAfter
+	}
 
 	return &responseModel.InventoryLog{
 		ID:          e.ID,
@@ -883,7 +899,8 @@ func (m *responseMapper) InventoryLog(e *entities.InventoryLog) (*responseModel.
 		Product:     product,
 		ProductName: productName,
 		ProductSKU:  productSKU,
-		NetChange:   netChange,
+		NetChange:   netChangeString(delta, stockAfter),
+		StockAfter:  stockAfterVal,
 		AuditFields: responseModel.AuditFields{
 			CreatedAt: e.CreatedAt,
 			UpdatedAt: e.UpdatedAt,
@@ -893,10 +910,52 @@ func (m *responseMapper) InventoryLog(e *entities.InventoryLog) (*responseModel.
 	}, nil
 }
 
+func (m *responseMapper) InventoryLog(e *entities.InventoryLog) (*responseModel.InventoryLog, error) {
+	return m.inventoryLogWithStock(e, nil)
+}
+
 func (m *responseMapper) InventoryLogs(items []entities.InventoryLog) ([]responseModel.InventoryLog, error) {
-	result := make([]responseModel.InventoryLog, 0)
-	for _, item := range items {
-		mappedItem, err := m.InventoryLog(&item)
+	if len(items) == 0 {
+		return []responseModel.InventoryLog{}, nil
+	}
+
+	// When all logs are for the same product (e.g. GetByProductId), compute stock after each movement
+	// in chronological order so we can show "quantityBefore(+delta)" and StockAfter.
+	sameProduct := true
+	productId := items[0].ProductId
+	for i := 1; i < len(items); i++ {
+		if items[i].ProductId != productId {
+			sameProduct = false
+			break
+		}
+	}
+
+	var stockAfterByID map[uint]int
+	if sameProduct {
+		// Chronological order (oldest first) to compute running stock
+		sorted := make([]entities.InventoryLog, len(items))
+		copy(sorted, items)
+		sort.Slice(sorted, func(i, j int) bool {
+			return sorted[i].LoggedAt.Before(sorted[j].LoggedAt)
+		})
+		stockAfterByID = make(map[uint]int, len(sorted))
+		runningStock := 0
+		for i := range sorted {
+			runningStock += sorted[i].CalculateNetChange()
+			stockAfterByID[sorted[i].ID] = runningStock
+		}
+	}
+
+	result := make([]responseModel.InventoryLog, 0, len(items))
+	for i := range items {
+		item := &items[i]
+		var sa *int
+		if stockAfterByID != nil {
+			if v, ok := stockAfterByID[item.ID]; ok {
+				sa = &v
+			}
+		}
+		mappedItem, err := m.inventoryLogWithStock(item, sa)
 		if err != nil {
 			return nil, err
 		}

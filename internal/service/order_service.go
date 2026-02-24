@@ -45,15 +45,15 @@ func (svc orderService) SaveOrder(ctx *context.Context, order requestModel.Order
 		return errs.NewXError(errs.INVALID_REQUEST, "Unable to save order", err)
 	}
 
-	errr := svc.orderRepo.Create(ctx, dbOrder)
-	if errr != nil {
-		return errr
-	}
-
 	// Set TakenById to the current user if it's not provided in the request
 	if order.OrderTakenById == nil {
 		userID := utils.GetUserId(ctx)
 		dbOrder.OrderTakenById = &userID
+	}
+
+	errr := svc.orderRepo.Create(ctx, dbOrder)
+	if errr != nil {
+		return errr
 	}
 
 	// Record order history for CREATED action
