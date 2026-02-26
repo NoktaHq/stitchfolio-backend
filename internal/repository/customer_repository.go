@@ -43,7 +43,8 @@ func (cr *customerRepository) Update(ctx *context.Context, customer *entities.Cu
 
 func (cr *customerRepository) Get(ctx *context.Context, id uint) (*entities.Customer, *errs.XError) {
 	customer := entities.Customer{}
-	res := cr.WithDB(ctx).
+	res := cr.WithDB(ctx).Model(customer).
+		Scopes(scopes.WithAuditInfo()).
 		Preload("Persons").
 		Preload("Persons.Measurements").
 		Preload("Persons.Measurements.DressType").

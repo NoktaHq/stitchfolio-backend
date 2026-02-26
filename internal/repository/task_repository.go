@@ -60,10 +60,11 @@ func (tr *taskRepository) GetAll(ctx *context.Context, search string) ([]entitie
 		filter = filterValue.(string)
 	}
 
-	res := tr.WithDB(ctx).
+	res := tr.WithDB(ctx).Model(entities.Task{}).
 		Scopes(scopes.Channel(), scopes.IsActive(), scopes.TasksForCurrentUser()).
 		Scopes(scopes.GetTasks_Search(search)).
 		Scopes(scopes.GetTasks_Filter(filter)).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(db.Paginate(ctx)).
 		Find(&tasks)
 	if res.Error != nil {

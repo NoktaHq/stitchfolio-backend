@@ -25,7 +25,7 @@ type Order struct {
 	OrderQuantity int     `json:"orderQuantity,omitempty"` // sum of quantity from order items
 	OrderValue    float64 `json:"orderValue,omitempty"`    // sum of total from order items
 
-	AuditFields `json:"auditFields"`
+	AuditFields `json:"auditFields,omitempty"`
 
 	OrderItems []OrderItem `json:"orderItems,omitempty"`
 }
@@ -51,5 +51,5 @@ type OrderItem struct {
 	OrderId uint   `json:"orderId,omitempty"`
 	Order   *Order `json:"order,omitempty"`
 
-	AuditFields `json:"auditFields"`
+	AuditFields `json:"auditFields,omitempty"`
 }

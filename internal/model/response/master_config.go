@@ -13,5 +13,5 @@ type MasterConfig struct {
 	Description   string `json:"description,omitempty"`
 	Format        string `json:"format,omitempty"`
 
-	AuditFields `json:"auditFields"`
+	AuditFields `json:"auditFields,omitempty"`
 }

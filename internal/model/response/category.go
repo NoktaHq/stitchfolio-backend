@@ -5,7 +5,7 @@ type Category struct {
 	IsActive bool   `json:"isActive,omitempty"`
 	Name     string `json:"name,omitempty"`
 
-	AuditFields
+	AuditFields `json:"auditFields,omitempty"`
 
 	ProductCount int `json:"productCount,omitempty"` // Count of products in this category
 }

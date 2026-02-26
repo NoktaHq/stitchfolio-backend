@@ -40,7 +40,7 @@ func (repo *masterConfigRepository) Update(ctx *context.Context, config *entitie
 
 func (repo *masterConfigRepository) Get(ctx *context.Context, id uint) (*entities.MasterConfig, *errs.XError) {
 	config := entities.MasterConfig{}
-	res := repo.WithDB(ctx).
+	res := repo.WithDB(ctx).Model(config).
 		Scopes(scopes.WithAuditInfo()).
 		Scopes(scopes.Channel()).
 		Find(&config, id)

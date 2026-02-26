@@ -14,5 +14,5 @@ type Task struct {
 	CompletedAt  *time.Time `json:"completedAt,omitempty"`
 	AssignedToId *uint      `json:"assignedToId,omitempty"`
 
-	AuditFields `json:"auditFields"`
+	AuditFields `json:"auditFields,omitempty"`
 }

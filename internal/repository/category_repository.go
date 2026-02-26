@@ -40,7 +40,8 @@ func (cr *categoryRepository) Update(ctx *context.Context, category *entities.Ca
 
 func (cr *categoryRepository) Get(ctx *context.Context, id uint) (*entities.Category, *errs.XError) {
 	category := entities.Category{}
-	res := cr.WithDB(ctx).
+	res := cr.WithDB(ctx).Model(category).
+		Scopes(scopes.WithAuditInfo()).
 		Preload("Products").
 		Find(&category, id)
 	if res.Error != nil {

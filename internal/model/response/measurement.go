@@ -20,7 +20,7 @@ type Measurement struct {
 	TakenById *uint  `json:"takenById,omitempty"`
 	TakenBy   string `json:"takenBy,omitempty"` // first_name + last_name
 
-	AuditFields `json:"auditFields"`
+	AuditFields `json:"auditFields,omitempty"`
 }
 
 type MeasurementBrowse struct {

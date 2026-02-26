@@ -10,7 +10,7 @@ type Product struct {
 	CostPrice    float64 `json:"costPrice,omitempty"`
 	SellingPrice float64 `json:"sellingPrice,omitempty"`
 
-	AuditFields
+	AuditFields `json:"auditFields,omitempty"`
 
 	// Related data
 	Category     *Category  `json:"category,omitempty"`

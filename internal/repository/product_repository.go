@@ -42,7 +42,7 @@ func (pr *productRepository) Update(ctx *context.Context, product *entities.Prod
 
 func (pr *productRepository) Get(ctx *context.Context, id uint) (*entities.Product, *errs.XError) {
 	product := entities.Product{}
-	res := pr.WithDB(ctx).
+	res := pr.WithDB(ctx).Model(product).
 		Preload("Category").
 		Preload("Inventory").
 		Find(&product, id)
@@ -58,6 +58,7 @@ func (pr *productRepository) GetAll(ctx *context.Context, search string) ([]enti
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.ILike(search, "name", "sku", "description")).
 		Scopes(db.Paginate(ctx)).
+		Scopes(scopes.WithAuditInfo()).
 		Preload("Category").
 		Preload("Inventory").
 		Find(&products)

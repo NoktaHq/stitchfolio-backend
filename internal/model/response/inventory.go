@@ -10,7 +10,7 @@ type Inventory struct {
 	LowStockThreshold int       `json:"lowStockThreshold,omitempty"`
 	UpdatedAt         time.Time `json:"updatedAt,omitempty"`
 
-	AuditFields
+	AuditFields `json:"auditFields,omitempty"`
 
 	// Related data
 	Product     *Product `json:"product,omitempty"`

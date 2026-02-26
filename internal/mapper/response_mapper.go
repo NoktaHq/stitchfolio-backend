@@ -292,6 +292,7 @@ func (m *responseMapper) Customer(e *entities.Customer) (*responseModel.Customer
 		Persons:        persons,
 		Enquiries:      enquiries,
 		Orders:         orders,
+		AuditFields:    responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
 	}, nil
 }
 
