@@ -5772,11 +5772,8 @@
         "responseModel.Category": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "id": {
                     "type": "integer"
@@ -5790,12 +5787,6 @@
                 "productCount": {
                     "description": "Count of products in this category",
                     "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
@@ -5908,11 +5899,8 @@
                 "address": {
                     "type": "string"
                 },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "email": {
                     "type": "string"
@@ -5950,12 +5938,6 @@
                 "phoneNumber": {
                     "type": "string"
                 },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
-                },
                 "whatsappNumber": {
                     "type": "string"
                 }
@@ -5984,11 +5966,8 @@
         "responseModel.DressType": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "description": {
                     "type": "string"
@@ -6004,23 +5983,14 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
         "responseModel.Enquiry": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "customer": {
                     "$ref": "#/definitions/responseModel.Customer"
@@ -6051,12 +6021,6 @@
                 },
                 "subject": {
                     "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
@@ -6074,13 +6038,10 @@
         "responseModel.EnquiryHistory": {
             "type": "object",
             "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
                 "callBackDate": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "customerComment": {
@@ -6120,12 +6081,6 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
                     "type": "string"
                 },
                 "visitingDate": {
@@ -6171,11 +6126,8 @@
         "responseModel.Inventory": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "id": {
                     "type": "integer"
@@ -6211,22 +6163,16 @@
                 },
                 "updatedAt": {
                     "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
         "responseModel.InventoryLog": {
             "type": "object",
             "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
                 "changeType": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "id": {
@@ -6275,12 +6221,6 @@
                 "stockAfter": {
                     "description": "Stock quantity after this movement",
                     "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
@@ -6374,7 +6314,7 @@
                 "updatedAt": {
                     "type": "string"
                 },
-                "updatedById": {
+                "updatedBy": {
                     "type": "string"
                 }
             }
@@ -6385,13 +6325,10 @@
                 "action": {
                     "type": "string"
                 },
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
                 "changedValues": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "id": {
@@ -6420,12 +6357,6 @@
                 },
                 "performedById": {
                     "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
@@ -6593,12 +6524,6 @@
                 "changedFields": {
                     "type": "string"
                 },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
-                },
                 "deliveredDate": {
                     "type": "string"
                 },
@@ -6634,12 +6559,6 @@
                     "type": "integer"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
                     "type": "string"
                 }
             }
@@ -6735,12 +6654,6 @@
                 "age": {
                     "type": "integer"
                 },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
-                },
                 "customer": {
                     "$ref": "#/definitions/responseModel.Customer"
                 },
@@ -6767,18 +6680,15 @@
                     "items": {
                         "$ref": "#/definitions/responseModel.Measurement"
                     }
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
         "responseModel.Product": {
             "type": "object",
             "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
                 "category": {
                     "description": "Related data",
                     "allOf": [
@@ -6796,12 +6706,6 @@
                 },
                 "costPrice": {
                     "type": "number"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
                 },
                 "currentStock": {
                     "description": "From inventory",
@@ -6830,12 +6734,6 @@
                     "type": "number"
                 },
                 "sku": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
                     "type": "string"
                 }
             }
@@ -7139,12 +7037,6 @@
         "responseModel.User": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
-                },
                 "department": {
                     "type": "string"
                 },
@@ -7188,12 +7080,6 @@
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
                     "type": "string"
                 },
                 "userChannelDetails": {

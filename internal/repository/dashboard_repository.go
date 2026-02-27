@@ -26,7 +26,6 @@ func ProvideDashboardRepository(dal GormDAL) DashboardRepository {
 }
 
 func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID *uint) (*responseModel.TaskDashboardResponse, *errs.XError) {
-	db := dr.WithDB(ctx)
 	now := time.Now().Truncate(24 * time.Hour)
 	tomorrow := now.Add(24 * time.Hour)
 	sevenDaysLater := now.Add(7 * 24 * time.Hour)
@@ -36,7 +35,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	thirtyDaysAgo := now.Add(-30 * 24 * time.Hour)
 
 	baseTask := func() *gorm.DB {
-		q := db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive())
+		q := dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive())
 		if assigneeID != nil && *assigneeID != 0 {
 			q = q.Where("assigned_to_id = ?", *assigneeID)
 		}
@@ -49,8 +48,9 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	var overdue []entities.Task
 	tx := baseTask().Where("is_completed = ?", false).Where("due_date < ?", now)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&overdue).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard overdue tasks", err)
+	res := tx.Find(&overdue)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard overdue tasks", res.Error)
 	}
 	resp.OverdueTasks = buildTaskList(overdue)
 
@@ -58,8 +58,9 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	var dueToday []entities.Task
 	tx = baseTask().Where("is_completed = ?", false).Where("due_date >= ? AND due_date < ?", now, tomorrow)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&dueToday).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard due today", err)
+	res = tx.Find(&dueToday)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard due today", res.Error)
 	}
 	resp.DueToday = buildTaskList(dueToday)
 
@@ -67,8 +68,9 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	var dueNext7 []entities.Task
 	tx = baseTask().Where("is_completed = ?", false).Where("due_date >= ? AND due_date < ?", tomorrow, sevenDaysLater)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&dueNext7).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard due next 7 days", err)
+	res = tx.Find(&dueNext7)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard due next 7 days", res.Error)
 	}
 	resp.DueNext7Days = buildTaskList(dueNext7)
 
@@ -78,16 +80,17 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 		Count       int64
 	}
 	var byAssignee []assigneeCount
-	tx = baseTask().Where("is_completed = ?", false).Select("assigned_to_id, count(*) as count").Group("assigned_to_id")
-	if err := tx.Scan(&byAssignee).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard incomplete by assignee", err)
+	res = baseTask().Where("is_completed = ?", false).Select("assigned_to_id, count(*) as count").Group("assigned_to_id").Scan(&byAssignee)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard incomplete by assignee", res.Error)
 	}
 	resp.IncompleteByAssignee = make([]responseModel.AssigneeTaskCount, 0, len(byAssignee))
 	for _, r := range byAssignee {
 		name := ""
 		if r.AssignedToID != nil && *r.AssignedToID != 0 {
 			var u entities.User
-			if db.Table("\"stich\".\"Users\"").Select("id, first_name, last_name").First(&u, *r.AssignedToID).Error == nil {
+			res := dr.WithDB(ctx).Model(&entities.User{}).Select("id", "first_name", "last_name").First(&u, *r.AssignedToID)
+			if res.Error == nil {
 				name = u.FirstName + " " + u.LastName
 			}
 		}
@@ -102,8 +105,9 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	var highPrio []entities.Task
 	tx = baseTask().Where("is_completed = ?", false).Where("priority IS NOT NULL AND priority > 0")
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&highPrio).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard high priority", err)
+	res = tx.Find(&highPrio)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard high priority", res.Error)
 	}
 	resp.HighPriorityIncomplete = buildTaskList(highPrio)
 
@@ -111,21 +115,34 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	var reminders []entities.Task
 	tx = baseTask().Where("reminder_date IS NOT NULL AND reminder_date >= ? AND reminder_date <= ?", reminderStart, reminderEnd)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&reminders).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard reminders", err)
+	res = tx.Find(&reminders)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard reminders", res.Error)
 	}
 	resp.UpcomingReminders = buildTaskList(reminders)
 
 	// 7. Completion rate (last 7 and 30 days)
 	var completed7, total7, completed30, total30 int64
-	db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("completed_at >= ?", sevenDaysAgo).Where("is_completed = ?", true).Count(&completed7)
-	db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard completion rate 7d", res.Error)
+	}
+	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("created_at >= ?", sevenDaysAgo).Count(&total7)
-	db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard total 7d", res.Error)
+	}
+	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("completed_at >= ?", thirtyDaysAgo).Where("is_completed = ?", true).Count(&completed30)
-	db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard completion rate 30d", res.Error)
+	}
+	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("created_at >= ?", thirtyDaysAgo).Count(&total30)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard total 30d", res.Error)
+	}
 
 	resp.CompletionRate = responseModel.CompletionRateStat{
 		Last7Days:  responseModel.CompletionRateWindow{Completed: int(completed7), Total: int(total7), Percent: percent(int(completed7), int(total7))},
@@ -134,14 +151,15 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 
 	// 8. Recent completions (last 10)
 	var recent []entities.Task
-	tx = db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	tx = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("is_completed = ?", true).Where("completed_at IS NOT NULL").Order("completed_at DESC").Limit(10)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
 	if assigneeID != nil && *assigneeID != 0 {
 		tx = tx.Where("assigned_to_id = ?", *assigneeID)
 	}
-	if err := tx.Find(&recent).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard recent completions", err)
+	res = tx.Find(&recent)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard recent completions", res.Error)
 	}
 	resp.RecentCompletions = taskSummaries(recent)
 
@@ -191,23 +209,28 @@ func (dr *dashboardRepository) GetOrderDashboard(ctx *context.Context, from, to 
 		to = &now
 	}
 
-	baseOrder := func() *gorm.DB {
-		return db.Model(&entities.Order{}).
+	// Base query for Order: new session each call so aggregation (Group) never leaks into list queries.
+	orderBase := func() *gorm.DB {
+		return dr.WithDB(ctx).Model(&entities.Order{}).Scopes(scopes.Channel(), scopes.IsActive())
+	}
+	// Base with order_value/order_quantity subqueries for list queries that need OrderValue.
+	orderBaseWithValue := func() *gorm.DB {
+		return orderBase().
 			Select(`"stich"."Orders".*,
 				(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_quantity,
-				(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`).
-			Scopes(scopes.Channel(), scopes.IsActive())
+				(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`)
 	}
 
 	resp := &responseModel.OrderDashboardResponse{}
 
-	// 1. Orders by status
+	// 1. Orders by status (aggregation: no need for order_value subquery)
 	var statusCounts []struct {
 		Status string
 		Count  int64
 	}
-	if err := baseOrder().Select("status, count(*) as count").Group("status").Scan(&statusCounts).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard orders by status", err)
+	res := orderBase().Select("status", "count(*) as count").Group("status").Scan(&statusCounts)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard orders by status", res.Error)
 	}
 	resp.OrdersByStatus = make([]responseModel.StatusCountStat, 0, len(statusCounts))
 	for _, s := range statusCounts {
@@ -216,18 +239,20 @@ func (dr *dashboardRepository) GetOrderDashboard(ctx *context.Context, from, to 
 
 	// 2. Overdue / at-risk (ExpectedDeliveryDate passed or soon, status not DELIVERED)
 	var atRisk []entities.Order
-	tx := baseOrder().Where("status != ?", entities.DELIVERED).Where("expected_delivery_date IS NOT NULL AND expected_delivery_date <= ?", weekEnd)
+	tx := orderBaseWithValue().Where("status != ?", entities.DELIVERED).Where("expected_delivery_date IS NOT NULL AND expected_delivery_date <= ?", weekEnd)
 	tx = tx.Preload("Customer", scopes.SelectFields("first_name", "last_name")).
 		Preload("OrderTakenBy", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&atRisk).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard at-risk orders", err)
+	res = tx.Find(&atRisk)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard at-risk orders", res.Error)
 	}
 	resp.OverdueAtRiskOrders = orderListFromEntities(atRisk)
 
 	// 3. Revenue in period (OrderValue + AdditionalCharges, by CreatedAt)
 	var ordersInPeriod []entities.Order
-	if err := baseOrder().Where("created_at >= ? AND created_at <= ?", from, to).Find(&ordersInPeriod).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard revenue", err)
+	res = orderBaseWithValue().Where("created_at >= ? AND created_at <= ?", from, to).Find(&ordersInPeriod)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard revenue", res.Error)
 	}
 	for _, o := range ordersInPeriod {
 		resp.RevenueInPeriod += o.OrderValue + o.AdditionalCharges
@@ -235,38 +260,42 @@ func (dr *dashboardRepository) GetOrderDashboard(ctx *context.Context, from, to 
 
 	// 4. Deliveries due this week
 	var dueThisWeek []entities.Order
-	tx = baseOrder().Where("expected_delivery_date >= ? AND expected_delivery_date < ?", now, weekEnd)
+	tx = orderBaseWithValue().Where("expected_delivery_date >= ? AND expected_delivery_date < ?", now, weekEnd)
 	tx = tx.Preload("Customer", scopes.SelectFields("first_name", "last_name")).
 		Preload("OrderTakenBy", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&dueThisWeek).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard deliveries due", err)
+	res = tx.Find(&dueThisWeek)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard deliveries due", res.Error)
 	}
 	resp.DeliveriesDueThisWeek = orderListFromEntities(dueThisWeek)
 
 	// 5. Recent deliveries (last 30 days)
 	var recentDel []entities.Order
-	tx = baseOrder().Where("delivered_date IS NOT NULL AND delivered_date >= ?", thirtyDaysAgo)
+	tx = orderBaseWithValue().Where("delivered_date IS NOT NULL AND delivered_date >= ?", thirtyDaysAgo)
 	tx = tx.Preload("Customer", scopes.SelectFields("first_name", "last_name")).
 		Preload("OrderTakenBy", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&recentDel).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard recent deliveries", err)
+	res = tx.Find(&recentDel)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard recent deliveries", res.Error)
 	}
 	resp.RecentDeliveries = orderListFromEntities(recentDel)
 
-	// 6. Orders taken by user
+	// 6. Orders taken by user (aggregation)
 	var byUser []struct {
 		OrderTakenById *uint
 		Count         int64
 	}
-	if err := baseOrder().Select("order_taken_by_id, count(*) as count").Group("order_taken_by_id").Scan(&byUser).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard orders by user", err)
+	res = orderBase().Select("order_taken_by_id", "count(*) as count").Group("order_taken_by_id").Scan(&byUser)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard orders by user", res.Error)
 	}
 	resp.OrdersByTakenBy = make([]responseModel.UserOrderCount, 0, len(byUser))
 	for _, r := range byUser {
 		name := ""
 		if r.OrderTakenById != nil && *r.OrderTakenById != 0 {
 			var u entities.User
-			if db.Table("\"stich\".\"Users\"").Select("id, first_name, last_name").First(&u, *r.OrderTakenById).Error == nil {
+			res := dr.WithDB(ctx).Model(&entities.User{}).Select("id", "first_name", "last_name").First(&u, *r.OrderTakenById)
+			if res.Error == nil {
 				name = u.FirstName + " " + u.LastName
 			}
 		}
@@ -279,8 +308,9 @@ func (dr *dashboardRepository) GetOrderDashboard(ctx *context.Context, from, to 
 
 	// 7. Order count in period
 	var countInPeriod int64
-	if err := baseOrder().Where("created_at >= ? AND created_at <= ?", from, to).Count(&countInPeriod).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard order count", err)
+	res = orderBase().Where("created_at >= ? AND created_at <= ?", from, to).Count(&countInPeriod)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard order count", res.Error)
 	}
 	resp.OrderCountInPeriod = int(countInPeriod)
 
@@ -289,8 +319,9 @@ func (dr *dashboardRepository) GetOrderDashboard(ctx *context.Context, from, to 
 	tx = db.Model(&entities.OrderHistory{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Order("performed_at DESC").Limit(20).
 		Preload("PerformedBy", scopes.SelectFields("first_name", "last_name"))
-	if err := tx.Find(&histories).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "dashboard order activity", err)
+	res = tx.Find(&histories)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard order activity", res.Error)
 	}
 	resp.RecentOrderActivity = make([]responseModel.OrderActivityItem, 0, len(histories))
 	for _, h := range histories {
@@ -338,7 +369,6 @@ func orderListFromEntities(orders []entities.Order) responseModel.OrderDashboard
 }
 
 func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to *time.Time) (*responseModel.StatsDashboardResponse, *errs.XError) {
-	db := dr.WithDB(ctx)
 	now := time.Now().Truncate(24 * time.Hour)
 	thirtyDaysAgo := now.Add(-30 * 24 * time.Hour)
 	if from == nil {
@@ -352,15 +382,16 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 
 	// 1. Revenue (delivered) in period
 	var deliveredOrders []entities.Order
-	tx := db.Model(&entities.Order{}).
+	tx := dr.WithDB(ctx).Model(&entities.Order{}).
 		Select(`"stich"."Orders".*,
 			(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_quantity,
 			(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("status = ?", entities.DELIVERED).
 		Where("delivered_date >= ? AND delivered_date <= ?", from, to)
-	if err := tx.Find(&deliveredOrders).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats revenue", err)
+	res := tx.Find(&deliveredOrders)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats revenue", res.Error)
 	}
 	for _, o := range deliveredOrders {
 		resp.RevenueInPeriod += o.OrderValue + o.AdditionalCharges
@@ -368,14 +399,15 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 
 	// 2. Order pipeline value (not CANCELLED/DELIVERED)
 	var pipelineOrders []entities.Order
-	if err := db.Model(&entities.Order{}).
+	res = dr.WithDB(ctx).Model(&entities.Order{}).
 		Select(`"stich"."Orders".*,
 			(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_quantity,
 			(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("status NOT IN ?", []entities.OrderStatus{entities.DELIVERED, entities.CANCELLED}).
-		Find(&pipelineOrders).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats pipeline", err)
+		Find(&pipelineOrders)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats pipeline", res.Error)
 	}
 	for _, o := range pipelineOrders {
 		resp.OrderPipelineValue += o.OrderValue + o.AdditionalCharges
@@ -386,9 +418,13 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 		Status string
 		Count  int64
 	}
-	if err := db.Model(&entities.Enquiry{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Select("status, count(*) as count").Group("status").Scan(&enqStatus).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats enquiries by status", err)
+	res = dr.WithDB(ctx).Table(`"stich"."Enquiries"`).
+		Scopes(scopes.Channel(), scopes.IsActive()).
+		Select("status", "count(*) as count").
+		Group("status").
+		Scan(&enqStatus)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats enquiries by status", res.Error)
 	}
 	resp.EnquiriesByStatus = make([]responseModel.StatusCountStat, 0, len(enqStatus))
 	for _, s := range enqStatus {
@@ -400,15 +436,23 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 		Enquiries int64
 		Orders    int64
 	}
-	db.Model(&entities.Enquiry{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	res = dr.WithDB(ctx).Table(`"stich"."Enquiries"`).
+		Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("created_at >= ? AND created_at <= ?", from, to).
-		Select("COUNT(DISTINCT customer_id)").Scan(&enquiryConv.Enquiries)
-	sub := db.Model(&entities.Enquiry{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("created_at >= ? AND created_at <= ?", from, to).Select("customer_id")
-	if err := db.Model(&entities.Order{}).Scopes(scopes.Channel(), scopes.IsActive()).
+		Select("COUNT(DISTINCT customer_id) as enquiries").
+		Scan(&enquiryConv)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats enquiry count", res.Error)
+	}
+	sub := dr.WithDB(ctx).Table(`"stich"."Enquiries"`).
+		Scopes(scopes.Channel(), scopes.IsActive()).
+		Where("created_at >= ? AND created_at <= ?", from, to).
+		Select("customer_id")
+	res = dr.WithDB(ctx).Model(&entities.Order{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("customer_id IN (?)", sub).Where("created_at >= ? AND created_at <= ?", from, to).
-		Count(&enquiryConv.Orders).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats enquiry conversion", err)
+		Count(&enquiryConv.Orders)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats enquiry conversion", res.Error)
 	}
 	resp.EnquiryOrderConversion = &responseModel.EnquiryConversionStat{
 		EnquiriesInPeriod: int(enquiryConv.Enquiries),
@@ -417,27 +461,35 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 
 	// 5. Expense total in period
 	var expenseTotal float64
-	if err := db.Model(&entities.Expense{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	res = dr.WithDB(ctx).Model(&entities.Expense{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("purchase_date >= ? AND purchase_date <= ?", from, to).
-		Select("COALESCE(SUM(price), 0)").Scan(&expenseTotal).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats expenses", err)
+		Select("COALESCE(SUM(price), 0)").Scan(&expenseTotal)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats expenses", res.Error)
 	}
 	resp.ExpenseTotalInPeriod = expenseTotal
 
 	// 6. New customers in period
 	var newCustomers int64
-	if err := db.Model(&entities.Customer{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("created_at >= ? AND created_at <= ?", from, to).Count(&newCustomers).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats new customers", err)
+	res = dr.WithDB(ctx).Model(&entities.Customer{}).Scopes(scopes.Channel(), scopes.IsActive()).
+		Where("created_at >= ? AND created_at <= ?", from, to).Count(&newCustomers)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats new customers", res.Error)
 	}
 	resp.NewCustomersInPeriod = int(newCustomers)
 
 	// 7. Task completion in period
 	var taskCompleted, taskTotal int64
-	db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("completed_at >= ? AND completed_at <= ?", from, to).Where("is_completed = ?", true).Count(&taskCompleted)
-	db.Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats task completed", res.Error)
+	}
+	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("created_at >= ? AND created_at <= ?", from, to).Count(&taskTotal)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats task total", res.Error)
+	}
 	resp.TaskCompletionInPeriod = &responseModel.CompletionRateStat{
 		Last7Days:  responseModel.CompletionRateWindow{},
 		Last30Days: responseModel.CompletionRateWindow{Completed: int(taskCompleted), Total: int(taskTotal), Percent: percent(int(taskCompleted), int(taskTotal))},
@@ -445,11 +497,12 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 
 	// 8. Low-stock items
 	var lowStock []entities.Inventory
-	if err := db.Model(&entities.Inventory{}).Scopes(scopes.Channel(), scopes.IsActive()).
+	res = dr.WithDB(ctx).Model(&entities.Inventory{}).Scopes(scopes.Channel(), scopes.IsActive()).
 		Where("quantity <= low_stock_threshold").
 		Preload("Product").Preload("Product.Category").
-		Find(&lowStock).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats low stock", err)
+		Find(&lowStock)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats low stock", res.Error)
 	}
 	resp.LowStockItems = make([]responseModel.LowStockItem, 0, len(lowStock))
 	for _, i := range lowStock {
@@ -478,9 +531,14 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 		Source string
 		Count  int64
 	}
-	if err := db.Model(&entities.Enquiry{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("source != ''").Select("source, count(*) as count").Group("source").Scan(&bySource).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats enquiries by source", err)
+	res = dr.WithDB(ctx).Table(`"stich"."Enquiries"`).
+		Scopes(scopes.Channel(), scopes.IsActive()).
+		Where("source != ''").
+		Select("source", "count(*) as count").
+		Group("source").
+		Scan(&bySource)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats enquiries by source", res.Error)
 	}
 	resp.EnquiriesBySource = make([]responseModel.SourceCountStat, 0, len(bySource))
 	for _, s := range bySource {
@@ -492,10 +550,16 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 		ReferredBy string
 		Count     int64
 	}
-	if err := db.Model(&entities.Enquiry{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("referred_by != ''").Select("referred_by, count(*) as count").Group("referred_by").Order("count DESC").Limit(10).
-		Scan(&referrers).Error; err != nil {
-		return nil, errs.NewXError(errs.DATABASE, "stats top referrers", err)
+	res = dr.WithDB(ctx).Table(`"stich"."Enquiries"`).
+		Scopes(scopes.Channel(), scopes.IsActive()).
+		Where("referred_by != ''").
+		Select("referred_by", "count(*) as count").
+		Group("referred_by").
+		Order("count DESC").
+		Limit(10).
+		Scan(&referrers)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "stats top referrers", res.Error)
 	}
 	resp.TopReferrers = make([]responseModel.ReferrerCountStat, 0, len(referrers))
 	for _, r := range referrers {
