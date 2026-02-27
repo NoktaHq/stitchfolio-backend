@@ -1,10 +1,13 @@
 package scopes
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/loop-kar/pixie/constants"
+	"github.com/loop-kar/pixie/log"
 	"github.com/loop-kar/pixie/util"
 	"github.com/thoas/go-funk"
 	"gorm.io/gorm"
@@ -23,11 +26,13 @@ func IsActive(params ...string) func(db *gorm.DB) *gorm.DB {
 				return db.Where("is_active")
 			}
 
-			stmt := &gorm.Statement{DB: db}
-			if err := stmt.Parse(db.Statement.Model); err != nil {
+			tableName, err := getTableName(db)
+			if err != nil {
+				ctx := context.Background()
+				log.Error(&ctx, err)
 				return db
 			}
-			tableName := stmt.Schema.Table
+
 			return db.Where(fmt.Sprintf("%s.is_active", tableName), true)
 		}
 	}
@@ -182,11 +187,13 @@ func SelectFields(params ...string) func(db *gorm.DB) *gorm.DB {
 func WithAuditInfo() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 
-		stmt := &gorm.Statement{DB: db}
-		if err := stmt.Parse(db.Statement.Model); err != nil {
+		tableName, err := getTableSQL(db)
+		if err != nil {
+			ctx := context.Background()
+			log.Error(&ctx, err)
 			return db
 		}
-		tableName := stmt.TableExpr.SQL
+
 		return db.
 			Joins(`LEFT JOIN "stich"."Users" cu ON cu.id = ` + tableName + `.created_by_id`).
 			Joins(`LEFT JOIN "stich"."Users" uu ON uu.id = ` + tableName + `.updated_by_id`).
@@ -196,4 +203,26 @@ func WithAuditInfo() func(db *gorm.DB) *gorm.DB {
 				COALESCE(uu.first_name || ' ' || uu.last_name, '') AS updated_by
 			`)
 	}
+}
+
+func getTableName(db *gorm.DB) (string, error) {
+	stmt := &gorm.Statement{DB: db}
+	if db.Statement.Model == nil {
+		return "", errors.New("Missing Model in Statement")
+	}
+	if err := stmt.Parse(db.Statement.Model); err != nil {
+		return "", err
+	}
+	return stmt.Schema.Table, nil
+}
+
+func getTableSQL(db *gorm.DB) (string, error) {
+	stmt := &gorm.Statement{DB: db}
+	if db.Statement.Model == nil {
+		return "", errors.New("Missing Model in Statement")
+	}
+	if err := stmt.Parse(db.Statement.Model); err != nil {
+		return "", err
+	}
+	return stmt.TableExpr.SQL, nil
 }
