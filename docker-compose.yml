@@ -1,5 +1,6 @@
-# Backend + nginx (HTTPS). Set ENV_FILE_PATH, CONFIG_FILE, NGINX_HTTP_PORT, NGINX_HTTPS_PORT, SSL_CERT_DIR.
-# See .env.example and .github/DEPLOYMENT.md.
+# Stitchfolio backend only. Traefik (run from infra repo) does TLS and path routing.
+# Set ENV_FILE_PATH, CONFIG_FILE, COMPOSE_PROJECT, TRAEFIK_ROUTER_NAME, TRAEFIK_RULE via .env (written by CI).
+# Join network noktahq_web so Traefik can route to this service.
 
 services:
   backend:
@@ -7,17 +8,15 @@ services:
     env_file: ${ENV_FILE_PATH}
     command: ["./app", "--configFile", "./config/${CONFIG_FILE}"]
     restart: unless-stopped
-    # No host ports; nginx is the only entrypoint.
+    networks:
+      - noktahq_web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=${TRAEFIK_RULE}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=${TRAEFIK_ROUTER_NAME}"
+      - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=9000"
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "${NGINX_HTTP_PORT:-80}:80"
-      - "${NGINX_HTTPS_PORT:-443}:443"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ${SSL_CERT_DIR}:/etc/nginx/ssl:ro
-      - /etc/letsencrypt/archive:/etc/archive:ro
-    depends_on:
-      - backend
-    restart: unless-stopped
+networks:
+  noktahq_web:
+    external: true

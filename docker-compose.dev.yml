@@ -1,0 +1,14 @@
+# Override for Stitchfolio dev: strip /api/sf/dev/v1 -> /api/sf/v1 so app sees same path.
+# Use: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  backend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=${TRAEFIK_RULE}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=${TRAEFIK_ROUTER_NAME}-strip"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=${TRAEFIK_ROUTER_NAME}"
+      - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.regex=^/api/sf/dev/v1(.*)"
+      - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.replacement=/api/sf/v1$${1}"

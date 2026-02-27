@@ -1,5 +1,4 @@
-# Deploy backend + nginx to production on push/merge to main
-# Uses /stitchfolio/env/.prod.env and docker-compose (backend + nginx).
+# Deploy Stitchfolio backend (prod) to VPC. Traefik at infra level does TLS and routes /api/sf/v1.
 
 name: Deploy Main
 
@@ -14,10 +13,10 @@ env:
   DEPLOY_PATH: "/stitchfolio/backend-prod"
   ENV_FILE: "/root/stitchfolio_env/prod.env"
   CONFIG_FILE: "prod.yaml"
-  NGINX_HTTP_PORT: "80"
-  NGINX_HTTPS_PORT: "443"
   COMPOSE_PROJECT: "stitchfolio-prod"
   BRANCH: "main"
+  TRAEFIK_ROUTER_NAME: "stitchfolio-prod"
+  TRAEFIK_RULE: "PathPrefix(`/api/sf/v1`)"
 
 jobs:
   deploy:
@@ -38,7 +37,7 @@ jobs:
             set -e
             export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:$PATH"
             if ! command -v docker >/dev/null 2>&1; then
-              echo "ERROR: docker not found. Install Docker on the server and ensure it is in PATH."
+              echo "ERROR: docker not found."
               exit 1
             fi
             DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
@@ -46,7 +45,6 @@ jobs:
             REPO_URL="git@github.com:${{ github.repository }}.git"
 
             if [ ! -d "$DEPLOY_PATH" ]; then
-              echo "Deploy path not found. Creating and cloning..."
               mkdir -p /stitchfolio
               git clone "$REPO_URL" "$DEPLOY_PATH"
               cd "$DEPLOY_PATH"
@@ -55,7 +53,6 @@ jobs:
               cd "$DEPLOY_PATH"
             fi
 
-            echo "Pulling latest from $BRANCH..."
             git fetch origin "$BRANCH"
             git checkout "$BRANCH"
             git pull origin "$BRANCH"
@@ -63,14 +60,12 @@ jobs:
             echo "Writing .env for compose..."
             echo "ENV_FILE_PATH=${{ env.ENV_FILE }}" > .env
             echo "CONFIG_FILE=${{ env.CONFIG_FILE }}" >> .env
-            echo "NGINX_HTTP_PORT=${{ env.NGINX_HTTP_PORT }}" >> .env
-            echo "NGINX_HTTPS_PORT=${{ env.NGINX_HTTPS_PORT }}" >> .env
-            if [ -f .env.ssl ]; then cat .env.ssl >> .env; fi
+            echo "COMPOSE_PROJECT=${{ env.COMPOSE_PROJECT }}" >> .env
+            echo "TRAEFIK_ROUTER_NAME=${{ env.TRAEFIK_ROUTER_NAME }}" >> .env
+            echo "TRAEFIK_RULE=${{ env.TRAEFIK_RULE }}" >> .env
 
-            echo "Building and starting with Docker Compose..."
+            echo "Building and starting backend (Traefik routes /api/sf/v1)..."
             docker compose -p ${{ env.COMPOSE_PROJECT }} build --no-cache
-
-            echo "Starting backend + nginx..."
             docker compose -p ${{ env.COMPOSE_PROJECT }} up -d
 
             echo "Production deployment complete."
