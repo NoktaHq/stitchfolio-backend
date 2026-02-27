@@ -823,10 +823,8 @@ definitions:
     type: object
   responseModel.Category:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       id:
         type: integer
       isActive:
@@ -836,10 +834,6 @@ definitions:
       productCount:
         description: Count of products in this category
         type: integer
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.CategoryAutoComplete:
     properties:
@@ -915,10 +909,8 @@ definitions:
     properties:
       address:
         type: string
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       email:
         type: string
       enquiries:
@@ -943,10 +935,6 @@ definitions:
         type: array
       phoneNumber:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
       whatsappNumber:
         type: string
     type: object
@@ -965,10 +953,8 @@ definitions:
     type: object
   responseModel.DressType:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       description:
         type: string
       id:
@@ -979,17 +965,11 @@ definitions:
         type: string
       name:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.Enquiry:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       customer:
         $ref: '#/definitions/responseModel.Customer'
       customerId:
@@ -1010,10 +990,6 @@ definitions:
         type: string
       subject:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.EnquiryConversionStat:
     properties:
@@ -1024,11 +1000,9 @@ definitions:
     type: object
   responseModel.EnquiryHistory:
     properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       callBackDate:
-        type: string
-      createdAt:
-        type: string
-      createdBy:
         type: string
       customerComment:
         type: string
@@ -1055,10 +1029,6 @@ definitions:
       responseStatus:
         type: string
       status:
-        type: string
-      updatedAt:
-        type: string
-      updatedBy:
         type: string
       visitingDate:
         type: string
@@ -1088,10 +1058,8 @@ definitions:
     type: object
   responseModel.Inventory:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       id:
         type: integer
       isActive:
@@ -1114,16 +1082,12 @@ definitions:
         type: integer
       updatedAt:
         type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.InventoryLog:
     properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       changeType:
-        type: string
-      createdAt:
-        type: string
-      createdBy:
         type: string
       id:
         type: integer
@@ -1156,10 +1120,6 @@ definitions:
       stockAfter:
         description: Stock quantity after this movement
         type: integer
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.LowStockItem:
     properties:
@@ -1221,18 +1181,16 @@ definitions:
         type: string
       updatedAt:
         type: string
-      updatedById:
+      updatedBy:
         type: string
     type: object
   responseModel.MeasurementHistory:
     properties:
       action:
         type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       changedValues:
-        type: string
-      createdAt:
-        type: string
-      createdBy:
         type: string
       id:
         type: integer
@@ -1252,10 +1210,6 @@ definitions:
         $ref: '#/definitions/responseModel.User'
       performedById:
         type: integer
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.Order:
     properties:
@@ -1364,10 +1318,6 @@ definitions:
         type: string
       changedFields:
         type: string
-      createdAt:
-        type: string
-      createdBy:
-        type: string
       deliveredDate:
         type: string
       expectedDeliveryDate:
@@ -1392,10 +1342,6 @@ definitions:
       performedById:
         type: integer
       status:
-        type: string
-      updatedAt:
-        type: string
-      updatedBy:
         type: string
     type: object
   responseModel.OrderItem:
@@ -1458,10 +1404,6 @@ definitions:
     properties:
       age:
         type: integer
-      createdAt:
-        type: string
-      createdBy:
-        type: string
       customer:
         $ref: '#/definitions/responseModel.Customer'
       customerId:
@@ -1480,13 +1422,11 @@ definitions:
         items:
           $ref: '#/definitions/responseModel.Measurement'
         type: array
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.Product:
     properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       category:
         allOf:
         - $ref: '#/definitions/responseModel.Category'
@@ -1498,10 +1438,6 @@ definitions:
         type: string
       costPrice:
         type: number
-      createdAt:
-        type: string
-      createdBy:
-        type: string
       currentStock:
         description: From inventory
         type: integer
@@ -1521,10 +1457,6 @@ definitions:
       sellingPrice:
         type: number
       sku:
-        type: string
-      updatedAt:
-        type: string
-      updatedBy:
         type: string
     type: object
   responseModel.ProductAutoComplete:
@@ -1716,10 +1648,6 @@ definitions:
     type: object
   responseModel.User:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
       department:
         type: string
       email:
@@ -1749,10 +1677,6 @@ definitions:
       resetPasswordString:
         type: string
       role:
-        type: string
-      updatedAt:
-        type: string
-      updatedBy:
         type: string
       userChannelDetails:
         items:
