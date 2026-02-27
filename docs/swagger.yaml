@@ -397,12 +397,29 @@ definitions:
       visitingDate:
         type: string
     type: object
+  requestModel.ExpenseDetail:
+    properties:
+      expenseId:
+        type: integer
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      price:
+        type: number
+      source:
+        type: string
+    type: object
   requestModel.ExpenseTracker:
     properties:
       billNumber:
         type: string
       companyName:
         type: string
+      expenseDetails:
+        items:
+          $ref: '#/definitions/requestModel.ExpenseDetail'
+        type: array
       id:
         type: integer
       isActive:
@@ -1033,6 +1050,21 @@ definitions:
       visitingDate:
         type: string
     type: object
+  responseModel.ExpenseDetail:
+    properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
+      expenseId:
+        type: integer
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      price:
+        type: number
+      source:
+        type: string
+    type: object
   responseModel.ExpenseTracker:
     properties:
       auditFields:
@@ -1041,6 +1073,10 @@ definitions:
         type: string
       companyName:
         type: string
+      expenseDetails:
+        items:
+          $ref: '#/definitions/responseModel.ExpenseDetail'
+        type: array
       id:
         type: integer
       isActive:
@@ -2638,6 +2674,79 @@ paths:
       summary: Update Enquiry and Customer
       tags:
       - Enquiry
+  /expense-detail/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an expense detail
+      parameters:
+      - description: ExpenseDetail id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete ExpenseDetail
+      tags:
+      - ExpenseDetail
+    get:
+      consumes:
+      - application/json
+      description: Get an expense detail by id
+      parameters:
+      - description: ExpenseDetail id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.ExpenseDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.DataResponse'
+      summary: Get ExpenseDetail
+      tags:
+      - ExpenseDetail
+    put:
+      consumes:
+      - application/json
+      description: Updates an expense detail
+      parameters:
+      - description: ExpenseDetail id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: expense detail
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.ExpenseDetail'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update ExpenseDetail
+      tags:
+      - ExpenseDetail
   /expense-tracker:
     get:
       consumes:
@@ -2687,6 +2796,59 @@ paths:
       summary: Save ExpenseTracker
       tags:
       - ExpenseTracker
+  /expense-tracker/{expenseId}/expense-detail:
+    get:
+      consumes:
+      - application/json
+      description: Get all expense details for an expense
+      parameters:
+      - description: Expense id
+        in: path
+        name: expenseId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.ExpenseDetail'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.DataResponse'
+      summary: Get expense details by expense id
+      tags:
+      - ExpenseDetail
+    post:
+      consumes:
+      - application/json
+      description: Saves an expense detail for an expense
+      parameters:
+      - description: Expense id
+        in: path
+        name: expenseId
+        required: true
+        type: integer
+      - description: expense detail
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.ExpenseDetail'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Save ExpenseDetail
+      tags:
+      - ExpenseDetail
   /expense-tracker/{id}:
     delete:
       consumes:

@@ -12,6 +12,8 @@ type Expense struct {
 	Price        float64    `json:"price,omitempty"`
 	Location     *string    `json:"location,omitempty"`
 	Notes        *string    `json:"notes,omitempty"`
+
+	ExpenseDetails []ExpenseDetail `gorm:"foreignKey:ExpenseId" json:"expenseDetails,omitempty"`
 }
 
 func (Expense) TableNameForQuery() string {

@@ -19,6 +19,7 @@ type BaseHandler struct {
 	MeasurementHistoryHandler *handler.MeasurementHistoryHandler
 	EnquiryHistoryHandler     *handler.EnquiryHistoryHandler
 	ExpenseTrackerHandler     *handler.ExpenseTrackerHandler
+	ExpenseDetailHandler     *handler.ExpenseDetailHandler
 	TaskHandler               *handler.TaskHandler
 	CategoryHandler           *handler.CategoryHandler
 	ProductHandler            *handler.ProductHandler
@@ -43,6 +44,7 @@ func ProvideBaseHandler(health Health,
 	measurementHistoryHandler *handler.MeasurementHistoryHandler,
 	enquiryHistoryHandler *handler.EnquiryHistoryHandler,
 	expenseTrackerHandler *handler.ExpenseTrackerHandler,
+	expenseDetailHandler *handler.ExpenseDetailHandler,
 	taskHandler *handler.TaskHandler,
 	categoryHandler *handler.CategoryHandler,
 	productHandler *handler.ProductHandler,
@@ -67,6 +69,7 @@ func ProvideBaseHandler(health Health,
 		MeasurementHistoryHandler: measurementHistoryHandler,
 		EnquiryHistoryHandler:     enquiryHistoryHandler,
 		ExpenseTrackerHandler:     expenseTrackerHandler,
+		ExpenseDetailHandler:     expenseDetailHandler,
 		TaskHandler:               taskHandler,
 		CategoryHandler:           categoryHandler,
 		ProductHandler:            productHandler,

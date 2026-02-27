@@ -221,6 +221,16 @@ func InitRouter(handler baseHandler.BaseHandler, newRelic *newrelic.Application,
 			expenseTrackerEndpoints.GET(":id", handler.ExpenseTrackerHandler.Get)
 			expenseTrackerEndpoints.GET("", handler.ExpenseTrackerHandler.GetAllExpenseTrackers)
 			expenseTrackerEndpoints.DELETE(":id", handler.ExpenseTrackerHandler.Delete)
+
+			expenseTrackerEndpoints.GET(":expenseId/expense-detail", handler.ExpenseDetailHandler.GetByExpenseId)
+			expenseTrackerEndpoints.POST(":expenseId/expense-detail", handler.ExpenseDetailHandler.Save)
+		}
+
+		expenseDetailEndpoints := appRouter.Group("expense-detail", router.VerifyJWT(srvConfig.JwtSecretKey))
+		{
+			expenseDetailEndpoints.GET(":id", handler.ExpenseDetailHandler.Get)
+			expenseDetailEndpoints.PUT(":id", handler.ExpenseDetailHandler.Update)
+			expenseDetailEndpoints.DELETE(":id", handler.ExpenseDetailHandler.Delete)
 		}
 
 		taskEndpoints := appRouter.Group("task", router.VerifyJWT(srvConfig.JwtSecretKey))

@@ -11,4 +11,14 @@ type ExpenseTracker struct {
 	Price        float64 `json:"price,omitempty"`
 	Location     *string `json:"location,omitempty"`
 	Notes        *string `json:"notes,omitempty"`
+
+	ExpenseDetails []ExpenseDetail `json:"expenseDetails,omitempty"`
+}
+
+type ExpenseDetail struct {
+	ID         uint    `json:"id,omitempty"`
+	IsActive   *bool   `json:"isActive,omitempty"`
+	Source     string  `json:"source,omitempty"`
+	Price      float64 `json:"price"`
+	ExpenseId  uint    `json:"expenseId,omitempty"`
 }

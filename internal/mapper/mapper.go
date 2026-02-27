@@ -27,6 +27,8 @@ type Mapper interface {
 	OrderHistory(e requestModel.OrderHistory) (*entities.OrderHistory, error)
 	MeasurementHistory(e requestModel.MeasurementHistory) (*entities.MeasurementHistory, error)
 	ExpenseTracker(e requestModel.ExpenseTracker) (*entities.Expense, error)
+	ExpenseDetail(e requestModel.ExpenseDetail) (*entities.ExpenseDetail, error)
+	ExpenseDetails(items []requestModel.ExpenseDetail) ([]entities.ExpenseDetail, error)
 	Task(e requestModel.Task) (*entities.Task, error)
 	Category(e requestModel.Category) (*entities.Category, error)
 	Product(e requestModel.Product) (*entities.Product, error)
@@ -430,16 +432,50 @@ func (m *mapper) ExpenseTracker(e requestModel.ExpenseTracker) (*entities.Expens
 		isActive = *e.IsActive
 	}
 
+	expenseDetails, err := m.ExpenseDetails(e.ExpenseDetails)
+	if err != nil {
+		return nil, err
+	}
+
 	return &entities.Expense{
-		Model:        &entities.Model{ID: e.ID, IsActive: isActive},
-		PurchaseDate: purchaseDate,
-		BillNumber:   e.BillNumber,
-		CompanyName:  e.CompanyName,
-		Material:     e.Material,
-		Price:        e.Price,
-		Location:     e.Location,
-		Notes:        e.Notes,
+		Model:           &entities.Model{ID: e.ID, IsActive: isActive},
+		PurchaseDate:   purchaseDate,
+		BillNumber:     e.BillNumber,
+		CompanyName:    e.CompanyName,
+		Material:       e.Material,
+		Price:          e.Price,
+		Location:       e.Location,
+		Notes:          e.Notes,
+		ExpenseDetails: expenseDetails,
 	}, nil
+}
+
+func (m *mapper) ExpenseDetail(e requestModel.ExpenseDetail) (*entities.ExpenseDetail, error) {
+	var isActive bool = true
+	if e.IsActive != nil {
+		isActive = *e.IsActive
+	}
+	return &entities.ExpenseDetail{
+		Model:      &entities.Model{ID: e.ID, IsActive: isActive},
+		Source:     e.Source,
+		Price:      e.Price,
+		ExpenseId:  e.ExpenseId,
+	}, nil
+}
+
+func (m *mapper) ExpenseDetails(items []requestModel.ExpenseDetail) ([]entities.ExpenseDetail, error) {
+	if len(items) == 0 {
+		return nil, nil
+	}
+	mapped := make([]entities.ExpenseDetail, 0, len(items))
+	for _, item := range items {
+		ent, err := m.ExpenseDetail(item)
+		if err != nil {
+			return nil, err
+		}
+		mapped = append(mapped, *ent)
+	}
+	return mapped, nil
 }
 
 func (m *mapper) Task(e requestModel.Task) (*entities.Task, error) {

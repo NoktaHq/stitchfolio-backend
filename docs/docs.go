@@ -1425,6 +1425,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/expense-detail/{id}": {
+            "get": {
+                "description": "Get an expense detail by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Get ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ExpenseDetail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.ExpenseDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates an expense detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Update ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ExpenseDetail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "expense detail",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.ExpenseDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an expense detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Delete ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ExpenseDetail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/expense-tracker": {
             "get": {
                 "description": "Get all active expense trackers",
@@ -1493,6 +1603,86 @@ const docTemplate = `{
                     },
                     "501": {
                         "description": "Not Implemented",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/expense-tracker/{expenseId}/expense-detail": {
+            "get": {
+                "description": "Get all expense details for an expense",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Get expense details by expense id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Expense id",
+                        "name": "expenseId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.ExpenseDetail"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.DataResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Saves an expense detail for an expense",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Save ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Expense id",
+                        "name": "expenseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "expense detail",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.ExpenseDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -5136,6 +5326,26 @@ const docTemplate = `{
                 }
             }
         },
+        "requestModel.ExpenseDetail": {
+            "type": "object",
+            "properties": {
+                "expenseId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
         "requestModel.ExpenseTracker": {
             "type": "object",
             "properties": {
@@ -5144,6 +5354,12 @@ const docTemplate = `{
                 },
                 "companyName": {
                     "type": "string"
+                },
+                "expenseDetails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/requestModel.ExpenseDetail"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -6095,6 +6311,29 @@ const docTemplate = `{
                 }
             }
         },
+        "responseModel.ExpenseDetail": {
+            "type": "object",
+            "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "expenseId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.ExpenseTracker": {
             "type": "object",
             "properties": {
@@ -6106,6 +6345,12 @@ const docTemplate = `{
                 },
                 "companyName": {
                     "type": "string"
+                },
+                "expenseDetails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.ExpenseDetail"
+                    }
                 },
                 "id": {
                     "type": "integer"

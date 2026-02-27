@@ -47,6 +47,8 @@ type ResponseMapper interface {
 	MeasurementHistories(items []entities.MeasurementHistory) ([]responseModel.MeasurementHistory, error)
 	ExpenseTracker(e *entities.Expense) (*responseModel.ExpenseTracker, error)
 	ExpenseTrackers(items []entities.Expense) ([]responseModel.ExpenseTracker, error)
+	ExpenseDetail(e *entities.ExpenseDetail) (*responseModel.ExpenseDetail, error)
+	ExpenseDetails(items []entities.ExpenseDetail) ([]responseModel.ExpenseDetail, error)
 	Task(e *entities.Task) (*responseModel.Task, error)
 	Tasks(items []entities.Task) ([]responseModel.Task, error)
 	Category(e *entities.Category) (*responseModel.Category, error)
@@ -649,18 +651,55 @@ func (m *responseMapper) ExpenseTracker(e *entities.Expense) (*responseModel.Exp
 		return nil, nil
 	}
 
+	expenseDetails, err := m.ExpenseDetails(e.ExpenseDetails)
+	if err != nil {
+		return nil, err
+	}
+
 	return &responseModel.ExpenseTracker{
-		ID:           e.ID,
-		IsActive:     e.IsActive,
-		PurchaseDate: e.PurchaseDate,
-		BillNumber:   e.BillNumber,
-		CompanyName:  e.CompanyName,
-		Material:     e.Material,
-		Price:        e.Price,
-		Location:     e.Location,
-		Notes:        e.Notes,
-		AuditFields:  responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
+		ID:              e.ID,
+		IsActive:        e.IsActive,
+		PurchaseDate:    e.PurchaseDate,
+		BillNumber:      e.BillNumber,
+		CompanyName:     e.CompanyName,
+		Material:        e.Material,
+		Price:           e.Price,
+		Location:        e.Location,
+		Notes:           e.Notes,
+		ExpenseDetails:  expenseDetails,
+		AuditFields:     responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
 	}, nil
+}
+
+func (m *responseMapper) ExpenseDetail(e *entities.ExpenseDetail) (*responseModel.ExpenseDetail, error) {
+	if e == nil {
+		return nil, nil
+	}
+	return &responseModel.ExpenseDetail{
+		ID:          e.ID,
+		IsActive:    e.IsActive,
+		Source:      e.Source,
+		Price:       e.Price,
+		ExpenseId:   e.ExpenseId,
+		AuditFields: responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
+	}, nil
+}
+
+func (m *responseMapper) ExpenseDetails(items []entities.ExpenseDetail) ([]responseModel.ExpenseDetail, error) {
+	if len(items) == 0 {
+		return nil, nil
+	}
+	result := make([]responseModel.ExpenseDetail, 0, len(items))
+	for i := range items {
+		mapped, err := m.ExpenseDetail(&items[i])
+		if err != nil {
+			return nil, err
+		}
+		if mapped != nil {
+			result = append(result, *mapped)
+		}
+	}
+	return result, nil
 }
 
 func (m *responseMapper) ExpenseTrackers(items []entities.Expense) ([]responseModel.ExpenseTracker, error) {
