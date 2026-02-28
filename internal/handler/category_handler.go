@@ -26,9 +26,9 @@ func ProvideCategoryHandler(svc service.CategoryService) *CategoryHandler {
 //	@Description	Saves an instance of Category
 //	@Tags			Category
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		500			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		500			{object}	responseModel.Response
 //	@Param			category	body		requestModel.Category	true	"category"
 //	@Router			/category [post]
 func (h CategoryHandler) SaveCategory(ctx *gin.Context) {
@@ -54,9 +54,9 @@ func (h CategoryHandler) SaveCategory(ctx *gin.Context) {
 //	@Description	Updates an instance of Category
 //	@Tags			Category
 //	@Accept			json
-//	@Success		202			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		500			{object}	response.Response
+//	@Success		202			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		500			{object}	responseModel.Response
 //	@Param			category	body		requestModel.Category	true	"category"
 //	@Param			id			path		int						true	"Category id"
 //	@Router			/category/{id} [put]
@@ -85,7 +85,7 @@ func (h CategoryHandler) UpdateCategory(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Category
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Category id"
 //	@Router			/category/{id} [get]
 func (h CategoryHandler) Get(ctx *gin.Context) {
@@ -107,7 +107,7 @@ func (h CategoryHandler) Get(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Category
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/category [get]
 func (h CategoryHandler) GetAllCategories(ctx *gin.Context) {
@@ -129,8 +129,8 @@ func (h CategoryHandler) GetAllCategories(ctx *gin.Context) {
 //	@Description	Deletes an instance of Category
 //	@Tags			Category
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"category id"
 //	@Router			/category/{id} [delete]
 func (h CategoryHandler) Delete(ctx *gin.Context) {
@@ -151,7 +151,7 @@ func (h CategoryHandler) Delete(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Success		200		{object}	responseModel.CategoryAutoComplete
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/category/autocomplete [get]
 func (h CategoryHandler) AutocompleteCategory(ctx *gin.Context) {

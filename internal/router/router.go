@@ -1,6 +1,9 @@
 package router
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/imkarthi24/sf-backend/internal/config"
@@ -30,10 +33,18 @@ func InitRouter(handler baseHandler.BaseHandler, newRelic *newrelic.Application,
 	g.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	docs.SwaggerInfo.Host = srvConfig.Host
+	if srvConfig.Port > 0 {
+		if srvConfig.Host == "" || srvConfig.Host == "localhost" || !strings.Contains(srvConfig.Host, ":") {
+			docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", srvConfig.Host, srvConfig.Port)
+		}
+	}
+	if len(docs.SwaggerInfo.Schemes) == 0 {
+		docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	}
 	appRouter := g.Group(constants.API_PREFIX_V1)
 	{
 		appRouter.GET(constants.HEALTH, handler.HealthHandler.Health)
-		appRouter.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		appRouter.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.PersistAuthorization(true)))
 
 		//**************NON JWT ENDPOINTS**************************//
 
@@ -222,8 +233,10 @@ func InitRouter(handler baseHandler.BaseHandler, newRelic *newrelic.Application,
 			expenseTrackerEndpoints.GET("", handler.ExpenseTrackerHandler.GetAllExpenseTrackers)
 			expenseTrackerEndpoints.DELETE(":id", handler.ExpenseTrackerHandler.Delete)
 
-			expenseTrackerEndpoints.GET(":expenseId/expense-detail", handler.ExpenseDetailHandler.GetByExpenseId)
-			expenseTrackerEndpoints.POST(":expenseId/expense-detail", handler.ExpenseDetailHandler.Save)
+			expenseTrackerEndpoints.GET(":id/expense-detail", handler.ExpenseDetailHandler.GetByExpenseId)
+			expenseTrackerEndpoints.POST(":id/expense-detail", handler.ExpenseDetailHandler.Save)
+			expenseTrackerEndpoints.PUT(":id/expense-detail/:detailId", handler.ExpenseDetailHandler.Update)
+			expenseTrackerEndpoints.DELETE(":id/expense-detail/:detailId", handler.ExpenseDetailHandler.Delete)
 		}
 
 		expenseDetailEndpoints := appRouter.Group("expense-detail", router.VerifyJWT(srvConfig.JwtSecretKey))

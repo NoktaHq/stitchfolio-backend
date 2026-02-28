@@ -31,9 +31,9 @@ func ProvideMasterConfigHandler(svc service.MasterConfigService) *MasterConfigHa
 //	@Description	Creates a new master config
 //	@Tags			MasterConfig
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			config	body		requestModel.MasterConfig	true	"Master Config"
 //	@Router			/masterConfig [post]
 func (h MasterConfigHandler) Create(ctx *gin.Context) {
@@ -61,9 +61,9 @@ func (h MasterConfigHandler) Create(ctx *gin.Context) {
 //	@Description	Updates an existing master config
 //	@Tags			MasterConfig
 //	@Accept			json
-//	@Success		200		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		200		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			id		path		int							true	"Master Config ID"
 //	@Param			config	body		requestModel.MasterConfig	true	"Master Config"
 //	@Router			/masterConfig/{id} [put]
@@ -93,8 +93,8 @@ func (h MasterConfigHandler) Update(ctx *gin.Context) {
 //	@Description	Get a specific master config by ID
 //	@Tags			MasterConfig
 //	@Accept			json
-//	@Success		200	{object}	response.DataResponse
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.DataResponse
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"Master Config ID"
 //	@Router			/masterConfig/{id} [get]
 func (h MasterConfigHandler) Get(ctx *gin.Context) {
@@ -116,8 +116,8 @@ func (h MasterConfigHandler) Get(ctx *gin.Context) {
 //	@Description	Get a specific master config by name
 //	@Tags			MasterConfig
 //	@Accept			json
-//	@Success		200		{object}	response.DataResponse
-//	@Failure		400		{object}	response.Response
+//	@Success		200		{object}	responseModel.DataResponse
+//	@Failure		400		{object}	responseModel.Response
 //	@Param			name	query		string	true	"Master Config Name"
 //	@Router			/masterConfig/value [get]
 func (h MasterConfigHandler) GetValue(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h MasterConfigHandler) GetValue(ctx *gin.Context) {
 //	@Description	Get Master Config for browse
 //	@Tags			MasterConfig
 //	@Accept			json
-//	@Success		200		{object}	response.DataResponse
-//	@Failure		400		{object}	response.Response
+//	@Success		200		{object}	responseModel.DataResponse
+//	@Failure		400		{object}	responseModel.Response
 //	@Param			search	query		string	false	"search"
 //	@Router			/masterConfig/browse [get]
 func (h MasterConfigHandler) Browse(ctx *gin.Context) {
@@ -163,8 +163,8 @@ func (h MasterConfigHandler) Browse(ctx *gin.Context) {
 //	@Description	Get multiple master config values by their names (format: "Type.Name")
 //	@Tags			MasterConfig
 //	@Accept			json
-//	@Success		200		{object}	response.DataResponse
-//	@Failure		400		{object}	response.Response
+//	@Success		200		{object}	responseModel.DataResponse
+//	@Failure		400		{object}	responseModel.Response
 //	@Param			names	body		[]string	true	"Array of config names (e.g., [\"a.b\", \"a.c\", \"x.a\"])"
 //	@Router			/masterConfig/values [post]
 func (h MasterConfigHandler) GetMultipleValues(ctx *gin.Context) {

@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
@@ -404,7 +403,7 @@ func (m *responseMapper) Measurement(e *entities.Measurement) (*responseModel.Me
 	return &responseModel.Measurement{
 		ID:          e.ID,
 		IsActive:    e.IsActive,
-		Values:      json.RawMessage(e.Value),
+		Values:      responseModel.RawMessage(e.Value),
 		PersonId:    &e.PersonId,
 		Person:      person,
 		PersonName:  personName,
@@ -616,9 +615,9 @@ func (m *responseMapper) MeasurementHistory(e *entities.MeasurementHistory) (*re
 		return nil, err
 	}
 
-	var oldValues json.RawMessage
+	var oldValues responseModel.RawMessage
 	if len(e.OldValues) > 0 {
-		oldValues = json.RawMessage(e.OldValues)
+		oldValues = responseModel.RawMessage(e.OldValues)
 	}
 
 	return &responseModel.MeasurementHistory{

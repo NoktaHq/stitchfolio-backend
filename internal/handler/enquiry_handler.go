@@ -28,9 +28,9 @@ func ProvideEnquiryHandler(svc service.EnquiryService) *EnquiryHandler {
 //	@Description	Saves an instance of Enquiry
 //	@Tags			Enquiry
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			enquiry	body		requestModel.Enquiry	true	"enquiry"
 //	@Router			/enquiry [post]
 func (h EnquiryHandler) SaveEnquiry(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h EnquiryHandler) SaveEnquiry(ctx *gin.Context) {
 //	@Description	Updates an instance of Enquiry
 //	@Tags			Enquiry
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			enquiry	body		requestModel.Enquiry	true	"enquiry"
 //	@Param			id		path		int						true	"Enquiry id"
 //	@Router			/enquiry/{id} [put]
@@ -91,7 +91,7 @@ func (h EnquiryHandler) UpdateEnquiry(ctx *gin.Context) {
 //	@Tags			Enquiry
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Enquiry
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Enquiry id"
 //	@Router			/enquiry/{id} [get]
 func (h EnquiryHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h EnquiryHandler) Get(ctx *gin.Context) {
 //	@Tags			Enquiry
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Enquiry
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/enquiry [get]
 func (h EnquiryHandler) GetAllEnquiries(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h EnquiryHandler) GetAllEnquiries(ctx *gin.Context) {
 //	@Description	Deletes an instance of Enquiry
 //	@Tags			Enquiry
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"enquiry id"
 //
 //	@Router			/enquiry/{id} [delete]
@@ -163,9 +163,9 @@ func (h EnquiryHandler) Delete(ctx *gin.Context) {
 //	@Description	Updates both enquiry and customer data together
 //	@Tags			Enquiry
 //	@Accept			json
-//	@Success		200		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		200		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			enquiry	body		requestModel.UpdateEnquiryAndCustomer	true	"enquiry and customer"
 //	@Param			id		path		int										true	"Enquiry id"
 //	@Router			/enquiry/{id}/customer [put]

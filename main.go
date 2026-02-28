@@ -12,13 +12,15 @@ import (
 	"github.com/imkarthi24/sf-backend/internal/di"
 )
 
-//	@title			Stitchfolio-backend API docs
-//	@version		1.0
-//	@description	This is the backend for Stitchfolio.
-
-//	@host		localhost:9000
-//	@BasePath	/api/sf/v1
-
+//	@title						Stitchfolio-backend API docs
+//	@version					1.0
+//	@description				This is the backend for Stitchfolio.
+//	@host						localhost:9000
+//	@BasePath					/api/sf/v1
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Token
+//	@Security					BearerAuth
 func main() {
 
 	done := make(chan os.Signal, 1)

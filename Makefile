@@ -133,4 +133,5 @@ swagger:
 	@echo "$(YELLOW)Regenerating Swagger docs...$(NC)"
 	swag fmt
 	swag init --parseDependency --parseInternal
+	go run ./scripts/patch_swagger_security.go
 	@echo "$(GREEN)✓ swagger done$(NC)"

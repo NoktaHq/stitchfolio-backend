@@ -28,9 +28,9 @@ func ProvideDressTypeHandler(svc service.DressTypeService) *DressTypeHandler {
 //	@Description	Saves an instance of DressType
 //	@Tags			DressType
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			dressType	body		requestModel.DressType	true	"dressType"
 //	@Router			/dress-type [post]
 func (h DressTypeHandler) SaveDressType(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h DressTypeHandler) SaveDressType(ctx *gin.Context) {
 //	@Description	Updates an instance of DressType
 //	@Tags			DressType
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			dressType	body		requestModel.DressType	true	"dressType"
 //	@Param			id			path		int						true	"DressType id"
 //	@Router			/dress-type/{id} [put]
@@ -91,7 +91,7 @@ func (h DressTypeHandler) UpdateDressType(ctx *gin.Context) {
 //	@Tags			DressType
 //	@Accept			json
 //	@Success		200	{object}	responseModel.DressType
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"DressType id"
 //	@Router			/dress-type/{id} [get]
 func (h DressTypeHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h DressTypeHandler) Get(ctx *gin.Context) {
 //	@Tags			DressType
 //	@Accept			json
 //	@Success		200		{object}	responseModel.DressType
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/dress-type [get]
 func (h DressTypeHandler) GetAllDressTypes(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h DressTypeHandler) GetAllDressTypes(ctx *gin.Context) {
 //	@Description	Deletes an instance of DressType
 //	@Tags			DressType
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"dressType id"
 //
 //	@Router			/dress-type/{id} [delete]

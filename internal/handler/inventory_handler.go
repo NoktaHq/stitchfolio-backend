@@ -27,7 +27,7 @@ func ProvideInventoryHandler(svc service.InventoryService) *InventoryHandler {
 //	@Tags			Inventory
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Inventory
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Inventory id"
 //	@Router			/inventory/{id} [get]
 func (h InventoryHandler) Get(ctx *gin.Context) {
@@ -49,7 +49,7 @@ func (h InventoryHandler) Get(ctx *gin.Context) {
 //	@Tags			Inventory
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Inventory
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/inventory [get]
 func (h InventoryHandler) GetAllInventories(ctx *gin.Context) {
@@ -72,7 +72,7 @@ func (h InventoryHandler) GetAllInventories(ctx *gin.Context) {
 //	@Tags			Inventory
 //	@Accept			json
 //	@Success		200			{object}	responseModel.Inventory
-//	@Failure		400			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
 //	@Param			productId	path		int	true	"Product ID"
 //	@Router			/inventory/product/{productId} [get]
 func (h InventoryHandler) GetByProductId(ctx *gin.Context) {
@@ -93,9 +93,9 @@ func (h InventoryHandler) GetByProductId(ctx *gin.Context) {
 //	@Description	Update the low stock threshold for a product
 //	@Tags			Inventory
 //	@Accept			json
-//	@Success		202			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		500			{object}	response.Response
+//	@Success		202			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		500			{object}	responseModel.Response
 //	@Param			inventory	body		requestModel.Inventory	true	"inventory"
 //	@Param			id			path		int						true	"Inventory id"
 //	@Router			/inventory/{id}/threshold [put]
@@ -124,7 +124,7 @@ func (h InventoryHandler) UpdateThreshold(ctx *gin.Context) {
 //	@Tags			Inventory
 //	@Accept			json
 //	@Success		200	{object}	responseModel.LowStockItem
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Router			/inventory/low-stock [get]
 func (h InventoryHandler) GetLowStockItems(ctx *gin.Context) {
 	context := util.CopyContextFromGin(ctx)
@@ -143,8 +143,8 @@ func (h InventoryHandler) GetLowStockItems(ctx *gin.Context) {
 //	@Tags			Inventory
 //	@Accept			json
 //	@Success		201			{object}	responseModel.StockMovementResponse
-//	@Failure		400			{object}	response.DataResponse
-//	@Failure		500			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
+//	@Failure		500			{object}	responseModel.DataResponse
 //	@Param			movement	body		requestModel.StockMovementRequest	true	"stock movement"
 //	@Router			/inventory/movement [post]
 func (h InventoryHandler) RecordStockMovement(ctx *gin.Context) {

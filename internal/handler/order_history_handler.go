@@ -28,9 +28,9 @@ func ProvideOrderHistoryHandler(svc service.OrderHistoryService) *OrderHistoryHa
 //	@Description	Saves an instance of OrderHistory
 //	@Tags			OrderHistory
 //	@Accept			json
-//	@Success		201				{object}	response.Response
-//	@Failure		400				{object}	response.Response
-//	@Failure		501				{object}	response.Response
+//	@Success		201				{object}	responseModel.Response
+//	@Failure		400				{object}	responseModel.Response
+//	@Failure		501				{object}	responseModel.Response
 //	@Param			orderHistory	body		requestModel.OrderHistory	true	"orderHistory"
 //	@Router			/order-history [post]
 func (h OrderHistoryHandler) SaveOrderHistory(ctx *gin.Context) {
@@ -59,7 +59,7 @@ func (h OrderHistoryHandler) SaveOrderHistory(ctx *gin.Context) {
 //	@Tags			OrderHistory
 //	@Accept			json
 //	@Success		200	{object}	responseModel.OrderHistory
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"OrderHistory id"
 //	@Router			/order-history/{id} [get]
 func (h OrderHistoryHandler) Get(ctx *gin.Context) {
@@ -83,7 +83,7 @@ func (h OrderHistoryHandler) Get(ctx *gin.Context) {
 //	@Tags			OrderHistory
 //	@Accept			json
 //	@Success		200		{object}	responseModel.OrderHistory
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/order-history [get]
 func (h OrderHistoryHandler) GetAllOrderHistories(ctx *gin.Context) {
@@ -108,7 +108,7 @@ func (h OrderHistoryHandler) GetAllOrderHistories(ctx *gin.Context) {
 //	@Tags			OrderHistory
 //	@Accept			json
 //	@Success		200		{object}	responseModel.OrderHistory
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			orderId	path		int	true	"order id"
 //	@Router			/order-history/order/{orderId} [get]
 func (h OrderHistoryHandler) GetByOrderId(ctx *gin.Context) {

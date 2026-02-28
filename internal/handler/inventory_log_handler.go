@@ -25,7 +25,7 @@ func ProvideInventoryLogHandler(svc service.InventoryLogService) *InventoryLogHa
 //	@Tags			InventoryLog
 //	@Accept			json
 //	@Success		200	{object}	responseModel.InventoryLog
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Inventory Log id"
 //	@Router			/inventory-log/{id} [get]
 func (h InventoryLogHandler) Get(ctx *gin.Context) {
@@ -47,7 +47,7 @@ func (h InventoryLogHandler) Get(ctx *gin.Context) {
 //	@Tags			InventoryLog
 //	@Accept			json
 //	@Success		200		{object}	responseModel.InventoryLog
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/inventory-log [get]
 func (h InventoryLogHandler) GetAllInventoryLogs(ctx *gin.Context) {
@@ -70,7 +70,7 @@ func (h InventoryLogHandler) GetAllInventoryLogs(ctx *gin.Context) {
 //	@Tags			InventoryLog
 //	@Accept			json
 //	@Success		200			{object}	responseModel.InventoryLog
-//	@Failure		400			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
 //	@Param			productId	path		int	true	"Product ID"
 //	@Router			/inventory-log/product/{productId} [get]
 func (h InventoryLogHandler) GetByProductId(ctx *gin.Context) {
@@ -92,7 +92,7 @@ func (h InventoryLogHandler) GetByProductId(ctx *gin.Context) {
 //	@Tags			InventoryLog
 //	@Accept			json
 //	@Success		200			{object}	responseModel.InventoryLog
-//	@Failure		400			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
 //	@Param			changeType	query		string	true	"Change Type"	Enums(IN, OUT, ADJUST)
 //	@Router			/inventory-log/change-type [get]
 func (h InventoryLogHandler) GetByChangeType(ctx *gin.Context) {
@@ -114,7 +114,7 @@ func (h InventoryLogHandler) GetByChangeType(ctx *gin.Context) {
 //	@Tags			InventoryLog
 //	@Accept			json
 //	@Success		200			{object}	responseModel.InventoryLog
-//	@Failure		400			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
 //	@Param			startDate	query		string	false	"Start Date (YYYY-MM-DD)"
 //	@Param			endDate		query		string	false	"End Date (YYYY-MM-DD)"
 //	@Router			/inventory-log/date-range [get]

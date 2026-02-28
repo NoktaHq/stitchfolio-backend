@@ -26,9 +26,9 @@ func ProvideProductHandler(svc service.ProductService) *ProductHandler {
 //	@Description	Saves an instance of Product
 //	@Tags			Product
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		500		{object}	responseModel.Response
 //	@Param			product	body		requestModel.Product	true	"product"
 //	@Router			/product [post]
 func (h ProductHandler) SaveProduct(ctx *gin.Context) {
@@ -54,9 +54,9 @@ func (h ProductHandler) SaveProduct(ctx *gin.Context) {
 //	@Description	Updates an instance of Product
 //	@Tags			Product
 //	@Accept			json
-//	@Success		202		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		500		{object}	response.Response
+//	@Success		202		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		500		{object}	responseModel.Response
 //	@Param			product	body		requestModel.Product	true	"product"
 //	@Param			id		path		int						true	"Product id"
 //	@Router			/product/{id} [put]
@@ -85,7 +85,7 @@ func (h ProductHandler) UpdateProduct(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Product
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Product id"
 //	@Router			/product/{id} [get]
 func (h ProductHandler) Get(ctx *gin.Context) {
@@ -107,7 +107,7 @@ func (h ProductHandler) Get(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Product
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/product [get]
 func (h ProductHandler) GetAllProducts(ctx *gin.Context) {
@@ -129,8 +129,8 @@ func (h ProductHandler) GetAllProducts(ctx *gin.Context) {
 //	@Description	Deletes an instance of Product
 //	@Tags			Product
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"product id"
 //	@Router			/product/{id} [delete]
 func (h ProductHandler) Delete(ctx *gin.Context) {
@@ -151,7 +151,7 @@ func (h ProductHandler) Delete(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Success		200		{object}	responseModel.ProductAutoComplete
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/product/autocomplete [get]
 func (h ProductHandler) AutocompleteProduct(ctx *gin.Context) {
@@ -174,7 +174,7 @@ func (h ProductHandler) AutocompleteProduct(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Product
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			sku	query		string	true	"Product SKU"
 //	@Router			/product/sku [get]
 func (h ProductHandler) GetBySKU(ctx *gin.Context) {
@@ -201,7 +201,7 @@ func (h ProductHandler) GetBySKU(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Product
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Router			/product/low-stock [get]
 func (h ProductHandler) GetLowStockProducts(ctx *gin.Context) {
 	context := util.CopyContextFromGin(ctx)

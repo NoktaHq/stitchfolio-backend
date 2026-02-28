@@ -28,7 +28,7 @@ func ProvideDashboardHandler(svc service.DashboardService) *DashboardHandler {
 //	@Tags			Dashboard
 //	@Accept			json
 //	@Success		200			{object}	responseModel.TaskDashboardResponse
-//	@Failure		400			{object}	response.Response
+//	@Failure		400			{object}	responseModel.Response
 //	@Param			assigneeId	query		int	false	"Filter by assignee user ID"
 //	@Router			/dashboard/task [get]
 func (h *DashboardHandler) GetTaskDashboard(ctx *gin.Context) {
@@ -56,7 +56,7 @@ func (h *DashboardHandler) GetTaskDashboard(ctx *gin.Context) {
 //	@Tags			Dashboard
 //	@Accept			json
 //	@Success		200		{object}	responseModel.OrderDashboardResponse
-//	@Failure		400		{object}	response.Response
+//	@Failure		400		{object}	responseModel.Response
 //	@Param			from	query		string	false	"Start date (YYYY-MM-DD)"
 //	@Param			to		query		string	false	"End date (YYYY-MM-DD)"
 //	@Router			/dashboard/order [get]
@@ -78,7 +78,7 @@ func (h *DashboardHandler) GetOrderDashboard(ctx *gin.Context) {
 //	@Tags			Dashboard
 //	@Accept			json
 //	@Success		200		{object}	responseModel.StatsDashboardResponse
-//	@Failure		400		{object}	response.Response
+//	@Failure		400		{object}	responseModel.Response
 //	@Param			from	query		string	false	"Start date (YYYY-MM-DD)"
 //	@Param			to		query		string	false	"End date (YYYY-MM-DD)"
 //	@Router			/dashboard/stats [get]

@@ -28,9 +28,9 @@ func ProvideEnquiryHistoryHandler(svc service.EnquiryHistoryService) *EnquiryHis
 //	@Description	Saves an instance of EnquiryHistory
 //	@Tags			EnquiryHistory
 //	@Accept			json
-//	@Success		201				{object}	response.Response
-//	@Failure		400				{object}	response.Response
-//	@Failure		501				{object}	response.Response
+//	@Success		201				{object}	responseModel.Response
+//	@Failure		400				{object}	responseModel.Response
+//	@Failure		501				{object}	responseModel.Response
 //	@Param			enquiryHistory	body		requestModel.EnquiryHistory	true	"enquiryHistory"
 //	@Router			/enquiry-history [post]
 func (h EnquiryHistoryHandler) SaveEnquiryHistory(ctx *gin.Context) {
@@ -59,7 +59,7 @@ func (h EnquiryHistoryHandler) SaveEnquiryHistory(ctx *gin.Context) {
 //	@Tags			EnquiryHistory
 //	@Accept			json
 //	@Success		200	{object}	responseModel.EnquiryHistory
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"EnquiryHistory id"
 //	@Router			/enquiry-history/{id} [get]
 func (h EnquiryHistoryHandler) Get(ctx *gin.Context) {
@@ -83,7 +83,7 @@ func (h EnquiryHistoryHandler) Get(ctx *gin.Context) {
 //	@Tags			EnquiryHistory
 //	@Accept			json
 //	@Success		200		{object}	responseModel.EnquiryHistory
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/enquiry-history [get]
 func (h EnquiryHistoryHandler) GetAllEnquiryHistories(ctx *gin.Context) {
@@ -108,7 +108,7 @@ func (h EnquiryHistoryHandler) GetAllEnquiryHistories(ctx *gin.Context) {
 //	@Tags			EnquiryHistory
 //	@Accept			json
 //	@Success		200			{object}	responseModel.EnquiryHistory
-//	@Failure		400			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
 //	@Param			enquiryId	path		int	true	"enquiry id"
 //	@Router			/enquiry-history/enquiry/{enquiryId} [get]
 func (h EnquiryHistoryHandler) GetByEnquiryId(ctx *gin.Context) {
