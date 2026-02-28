@@ -1,9 +1,11 @@
 package scopes
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/loop-kar/pixie/constants"
+	"github.com/loop-kar/pixie/log"
 	"github.com/loop-kar/pixie/util"
 	"gorm.io/gorm"
 )
@@ -14,12 +16,20 @@ func TasksForCurrentUser() func(db *gorm.DB) *gorm.DB {
 		if !ok || val == nil {
 			return db
 		}
+
 		userID, ok := val.(*uint)
 		if !ok || userID == nil || *userID == 0 {
 			return db
 		}
+		tableName, err := getTableSQL(db)
+		if err != nil {
+			ctx := context.Background()
+			log.Error(&ctx, err)
+			return db
+		}
+
 		return db.Where(
-			`(assigned_to_id = ? OR created_by_id = ?)`,
+			`(`+tableName+`.assigned_to_id = ? OR`+tableName+`.created_by_id = ?)`,
 			*userID, *userID,
 		)
 	}
