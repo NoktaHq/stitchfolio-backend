@@ -121,5 +121,5 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 
 	//migrator.Migrate(entityList, checkErr)
 
-	migrator.GenerateAlterMigration(entityList, "005_add_inventory_related_entities")
+	migrator.GenerateAlterMigration(entityList, "006_add_expense_detail_entity")
 }

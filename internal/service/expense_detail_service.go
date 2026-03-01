@@ -19,16 +19,18 @@ type ExpenseDetailService interface {
 }
 
 type expenseDetailService struct {
-	expenseDetailRepo repository.ExpenseDetailRepository
-	mapper            mapper.Mapper
-	respMapper        mapper.ResponseMapper
+	expenseDetailRepo   repository.ExpenseDetailRepository
+	expenseTrackerRepo  repository.ExpenseTrackerRepository
+	mapper              mapper.Mapper
+	respMapper          mapper.ResponseMapper
 }
 
-func ProvideExpenseDetailService(repo repository.ExpenseDetailRepository, mapper mapper.Mapper, respMapper mapper.ResponseMapper) ExpenseDetailService {
+func ProvideExpenseDetailService(repo repository.ExpenseDetailRepository, expenseTrackerRepo repository.ExpenseTrackerRepository, mapper mapper.Mapper, respMapper mapper.ResponseMapper) ExpenseDetailService {
 	return &expenseDetailService{
-		expenseDetailRepo: repo,
-		mapper:            mapper,
-		respMapper:        respMapper,
+		expenseDetailRepo:  repo,
+		expenseTrackerRepo: expenseTrackerRepo,
+		mapper:             mapper,
+		respMapper:         respMapper,
 	}
 }
 
@@ -38,16 +40,26 @@ func (svc *expenseDetailService) Save(ctx *context.Context, req requestModel.Exp
 	if err != nil {
 		return errs.NewXError(errs.INVALID_REQUEST, "Unable to save expense detail", err)
 	}
-	return svc.expenseDetailRepo.Create(ctx, ent)
+	if err := svc.expenseDetailRepo.Create(ctx, ent); err != nil {
+		return err
+	}
+	return svc.expenseTrackerRepo.RecalculateAndUpdateBalance(ctx, expenseId)
 }
 
 func (svc *expenseDetailService) Update(ctx *context.Context, req requestModel.ExpenseDetail, id uint) *errs.XError {
-	ent, err := svc.mapper.ExpenseDetail(req)
+	existing, err := svc.expenseDetailRepo.Get(ctx, id)
 	if err != nil {
-		return errs.NewXError(errs.INVALID_REQUEST, "Unable to update expense detail", err)
+		return err
+	}
+	ent, mapErr := svc.mapper.ExpenseDetail(req)
+	if mapErr != nil {
+		return errs.NewXError(errs.INVALID_REQUEST, "Unable to update expense detail", mapErr)
 	}
 	ent.ID = id
-	return svc.expenseDetailRepo.Update(ctx, ent)
+	if err := svc.expenseDetailRepo.Update(ctx, ent); err != nil {
+		return err
+	}
+	return svc.expenseTrackerRepo.RecalculateAndUpdateBalance(ctx, existing.ExpenseId)
 }
 
 func (svc *expenseDetailService) Get(ctx *context.Context, id uint) (*responseModel.ExpenseDetail, *errs.XError) {
@@ -78,5 +90,12 @@ func (svc *expenseDetailService) GetByExpenseId(ctx *context.Context, expenseId 
 }
 
 func (svc *expenseDetailService) Delete(ctx *context.Context, id uint) *errs.XError {
-	return svc.expenseDetailRepo.Delete(ctx, id)
+	existing, err := svc.expenseDetailRepo.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	if err := svc.expenseDetailRepo.Delete(ctx, id); err != nil {
+		return err
+	}
+	return svc.expenseTrackerRepo.RecalculateAndUpdateBalance(ctx, existing.ExpenseId)
 }
