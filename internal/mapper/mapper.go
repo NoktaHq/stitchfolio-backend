@@ -444,6 +444,7 @@ func (m *mapper) ExpenseTracker(e requestModel.ExpenseTracker) (*entities.Expens
 		CompanyName:    e.CompanyName,
 		Material:       e.Material,
 		Price:          e.Price,
+		Balance:        e.Balance,
 		Location:       e.Location,
 		Notes:          e.Notes,
 		ExpenseDetails: expenseDetails,
@@ -511,11 +512,15 @@ func (m *mapper) Task(e requestModel.Task) (*entities.Task, error) {
 		isActive = *e.IsActive
 	}
 
+	if e.Status == "" {
+		e.Status = string(entities.TaskStatusPending)
+	}
 	return &entities.Task{
 		Model:        &entities.Model{ID: e.ID, IsActive: isActive},
 		Title:        e.Title,
 		Description:  e.Description,
 		IsCompleted:  e.IsCompleted,
+		Status:       entities.TaskStatus(e.Status),
 		Priority:     e.Priority,
 		DueDate:      dueDate,
 		ReminderDate: reminderDate,
