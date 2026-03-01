@@ -187,21 +187,22 @@ func SelectFields(params ...string) func(db *gorm.DB) *gorm.DB {
 func WithAuditInfo() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 
-		tableName, err := getTableSQL(db)
-		if err != nil {
-			ctx := context.Background()
-			log.Error(&ctx, err)
-			return db
-		}
+		// tableName, err := getTableSQL(db)
+		// if err != nil {
+		// 	ctx := context.Background()
+		// 	log.Error(&ctx, err)
+		// 	return db
+		// }
 
-		return db.
-			Joins(`LEFT JOIN "stich"."Users" cu ON cu.id = ` + tableName + `.created_by_id`).
-			Joins(`LEFT JOIN "stich"."Users" uu ON uu.id = ` + tableName + `.updated_by_id`).
-			Select(`
-				` + tableName + `.*,
-				COALESCE(cu.first_name || ' ' || cu.last_name, '') AS created_by,
-				COALESCE(uu.first_name || ' ' || uu.last_name, '') AS updated_by
-			`)
+		// return db.
+		// 	Joins(`LEFT JOIN "stich"."Users" cu ON cu.id = ` + tableName + `.created_by_id`).
+		// 	Joins(`LEFT JOIN "stich"."Users" uu ON uu.id = ` + tableName + `.updated_by_id`).
+		// 	Select(`
+		// 		` + tableName + `.*,
+		// 		COALESCE(cu.first_name || ' ' || cu.last_name, '') AS created_by,
+		// 		COALESCE(uu.first_name || ' ' || uu.last_name, '') AS updated_by
+		// 	`)
+		return db
 	}
 }
 
