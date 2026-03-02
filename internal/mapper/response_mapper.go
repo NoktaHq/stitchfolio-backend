@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"time"
-	"encoding/json"
 
 	"github.com/imkarthi24/sf-backend/internal/entities"
 	responseModel "github.com/imkarthi24/sf-backend/internal/model/response"
@@ -349,6 +348,7 @@ func (m *responseMapper) DressType(e *entities.DressType) (*responseModel.DressT
 		Name:         e.Name,
 		Description:  e.Description,
 		Measurements: e.Measurements,
+		AuditFields:  responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
 	}, nil
 }
 
@@ -404,7 +404,7 @@ func (m *responseMapper) Measurement(e *entities.Measurement) (*responseModel.Me
 	return &responseModel.Measurement{
 		ID:          e.ID,
 		IsActive:    e.IsActive,
-		Values:      json.RawMessage(e.Value),
+		Values:      e.Value,
 		PersonId:    &e.PersonId,
 		Person:      person,
 		PersonName:  personName,
@@ -616,16 +616,11 @@ func (m *responseMapper) MeasurementHistory(e *entities.MeasurementHistory) (*re
 		return nil, err
 	}
 
-	var oldValues responseModel.RawMessage
-	if len(e.OldValues) > 0 {
-		oldValues = responseModel.RawMessage(e.OldValues)
-	}
-
 	return &responseModel.MeasurementHistory{
 		ID:            e.ID,
 		IsActive:      e.IsActive,
 		Action:        string(e.Action),
-		OldValues:     oldValues,
+		OldValues:     e.OldValues,
 		MeasurementId: e.MeasurementId,
 		Measurement:   measurement,
 		PerformedAt:   e.PerformedAt,
@@ -657,17 +652,17 @@ func (m *responseMapper) ExpenseTracker(e *entities.Expense) (*responseModel.Exp
 	}
 
 	return &responseModel.ExpenseTracker{
-		ID:              e.ID,
-		IsActive:        e.IsActive,
-		PurchaseDate:    e.PurchaseDate,
-		BillNumber:      e.BillNumber,
-		CompanyName:     e.CompanyName,
-		Material:        e.Material,
-		Price:           e.Price,
-		Location:        e.Location,
-		Notes:           e.Notes,
-		ExpenseDetails:  expenseDetails,
-		AuditFields:     responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
+		ID:             e.ID,
+		IsActive:       e.IsActive,
+		PurchaseDate:   e.PurchaseDate,
+		BillNumber:     e.BillNumber,
+		CompanyName:    e.CompanyName,
+		Material:       e.Material,
+		Price:          e.Price,
+		Location:       e.Location,
+		Notes:          e.Notes,
+		ExpenseDetails: expenseDetails,
+		AuditFields:    responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
 	}, nil
 }
 
