@@ -1,5 +1,9 @@
 package responseModel
 
+import (
+	"encoding/json"
+)
+
 type Measurement struct {
 	ID       uint `json:"id,omitempty"`
 	IsActive bool `json:"isActive,omitempty"`
