@@ -403,7 +403,7 @@ func (m *responseMapper) Measurement(e *entities.Measurement) (*responseModel.Me
 	return &responseModel.Measurement{
 		ID:          e.ID,
 		IsActive:    e.IsActive,
-		Values:      responseModel.RawMessage(e.Value),
+		Values:      json.RawMessage(e.Value),
 		PersonId:    &e.PersonId,
 		Person:      person,
 		PersonName:  personName,
