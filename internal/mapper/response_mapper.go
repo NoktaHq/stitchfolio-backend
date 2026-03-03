@@ -170,6 +170,7 @@ func (m *responseMapper) Enquiry(e *entities.Enquiry) (*responseModel.Enquiry, e
 		Source:              e.Source,
 		ReferredBy:          e.ReferredBy,
 		ReferrerPhoneNumber: e.ReferrerPhoneNumber,
+		AuditFields:         responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
 	}, nil
 }
 
@@ -652,18 +653,18 @@ func (m *responseMapper) ExpenseTracker(e *entities.Expense) (*responseModel.Exp
 	}
 
 	return &responseModel.ExpenseTracker{
-		ID:              e.ID,
-		IsActive:        e.IsActive,
-		PurchaseDate:    e.PurchaseDate,
-		BillNumber:      e.BillNumber,
-		CompanyName:     e.CompanyName,
-		Material:        e.Material,
-		Price:           e.Price,
-		Balance:         e.Balance,
-		Location:        e.Location,
-		Notes:           e.Notes,
-		ExpenseDetails:  expenseDetails,
-		AuditFields:     responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
+		ID:             e.ID,
+		IsActive:       e.IsActive,
+		PurchaseDate:   e.PurchaseDate,
+		BillNumber:     e.BillNumber,
+		CompanyName:    e.CompanyName,
+		Material:       e.Material,
+		Price:          e.Price,
+		Balance:        e.Balance,
+		Location:       e.Location,
+		Notes:          e.Notes,
+		ExpenseDetails: expenseDetails,
+		AuditFields:    responseModel.AuditFields{CreatedAt: e.CreatedAt, UpdatedAt: e.UpdatedAt, CreatedBy: e.CreatedBy, UpdatedBy: e.UpdatedBy},
 	}, nil
 }
 

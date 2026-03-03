@@ -81,9 +81,10 @@ func (repo *masterConfigRepository) LoadAll(ctx *context.Context) ([]entities.Ma
 
 func (repo *masterConfigRepository) GetForBrowse(ctx *context.Context, search string) ([]entities.MasterConfig, *errs.XError) {
 	var configs []entities.MasterConfig
-	res := repo.WithDB(ctx).
+	res := repo.WithDB(ctx).Model(entities.MasterConfig{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.ILike(search, "name", "type")).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(db.Paginate(ctx)).
 		Find(&configs)
 
