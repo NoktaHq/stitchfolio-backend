@@ -11,4 +11,4 @@ services:
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=${TRAEFIK_ROUTER_NAME}"
       - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=9000"
       - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.regex=^/api/sf/dev/v1(.*)"
-      - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.replacement=/api/sf/v1$${1}"
+      - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.replacement=/api/sf/v1$$1"
