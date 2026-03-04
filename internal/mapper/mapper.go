@@ -519,7 +519,6 @@ func (m *mapper) Task(e requestModel.Task) (*entities.Task, error) {
 		Model:        &entities.Model{ID: e.ID, IsActive: isActive},
 		Title:        e.Title,
 		Description:  e.Description,
-		IsCompleted:  e.IsCompleted,
 		Status:       entities.TaskStatus(e.Status),
 		Priority:     e.Priority,
 		DueDate:      dueDate,

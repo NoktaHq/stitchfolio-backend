@@ -5659,9 +5659,6 @@ const docTemplate = `{
                 "isActive": {
                     "type": "boolean"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
@@ -7052,9 +7049,6 @@ const docTemplate = `{
                 "isActive": {
                     "type": "boolean"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
@@ -7113,7 +7107,7 @@ const docTemplate = `{
                     }
                 },
                 "overdueTasks": {
-                    "description": "DueDate \u003c today, IsCompleted = false",
+                    "description": "DueDate \u003c today, status != COMPLETED",
                     "allOf": [
                         {
                             "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
@@ -7125,6 +7119,13 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/responseModel.TaskSummary"
+                    }
+                },
+                "tasksByStatus": {
+                    "description": "count per status PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.StatusCountStat"
                     }
                 },
                 "upcomingReminders": {
@@ -7170,13 +7171,14 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {

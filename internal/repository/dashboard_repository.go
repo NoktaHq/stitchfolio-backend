@@ -44,11 +44,25 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 
 	resp := &responseModel.TaskDashboardResponse{}
 
+	// 0. Tasks by status (count per status)
+	var statusCounts []struct {
+		Status string
+		Count  int64
+	}
+	res := baseTask().Select("status", "count(*) as count").Group("status").Scan(&statusCounts)
+	if res.Error != nil {
+		return nil, errs.NewXError(errs.DATABASE, "dashboard tasks by status", res.Error)
+	}
+	resp.TasksByStatus = make([]responseModel.StatusCountStat, 0, len(statusCounts))
+	for _, s := range statusCounts {
+		resp.TasksByStatus = append(resp.TasksByStatus, responseModel.StatusCountStat{Status: s.Status, Count: int(s.Count)})
+	}
+
 	// 1. Overdue tasks
 	var overdue []entities.Task
-	tx := baseTask().Where("is_completed = ?", false).Where("due_date < ?", now)
+	tx := baseTask().Where("status != ?", entities.TaskStatusCompleted).Where("due_date < ?", now)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
-	res := tx.Find(&overdue)
+	res = tx.Find(&overdue)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "dashboard overdue tasks", res.Error)
 	}
@@ -56,7 +70,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 
 	// 2. Due today
 	var dueToday []entities.Task
-	tx = baseTask().Where("is_completed = ?", false).Where("due_date >= ? AND due_date < ?", now, tomorrow)
+	tx = baseTask().Where("status != ?", entities.TaskStatusCompleted).Where("due_date >= ? AND due_date < ?", now, tomorrow)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
 	res = tx.Find(&dueToday)
 	if res.Error != nil {
@@ -66,7 +80,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 
 	// 3. Due next 7 days (excluding today)
 	var dueNext7 []entities.Task
-	tx = baseTask().Where("is_completed = ?", false).Where("due_date >= ? AND due_date < ?", tomorrow, sevenDaysLater)
+	tx = baseTask().Where("status != ?", entities.TaskStatusCompleted).Where("due_date >= ? AND due_date < ?", tomorrow, sevenDaysLater)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
 	res = tx.Find(&dueNext7)
 	if res.Error != nil {
@@ -80,7 +94,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 		Count       int64
 	}
 	var byAssignee []assigneeCount
-	res = baseTask().Where("is_completed = ?", false).Select("assigned_to_id, count(*) as count").Group("assigned_to_id").Scan(&byAssignee)
+	res = baseTask().Where("status != ?", entities.TaskStatusCompleted).Select("assigned_to_id, count(*) as count").Group("assigned_to_id").Scan(&byAssignee)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "dashboard incomplete by assignee", res.Error)
 	}
@@ -103,7 +117,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 
 	// 5. High-priority incomplete (Priority set and not done)
 	var highPrio []entities.Task
-	tx = baseTask().Where("is_completed = ?", false).Where("priority IS NOT NULL AND priority > 0")
+	tx = baseTask().Where("status != ?", entities.TaskStatusCompleted).Where("priority IS NOT NULL AND priority > 0")
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
 	res = tx.Find(&highPrio)
 	if res.Error != nil {
@@ -124,7 +138,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	// 7. Completion rate (last 7 and 30 days)
 	var completed7, total7, completed30, total30 int64
 	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("completed_at >= ?", sevenDaysAgo).Where("is_completed = ?", true).Count(&completed7)
+		Where("completed_at >= ?", sevenDaysAgo).Where("status = ?", entities.TaskStatusCompleted).Count(&completed7)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "dashboard completion rate 7d", res.Error)
 	}
@@ -134,7 +148,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 		return nil, errs.NewXError(errs.DATABASE, "dashboard total 7d", res.Error)
 	}
 	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("completed_at >= ?", thirtyDaysAgo).Where("is_completed = ?", true).Count(&completed30)
+		Where("completed_at >= ?", thirtyDaysAgo).Where("status = ?", entities.TaskStatusCompleted).Count(&completed30)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "dashboard completion rate 30d", res.Error)
 	}
@@ -152,7 +166,7 @@ func (dr *dashboardRepository) GetTaskDashboard(ctx *context.Context, assigneeID
 	// 8. Recent completions (last 10)
 	var recent []entities.Task
 	tx = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("is_completed = ?", true).Where("completed_at IS NOT NULL").Order("completed_at DESC").Limit(10)
+		Where("status = ?", entities.TaskStatusCompleted).Where("completed_at IS NOT NULL").Order("completed_at DESC").Limit(10)
 	tx = tx.Preload("AssignedTo", scopes.SelectFields("first_name", "last_name"))
 	if assigneeID != nil && *assigneeID != 0 {
 		tx = tx.Where("assigned_to_id = ?", *assigneeID)
@@ -186,7 +200,7 @@ func taskSummaries(tasks []entities.Task) []responseModel.TaskSummary {
 			DueDate:      t.DueDate,
 			ReminderDate: t.ReminderDate,
 			Priority:     t.Priority,
-			IsCompleted:  t.IsCompleted,
+			Status:       string(t.Status),
 			CompletedAt:  t.CompletedAt,
 			AssignedToId: t.AssignedToId,
 			AssignedTo:   name,
@@ -481,7 +495,7 @@ func (dr *dashboardRepository) GetStatsDashboard(ctx *context.Context, from, to 
 	// 7. Task completion in period
 	var taskCompleted, taskTotal int64
 	res = dr.WithDB(ctx).Model(&entities.Task{}).Scopes(scopes.Channel(), scopes.IsActive()).
-		Where("completed_at >= ? AND completed_at <= ?", from, to).Where("is_completed = ?", true).Count(&taskCompleted)
+		Where("completed_at >= ? AND completed_at <= ?", from, to).Where("status = ?", entities.TaskStatusCompleted).Count(&taskCompleted)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "stats task completed", res.Error)
 	}

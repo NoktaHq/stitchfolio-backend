@@ -5653,9 +5653,6 @@
                 "isActive": {
                     "type": "boolean"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
@@ -7046,9 +7043,6 @@
                 "isActive": {
                     "type": "boolean"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
@@ -7107,7 +7101,7 @@
                     }
                 },
                 "overdueTasks": {
-                    "description": "DueDate \u003c today, IsCompleted = false",
+                    "description": "DueDate \u003c today, status != COMPLETED",
                     "allOf": [
                         {
                             "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
@@ -7119,6 +7113,13 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/responseModel.TaskSummary"
+                    }
+                },
+                "tasksByStatus": {
+                    "description": "count per status PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.StatusCountStat"
                     }
                 },
                 "upcomingReminders": {
@@ -7164,13 +7165,14 @@
                 "id": {
                     "type": "integer"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {
