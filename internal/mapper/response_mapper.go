@@ -60,6 +60,9 @@ type ResponseMapper interface {
 	InventoryLogs(items []entities.InventoryLog) ([]responseModel.InventoryLog, error)
 
 	FileStoreMetadata(e *entities.FileStoreMetadata) (*responseModel.FileStoreMetadata, error)
+
+	EntityDocument(e *entities.EntityDocuments) (*responseModel.EntityDocument, error)
+	EntityDocuments(items []entities.EntityDocuments) ([]responseModel.EntityDocument, error)
 }
 
 func ProvideResponseMapper() ResponseMapper {
@@ -1017,4 +1020,32 @@ func (m *responseMapper) FileStoreMetadata(e *entities.FileStoreMetadata) (*resp
 		EntityId:   e.EntityId,
 		EntityType: e.EntityType,
 	}, nil
+}
+
+func (m *responseMapper) EntityDocument(e *entities.EntityDocuments) (*responseModel.EntityDocument, error) {
+	if e == nil {
+		return nil, nil
+	}
+
+	return &responseModel.EntityDocument{
+		Id:           e.ID,
+		IsActive:     e.IsActive,
+		Type:         string(e.Type),
+		DocumentType: e.DocumentType,
+		Description:  e.Description,
+		EntityName:   string(e.EntityName),
+		EntityId:     e.EntityId,
+	}, nil
+}
+
+func (m *responseMapper) EntityDocuments(items []entities.EntityDocuments) ([]responseModel.EntityDocument, error) {
+	var mappedItems []responseModel.EntityDocument
+	for _, item := range items {
+		mappedItem, err := m.EntityDocument(&item)
+		if err != nil {
+			return nil, err
+		}
+		mappedItems = append(mappedItems, *mappedItem)
+	}
+	return mappedItems, nil
 }
