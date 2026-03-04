@@ -58,6 +58,8 @@ type ResponseMapper interface {
 	Inventories(items []entities.Inventory) ([]responseModel.Inventory, error)
 	InventoryLog(e *entities.InventoryLog) (*responseModel.InventoryLog, error)
 	InventoryLogs(items []entities.InventoryLog) ([]responseModel.InventoryLog, error)
+
+	FileStoreMetadata(e *entities.FileStoreMetadata) (*responseModel.FileStoreMetadata, error)
 }
 
 func ProvideResponseMapper() ResponseMapper {
@@ -999,4 +1001,20 @@ func (m *responseMapper) InventoryLogs(items []entities.InventoryLog) ([]respons
 		result = append(result, *mappedItem)
 	}
 	return result, nil
+}
+
+func (m *responseMapper) FileStoreMetadata(e *entities.FileStoreMetadata) (*responseModel.FileStoreMetadata, error) {
+	return &responseModel.FileStoreMetadata{
+		Id:         e.ID,
+		IsActive:   e.IsActive,
+		FileName:   e.FileName,
+		FileSize:   e.FileSize,
+		FileType:   e.FileType,
+		FileUrl:    e.FileUrl,
+		FileKey:    e.FileKey,
+		FileBucket: e.FileBucket,
+
+		EntityId:   e.EntityId,
+		EntityType: e.EntityType,
+	}, nil
 }

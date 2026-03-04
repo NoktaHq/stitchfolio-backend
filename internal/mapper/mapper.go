@@ -34,6 +34,8 @@ type Mapper interface {
 	Product(e requestModel.Product) (*entities.Product, error)
 	Inventory(e requestModel.Inventory) (*entities.Inventory, error)
 	InventoryLog(e requestModel.InventoryLog) (*entities.InventoryLog, error)
+
+	FileStoreMetadata(e requestModel.FileStoreMetadata) (*entities.FileStoreMetadata, error)
 }
 
 type mapper struct{}
@@ -438,7 +440,7 @@ func (m *mapper) ExpenseTracker(e requestModel.ExpenseTracker) (*entities.Expens
 	}
 
 	return &entities.Expense{
-		Model:           &entities.Model{ID: e.ID, IsActive: isActive},
+		Model:          &entities.Model{ID: e.ID, IsActive: isActive},
 		PurchaseDate:   purchaseDate,
 		BillNumber:     e.BillNumber,
 		CompanyName:    e.CompanyName,
@@ -457,10 +459,10 @@ func (m *mapper) ExpenseDetail(e requestModel.ExpenseDetail) (*entities.ExpenseD
 		isActive = *e.IsActive
 	}
 	return &entities.ExpenseDetail{
-		Model:      &entities.Model{ID: e.ID, IsActive: isActive},
-		Source:     e.Source,
-		Price:      e.Price,
-		ExpenseId:  e.ExpenseId,
+		Model:     &entities.Model{ID: e.ID, IsActive: isActive},
+		Source:    e.Source,
+		Price:     e.Price,
+		ExpenseId: e.ExpenseId,
 	}, nil
 }
 
@@ -575,5 +577,20 @@ func (m *mapper) InventoryLog(e requestModel.InventoryLog) (*entities.InventoryL
 		Reason:     e.Reason,
 		Notes:      e.Notes,
 		LoggedAt:   loggedAt,
+	}, nil
+}
+
+func (m *mapper) FileStoreMetadata(e requestModel.FileStoreMetadata) (*entities.FileStoreMetadata, error) {
+	return &entities.FileStoreMetadata{
+		Model:      &entities.Model{ID: e.ID, IsActive: e.IsActive},
+		FileName:   e.FileName,
+		FileSize:   e.FileSize,
+		FileType:   e.FileType,
+		FileUrl:    e.FileUrl,
+		FileKey:    e.FileKey,
+		FileBucket: e.FileBucket,
+
+		EntityId:   e.EntityId,
+		EntityType: e.EntityType,
 	}, nil
 }

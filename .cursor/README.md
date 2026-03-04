@@ -48,6 +48,21 @@ This directory contains comprehensive documentation to help Cursor AI understand
 - File organization
 - Import paths
 
+### 4. `SERVICE_USAGE.md` (Branch / service usage)
+**Purpose:** How to use services and APIs that changed on the current branch  
+**Use When:**
+- Using Task/Dashboard (status, tasksByStatus)
+- Using File Store Service (metadata, upload, keys)
+- Using Expense/ExpenseDetail with Balance
+- Working with Measurement JSON types
+
+**Contents:**
+- Task status and dashboard API
+- File Store Service (in-process usage, Upload, metadata CRUD)
+- Expense Balance and RecalculateAndUpdateBalance
+- Measurement/MeasurementHistory JSON type
+- Branch-specific notes and quick reference
+
 ## 🚀 Quick Start for AI
 
 When asked to add a new feature:
@@ -226,6 +241,7 @@ When adding a new feature, implement in this exact order:
 
 | Need | Document | Section |
 |------|----------|---------|
+| Task/Dashboard/FileStore/Expense usage | SERVICE_USAGE.md | Per-service sections |
 | Complete entity example | ARCHITECTURE_GUIDE.md | Entities Layer |
 | Repository patterns | ARCHITECTURE_GUIDE.md | Repository Layer |
 | Service patterns | ARCHITECTURE_GUIDE.md | Service Layer |
@@ -235,6 +251,7 @@ When adding a new feature, implement in this exact order:
 | Mandatory rules | rules/backend-standards.md | All sections |
 | Scopes usage | ARCHITECTURE_GUIDE.md | Scopes subsection |
 | Wire DI setup | ARCHITECTURE_GUIDE.md | Dependency Injection |
+| Dashboard field formulas | docs/dashboard-response-fields.md | Task/Order/Stats tables |
 
 ## ⚠️ Common Mistakes to Avoid
 
