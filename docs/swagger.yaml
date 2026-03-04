@@ -332,6 +332,8 @@ definitions:
     type: object
   requestModel.ExpenseTracker:
     properties:
+      balance:
+        type: number
       billNumber:
         type: string
       companyName:
@@ -603,6 +605,9 @@ definitions:
       priority:
         type: integer
       reminderDate:
+        type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         type: string
       title:
         type: string
@@ -966,6 +971,8 @@ definitions:
     properties:
       auditFields:
         $ref: '#/definitions/responseModel.AuditFields'
+      balance:
+        type: number
       billNumber:
         type: string
       companyName:
@@ -1516,6 +1523,9 @@ definitions:
       priority:
         type: integer
       reminderDate:
+        type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         type: string
       title:
         type: string

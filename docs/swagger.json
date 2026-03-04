@@ -5248,6 +5248,9 @@
         "requestModel.ExpenseTracker": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "type": "number"
+                },
                 "billNumber": {
                     "type": "string"
                 },
@@ -5657,6 +5660,10 @@
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {
@@ -6204,6 +6211,9 @@
             "properties": {
                 "auditFields": {
                     "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "balance": {
+                    "type": "number"
                 },
                 "billNumber": {
                     "type": "string"
@@ -7043,6 +7053,10 @@
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {
