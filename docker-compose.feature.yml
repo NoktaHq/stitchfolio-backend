@@ -1,0 +1,16 @@
+# Override for Stitchfolio feature branches: strip /api/sf/feature/<slug>/v1 -> /api/sf/v1 so app sees same path.
+# TRAEFIK_STRIP_REGEX is written to .env by CI (e.g. ^/api/sf/feature/my-feature/v1(.*)).
+# Use: docker compose -f docker-compose.yml -f docker-compose.feature.yml up -d
+
+services:
+  backend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=${TRAEFIK_RULE}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=${TRAEFIK_ROUTER_NAME}-strip"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=${TRAEFIK_ROUTER_NAME}"
+      - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.regex=${TRAEFIK_STRIP_REGEX}"
+      - "traefik.http.middlewares.${TRAEFIK_ROUTER_NAME}-strip.replacepathregex.replacement=/api/sf/v1$$1"
