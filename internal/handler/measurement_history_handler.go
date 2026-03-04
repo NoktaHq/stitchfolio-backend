@@ -28,9 +28,9 @@ func ProvideMeasurementHistoryHandler(svc service.MeasurementHistoryService) *Me
 //	@Description	Saves an instance of MeasurementHistory
 //	@Tags			MeasurementHistory
 //	@Accept			json
-//	@Success		201					{object}	response.Response
-//	@Failure		400					{object}	response.Response
-//	@Failure		501					{object}	response.Response
+//	@Success		201					{object}	responseModel.Response
+//	@Failure		400					{object}	responseModel.Response
+//	@Failure		501					{object}	responseModel.Response
 //	@Param			measurementHistory	body		requestModel.MeasurementHistory	true	"measurementHistory"
 //	@Router			/measurement-history [post]
 func (h MeasurementHistoryHandler) SaveMeasurementHistory(ctx *gin.Context) {
@@ -59,7 +59,7 @@ func (h MeasurementHistoryHandler) SaveMeasurementHistory(ctx *gin.Context) {
 //	@Tags			MeasurementHistory
 //	@Accept			json
 //	@Success		200	{object}	responseModel.MeasurementHistory
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"MeasurementHistory id"
 //	@Router			/measurement-history/{id} [get]
 func (h MeasurementHistoryHandler) Get(ctx *gin.Context) {
@@ -83,7 +83,7 @@ func (h MeasurementHistoryHandler) Get(ctx *gin.Context) {
 //	@Tags			MeasurementHistory
 //	@Accept			json
 //	@Success		200		{object}	responseModel.MeasurementHistory
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/measurement-history [get]
 func (h MeasurementHistoryHandler) GetAllMeasurementHistories(ctx *gin.Context) {
@@ -108,7 +108,7 @@ func (h MeasurementHistoryHandler) GetAllMeasurementHistories(ctx *gin.Context) 
 //	@Tags			MeasurementHistory
 //	@Accept			json
 //	@Success		200				{object}	responseModel.MeasurementHistory
-//	@Failure		400				{object}	response.DataResponse
+//	@Failure		400				{object}	responseModel.DataResponse
 //	@Param			measurementId	path		int	true	"measurement id"
 //	@Router			/measurement-history/measurement/{measurementId} [get]
 func (h MeasurementHistoryHandler) GetByMeasurementId(ctx *gin.Context) {

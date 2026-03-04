@@ -28,9 +28,9 @@ func ProvideMeasurementHandler(svc service.MeasurementService) *MeasurementHandl
 //	@Description	Saves an instance of Measurement
 //	@Tags			Measurement
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			measurement	body		requestModel.Measurement	true	"measurement"
 //	@Router			/measurement [post]
 func (h MeasurementHandler) SaveMeasurement(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h MeasurementHandler) SaveMeasurement(ctx *gin.Context) {
 //	@Description	Saves multiple measurements for multiple persons in bulk
 //	@Tags			Measurement
 //	@Accept			json
-//	@Success		201				{object}	response.Response
-//	@Failure		400				{object}	response.Response
-//	@Failure		501				{object}	response.Response
+//	@Success		201				{object}	responseModel.Response
+//	@Failure		400				{object}	responseModel.Response
+//	@Failure		501				{object}	responseModel.Response
 //	@Param			measurements	body		[]requestModel.BulkMeasurementRequest	true	"Array of bulk measurement requests"
 //	@Router			/measurement/bulk [post]
 func (h MeasurementHandler) SaveBulkMeasurements(ctx *gin.Context) {
@@ -88,9 +88,9 @@ func (h MeasurementHandler) SaveBulkMeasurements(ctx *gin.Context) {
 //	@Description	Updates a single measurement by its ID
 //	@Tags			Measurement
 //	@Accept			json
-//	@Success		200			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		200			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			id			path		int							true	"Measurement id"
 //	@Param			measurement	body		requestModel.Measurement	true	"Measurement to update"
 //	@Router			/measurement/{id} [put]
@@ -120,9 +120,9 @@ func (h MeasurementHandler) UpdateMeasurement(ctx *gin.Context) {
 //	@Description	Updates an array of measurements by their IDs
 //	@Tags			Measurement
 //	@Accept			json
-//	@Success		200				{object}	response.Response
-//	@Failure		400				{object}	response.Response
-//	@Failure		501				{object}	response.Response
+//	@Success		200				{object}	responseModel.Response
+//	@Failure		400				{object}	responseModel.Response
+//	@Failure		501				{object}	responseModel.Response
 //	@Param			measurements	body		[]requestModel.Measurement	true	"Array of measurements to update"
 //	@Router			/measurement/bulk [put]
 func (h MeasurementHandler) BulkUpdateMeasurements(ctx *gin.Context) {
@@ -151,7 +151,7 @@ func (h MeasurementHandler) BulkUpdateMeasurements(ctx *gin.Context) {
 //	@Tags			Measurement
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Measurement
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Measurement id"
 //	@Router			/measurement/{id} [get]
 func (h MeasurementHandler) Get(ctx *gin.Context) {
@@ -175,7 +175,7 @@ func (h MeasurementHandler) Get(ctx *gin.Context) {
 //	@Tags			Measurement
 //	@Accept			json
 //	@Success		200		{object}	responseModel.MeasurementBrowse
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search by Customer Name (returns all Persons of that customer)"
 //	@Router			/measurement [get]
 func (h MeasurementHandler) GetAllMeasurements(ctx *gin.Context) {
@@ -199,8 +199,8 @@ func (h MeasurementHandler) GetAllMeasurements(ctx *gin.Context) {
 //	@Description	Deletes an instance of Measurement
 //	@Tags			Measurement
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"measurement id"
 //
 //	@Router			/measurement/{id} [delete]

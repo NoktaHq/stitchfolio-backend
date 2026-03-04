@@ -8,7 +8,7 @@ Use this checklist when adding a new resource/feature to the Stitchfolio backend
   - [ ] Define struct with `*Model` embedded
   - [ ] Add fields with JSON tags
   - [ ] Add GORM relation tags
-  - [ ] Implement `TableNameForQuery()` method
+  - [ ] Implement `TableNameForQuery()` only when raw SQL is used (returns `"\"stich\".\"TableName\" E"`; alias `E` for Channel/IsActive scopes)
 
 - [ ] **2. Request Model** (`internal/model/request/product.go`)
   - [ ] Define struct with `ID` and `IsActive`
@@ -129,18 +129,28 @@ type Product struct {
     Category   Category `gorm:"foreignKey:CategoryId"`
 }
 
+// Only when raw SQL is used; alias E for scopes.Channel("E") and scopes.IsActive("E")
 func (Product) TableNameForQuery() string {
     return "\"stich\".\"Products\" E"
 }
 ```
 
 ### Repository GetAll Pattern
+Use `.Model()` for normal GORM; do not use `.Table()` with `TableNameForQuery()` here.
 ```go
 var products []entities.Product
-res := pr.WithDB(ctx).Table(entities.Product{}.TableNameForQuery()).
+res := pr.WithDB(ctx).Model(entities.Product{}).
     Scopes(scopes.Channel(), scopes.IsActive()).
     Scopes(scopes.ILike(search, "name", "description")).
     Scopes(db.Paginate(ctx)).
+    Find(&products)
+```
+
+When writing raw SQL, use `.Table(entity.TableNameForQuery())` and pass alias `"E"` to Channel and IsActive:
+```go
+res := pr.WithDB(ctx).Table(entities.Product{}.TableNameForQuery()).
+    Scopes(scopes.Channel("E"), scopes.IsActive("E")).
+    // ... raw SQL / custom conditions
     Find(&products)
 ```
 
@@ -202,6 +212,7 @@ type Product struct {
     Name   string `json:"name"`
 }
 
+// Only needed when using raw SQL; alias E is used by Channel() and IsActive() scopes
 func (Product) TableNameForQuery() string {
     return "\"stich\".\"Products\" E"
 }
@@ -233,11 +244,13 @@ type Product struct {
 ## Common Scopes
 
 ```go
-// Always apply for multi-tenant filtering
+// With .Model() (normal GORM) - no alias needed
 scopes.Channel()
-
-// Always apply for soft delete filtering
 scopes.IsActive()
+
+// With raw SQL / .Table(TableNameForQuery()) - pass alias "E"
+scopes.Channel("E")
+scopes.IsActive("E")
 
 // Search across multiple fields
 scopes.ILike(search, "field1", "field2", "field3")

@@ -28,9 +28,9 @@ func ProvideOrderItemHandler(svc service.OrderItemService) *OrderItemHandler {
 //	@Description	Saves an instance of OrderItem
 //	@Tags			OrderItem
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			orderItem	body		requestModel.OrderItem	true	"orderItem"
 //	@Router			/order-item [post]
 func (h OrderItemHandler) SaveOrderItem(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h OrderItemHandler) SaveOrderItem(ctx *gin.Context) {
 //	@Description	Updates an instance of OrderItem
 //	@Tags			OrderItem
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			orderItem	body		requestModel.OrderItem	true	"orderItem"
 //	@Param			id			path		int						true	"OrderItem id"
 //	@Router			/order-item/{id} [put]
@@ -91,7 +91,7 @@ func (h OrderItemHandler) UpdateOrderItem(ctx *gin.Context) {
 //	@Tags			OrderItem
 //	@Accept			json
 //	@Success		200	{object}	responseModel.OrderItem
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"OrderItem id"
 //	@Router			/order-item/{id} [get]
 func (h OrderItemHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h OrderItemHandler) Get(ctx *gin.Context) {
 //	@Tags			OrderItem
 //	@Accept			json
 //	@Success		200		{object}	responseModel.OrderItem
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/order-item [get]
 func (h OrderItemHandler) GetAllOrderItems(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h OrderItemHandler) GetAllOrderItems(ctx *gin.Context) {
 //	@Description	Deletes an instance of OrderItem
 //	@Tags			OrderItem
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"orderItem id"
 //
 //	@Router			/order-item/{id} [delete]

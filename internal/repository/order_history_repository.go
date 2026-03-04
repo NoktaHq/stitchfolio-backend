@@ -46,7 +46,7 @@ func (ohr *orderHistoryRepository) Get(ctx *context.Context, id uint) (*entities
 
 func (ohr *orderHistoryRepository) GetAll(ctx *context.Context, search string) ([]entities.OrderHistory, *errs.XError) {
 	var orderHistories []entities.OrderHistory
-	res := ohr.WithDB(ctx).Table(entities.OrderHistory{}.TableNameForQuery()).
+	res := ohr.WithDB(ctx).Model(entities.OrderHistory{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(db.Paginate(ctx)).
 		Preload("Order").

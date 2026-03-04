@@ -39,7 +39,10 @@ func (dtr *dressTypeRepository) Update(ctx *context.Context, dressType *entities
 
 func (dtr *dressTypeRepository) Get(ctx *context.Context, id uint) (*entities.DressType, *errs.XError) {
 	dressType := entities.DressType{}
-	res := dtr.WithDB(ctx).Find(&dressType, id)
+	res := dtr.WithDB(ctx).
+		Model(dressType).
+		Scopes(scopes.WithAuditInfo()).
+		Find(&dressType, id)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "Unable to find dress type", res.Error)
 	}
@@ -48,8 +51,9 @@ func (dtr *dressTypeRepository) Get(ctx *context.Context, id uint) (*entities.Dr
 
 func (dtr *dressTypeRepository) GetAll(ctx *context.Context, search string) ([]entities.DressType, *errs.XError) {
 	var dressTypes []entities.DressType
-	res := dtr.WithDB(ctx).Table(entities.DressType{}.TableNameForQuery()).
+	res := dtr.WithDB(ctx).Model(entities.DressType{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(scopes.ILike(search, "name")).
 		Scopes(db.Paginate(ctx)).
 		Find(&dressTypes)

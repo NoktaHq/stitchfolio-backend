@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	requesModel "github.com/imkarthi24/sf-backend/internal/model/request"
+	responseModel "github.com/imkarthi24/sf-backend/internal/model/response"
 	"github.com/imkarthi24/sf-backend/internal/service"
 	"github.com/imkarthi24/sf-backend/internal/utils/validator"
 	"github.com/loop-kar/pixie/errs"
@@ -23,15 +24,17 @@ func ProvideUserHandler(svc service.UserService) *UserHandler {
 	return &UserHandler{userSvc: svc}
 }
 
+var _ = (*responseModel.Response)(nil) // used by swagger comments
+
 // Save User
 //
 //	@Summary		Save User
 //	@Description	Saves an instance of User
 //	@Tags			User
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			user	body		requestModel.User	true	"user"
 //	@Router			/user [post]
 func (h UserHandler) SaveUser(ctx *gin.Context) {
@@ -65,9 +68,9 @@ func (h UserHandler) SaveUser(ctx *gin.Context) {
 //	@Description	Updates an instance of User
 //	@Tags			User
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			user	body		requestModel.User	true	"user"
 //	@Param			id		path		int					true	"User id"
 //	@Router			/user/{id} [put]
@@ -98,7 +101,7 @@ func (h UserHandler) UpdateUser(ctx *gin.Context) {
 //	@Description	Saves an instance of User
 //	@Tags			User
 //	@Accept			json
-//	@Failure		400			{object}	response.Response
+//	@Failure		400			{object}	responseModel.Response
 //	@Param			userLogin	body		requestModel.Login	true	"login"
 //	@Router			/user/login [post]
 func (h UserHandler) Login(ctx *gin.Context) {
@@ -129,7 +132,7 @@ func (h UserHandler) Login(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Success		200	{object}	responseModel.User
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"User id"
 //	@Router			/user/{id} [get]
 func (h UserHandler) Get(ctx *gin.Context) {
@@ -154,7 +157,7 @@ func (h UserHandler) Get(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Success		200		{object}	responseModel.User
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/user [get]
 func (h UserHandler) GetAllUsers(ctx *gin.Context) {
@@ -179,8 +182,8 @@ func (h UserHandler) GetAllUsers(ctx *gin.Context) {
 //	@Description	Deletes an instance of User
 //	@Tags			User
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"user id"
 //
 //	@Router			/user/{id} [delete]
@@ -203,8 +206,8 @@ func (h UserHandler) Delete(ctx *gin.Context) {
 //	@Summary		Reset User Password
 //	@Description	Reset User Password
 //	@Tags			User
-//	@Success		200		{object}	response.Response
-//	@Failure		400		{object}	response.Response
+//	@Success		200		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
 //	@Param			email	query		string	true	"email"
 //
 //	@Router			/user/forgot-password [POST]
@@ -227,8 +230,8 @@ func (h UserHandler) ForgotPassword(ctx *gin.Context) {
 //	@Summary		Update User Password
 //	@Description	Update User Password
 //	@Tags			User
-//	@Success		200			{object}	response.Response
-//	@Failure		400			{object}	response.Response
+//	@Success		200			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
 //	@Param			resetString	query		string	true	"resetString"
 //	@Param			password	query		string	true	"password"
 //
@@ -306,9 +309,9 @@ func (h UserHandler) GetUsersForAutoComplete(ctx *gin.Context) {
 //	@Description	Saves an instance of User Config
 //	@Tags			UserConfig
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			userConfig	body		requestModel.UserConfig	true	"userconfig"
 //
 //	@Router			/user/config [post]
@@ -339,9 +342,9 @@ func (h UserHandler) SaveUserConfig(ctx *gin.Context) {
 //	@Description	Update an instance of User Config
 //	@Tags			UserConfig
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			userConfig	body		requestModel.UserConfig	true	"userconfig"
 //	@Param			id			path		int						true	"userconfigid"
 //	@Router			/user/config/{id} [put]
@@ -374,7 +377,7 @@ func (h UserHandler) UpdateUserConfig(ctx *gin.Context) {
 //	@Tags			UserConfig
 //	@Accept			json
 //	@Success		200	{object}	entities.UserConfig
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //
 //	@Param			id	query		int	true	"userId"
 //	@Router			/user/config/ [get]
@@ -399,9 +402,9 @@ func (h UserHandler) GetUserConfig(ctx *gin.Context) {
 //	@Description	Saves an instance of User Channel Detail
 //	@Tags			UserChannelDetail
 //	@Accept			json
-//	@Success		201					{object}	response.Response
-//	@Failure		400					{object}	response.Response
-//	@Failure		501					{object}	response.Response
+//	@Success		201					{object}	responseModel.Response
+//	@Failure		400					{object}	responseModel.Response
+//	@Failure		501					{object}	responseModel.Response
 //	@Param			userChannelDetail	body		[]requestModel.UserChannelDetail	true	"userChannelDetail"
 //
 //	@Router			/user/channel [post]
@@ -432,9 +435,9 @@ func (h UserHandler) SaveUserChannelDetail(ctx *gin.Context) {
 //	@Description	Update an instance of User Channel Detail
 //	@Tags			UserChannelDetail
 //	@Accept			json
-//	@Success		201					{object}	response.Response
-//	@Failure		400					{object}	response.Response
-//	@Failure		501					{object}	response.Response
+//	@Success		201					{object}	responseModel.Response
+//	@Failure		400					{object}	responseModel.Response
+//	@Failure		501					{object}	responseModel.Response
 //	@Param			userChannelDetail	body		requestModel.UserChannelDetail	true	"userconfig"
 //	@Param			id					path		int								true	"userChannelDetailId"
 //	@Router			/user/channel/{id} [put]
@@ -466,8 +469,8 @@ func (h UserHandler) UpdateUserChannelDetail(ctx *gin.Context) {
 //	@Description	Deletes an instance of User Channel Detail
 //	@Tags			UserChannelDetail
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"user channel detail id"
 //
 //	@Router			/user/channel/{id} [delete]

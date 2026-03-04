@@ -77,6 +77,7 @@ func (a *App) Shutdown(ctx *context.Context, checkErr func(err error)) {
 }
 
 func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
+	log.MustInitLogger(a.NewRelic)
 	migrator := migrator.NewMigrator(a.StitchDB)
 
 	entityList := []interface{}{
@@ -86,7 +87,7 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 		// &entities.EmailNotification{},
 		// &entities.EnquiryHistory{},
 		// &entities.Enquiry{},
-		//&entities.Expense{},
+		&entities.Expense{},
 		// &entities.MasterConfig{},
 		// &entities.Measurement{},
 		// &entities.MeasurementHistory{},
@@ -95,12 +96,16 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 		// &entities.Order{},
 		// &entities.OrderItem{},
 		// &entities.Person{},
-		&entities.Task{},
+		// &entities.Task{},
 		// &entities.UserChannelDetail{},
 		// &entities.UserConfig{},
 		// &entities.User{},
 		// &entities.WhatsappNotification{},
-		&entities.Task{},
+		//&entities.Task{},
+		// &entities.Inventory{},
+		// &entities.InventoryLog{},
+		// &entities.Product{},
+		// &entities.Category{},
 	}
 
 	//************************//
@@ -116,5 +121,5 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 
 	//migrator.Migrate(entityList, checkErr)
 
-	migrator.GenerateAlterMigration(entityList, "004_add_task_entity")
+	migrator.GenerateAlterMigration(entityList, "008_add_expense_balance")
 }

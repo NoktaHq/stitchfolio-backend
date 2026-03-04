@@ -8,6 +8,11 @@
     },
     "host": "localhost:9000",
     "basePath": "/api/sf/v1",
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ],
     "paths": {
         "/admin/switch-branch": {
             "post": {
@@ -34,19 +39,244 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/category": {
+            "get": {
+                "description": "Get all active categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Get all active categories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Category"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Saves an instance of Category",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Save Category",
+                "parameters": [
+                    {
+                        "description": "category",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.Category"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/autocomplete": {
+            "get": {
+                "description": "Autocomplete for categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Autocomplete for categories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.CategoryAutoComplete"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{id}": {
+            "get": {
+                "description": "Get an instance of Category",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Get a specific Category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Category"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates an instance of Category",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Update Category",
+                "parameters": [
+                    {
+                        "description": "category",
+                        "name": "category",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.Category"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an instance of Category",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Delete Category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "category id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -80,7 +310,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -109,19 +339,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -155,7 +385,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -190,7 +420,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -226,19 +456,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -265,13 +495,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -305,7 +535,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -334,19 +564,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -380,7 +610,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -415,7 +645,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -451,19 +681,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -490,13 +720,127 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/order": {
+            "get": {
+                "description": "Returns order dashboard: by status, overdue/at-risk, revenue, deliveries due, recent deliveries, by taken-by, count in period, recent activity.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Order dashboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.OrderDashboardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/stats": {
+            "get": {
+                "description": "Returns stats dashboard: revenue, pipeline value, enquiries by status/source, conversion, expenses, new customers, task completion, low stock, top referrers.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Stats dashboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.StatsDashboardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/task": {
+            "get": {
+                "description": "Returns task dashboard: overdue, due today/next 7 days, by assignee, high priority, reminders, completion rate, recent completions.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Task dashboard",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by assignee user ID",
+                        "name": "assigneeId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.TaskDashboardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -530,7 +874,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -559,19 +903,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -606,7 +950,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -642,19 +986,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -681,13 +1025,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -721,7 +1065,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -750,19 +1094,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -796,7 +1140,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -825,19 +1169,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -872,7 +1216,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -907,7 +1251,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -942,7 +1286,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -978,19 +1322,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1017,13 +1361,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1061,19 +1405,129 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/expense-detail/{id}": {
+            "get": {
+                "description": "Get an expense detail by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Get ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ExpenseDetail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.ExpenseDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates an expense detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Update ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ExpenseDetail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "expense detail",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.ExpenseDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an expense detail",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Delete ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ExpenseDetail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1107,7 +1561,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1136,19 +1590,99 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/expense-tracker/{expenseId}/expense-detail": {
+            "get": {
+                "description": "Get all expense details for an expense",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Get expense details by expense id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Expense id",
+                        "name": "expenseId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.ExpenseDetail"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Saves an expense detail for an expense",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ExpenseDetail"
+                ],
+                "summary": "Save ExpenseDetail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Expense id",
+                        "name": "expenseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "expense detail",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.ExpenseDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1183,7 +1717,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1219,19 +1753,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1258,13 +1792,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1283,6 +1817,413 @@
                     },
                     "400": {
                         "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/inventory": {
+            "get": {
+                "description": "Get all inventory records",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Get all inventories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Inventory"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory-log": {
+            "get": {
+                "description": "Get all inventory log records",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InventoryLog"
+                ],
+                "summary": "Get all inventory logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.InventoryLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory-log/change-type": {
+            "get": {
+                "description": "Get all inventory logs filtered by change type (IN, OUT, ADJUST)",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InventoryLog"
+                ],
+                "summary": "Get inventory logs by change type",
+                "parameters": [
+                    {
+                        "enum": [
+                            "IN",
+                            "OUT",
+                            "ADJUST"
+                        ],
+                        "type": "string",
+                        "description": "Change Type",
+                        "name": "changeType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.InventoryLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory-log/date-range": {
+            "get": {
+                "description": "Get all inventory logs within a date range",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InventoryLog"
+                ],
+                "summary": "Get inventory logs by date range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Date (YYYY-MM-DD)",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date (YYYY-MM-DD)",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.InventoryLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory-log/product/{productId}": {
+            "get": {
+                "description": "Get all inventory logs for a specific product",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InventoryLog"
+                ],
+                "summary": "Get inventory logs by product ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "productId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.InventoryLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory-log/{id}": {
+            "get": {
+                "description": "Get an instance of Inventory Log",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InventoryLog"
+                ],
+                "summary": "Get a specific Inventory Log",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Inventory Log id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.InventoryLog"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory/low-stock": {
+            "get": {
+                "description": "Get all items with stock below threshold",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Get low stock items",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.LowStockItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory/movement": {
+            "post": {
+                "description": "Record a stock IN, OUT, or ADJUST movement",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Record stock movement",
+                "parameters": [
+                    {
+                        "description": "stock movement",
+                        "name": "movement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.StockMovementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.StockMovementResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory/product/{productId}": {
+            "get": {
+                "description": "Get inventory for a specific product",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Get inventory by product ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "productId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Inventory"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory/{id}": {
+            "get": {
+                "description": "Get an instance of Inventory",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Get a specific Inventory",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Inventory"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory/{id}/threshold": {
+            "put": {
+                "description": "Update the low stock threshold for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Update low stock threshold",
+                "parameters": [
+                    {
+                        "description": "inventory",
+                        "name": "inventory",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.Inventory"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Inventory id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
                     }
                 }
             }
@@ -1312,19 +2253,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1352,13 +2293,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1387,13 +2328,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1427,13 +2368,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1462,13 +2403,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1504,19 +2445,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1550,7 +2491,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1579,19 +2520,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1625,7 +2566,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1654,19 +2595,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1701,7 +2642,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1736,7 +2677,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1770,19 +2711,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1814,19 +2755,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1861,7 +2802,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -1897,19 +2838,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1936,13 +2877,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -1982,7 +2923,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2011,19 +2952,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2057,7 +2998,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2086,19 +3027,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2133,7 +3074,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2168,7 +3109,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2202,7 +3143,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2231,19 +3172,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2278,7 +3219,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2314,19 +3255,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2353,13 +3294,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2394,7 +3335,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2430,19 +3371,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2469,13 +3410,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2509,7 +3450,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2538,19 +3479,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2585,7 +3526,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2620,7 +3561,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2656,19 +3597,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2695,13 +3636,299 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/product": {
+            "get": {
+                "description": "Get all active products with current stock",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get all active products",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Saves an instance of Product",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Save Product",
+                "parameters": [
+                    {
+                        "description": "product",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/autocomplete": {
+            "get": {
+                "description": "Autocomplete for products with stock info",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Autocomplete for products",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.ProductAutoComplete"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/low-stock": {
+            "get": {
+                "description": "Get all products with stock below threshold",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get low stock products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/sku": {
+            "get": {
+                "description": "Get product details by SKU",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get product by SKU",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product SKU",
+                        "name": "sku",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/{id}": {
+            "get": {
+                "description": "Get an instance of Product with inventory",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get a specific Product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates an instance of Product",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Update Product",
+                "parameters": [
+                    {
+                        "description": "product",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.Product"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an instance of Product",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Delete Product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2738,7 +3965,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2767,19 +3994,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2814,7 +4041,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2850,19 +4077,19 @@
                     "202": {
                         "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2889,13 +4116,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -2929,7 +4156,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -2958,19 +4185,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3040,19 +4267,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3112,19 +4339,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3151,13 +4378,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3188,19 +4415,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3235,7 +4462,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -3273,19 +4500,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3311,13 +4538,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3348,7 +4575,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3394,13 +4621,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3457,7 +4684,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.DataResponse"
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -3493,19 +4720,19 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "501": {
                         "description": "Not Implemented",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3532,13 +4759,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/responseModel.Response"
                         }
                     }
                 }
@@ -3546,29 +4773,6 @@
         }
     },
     "definitions": {
-        "db.Pagination": {
-            "type": "object",
-            "properties": {
-                "currentPage": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "skipPagination": {
-                    "type": "boolean"
-                },
-                "sort": {
-                    "type": "string"
-                },
-                "totalPages": {
-                    "type": "integer"
-                },
-                "totalRecords": {
-                    "type": "integer"
-                }
-            }
-        },
         "entities.Channel": {
             "type": "object",
             "properties": {
@@ -3630,15 +4834,6 @@
                 "SUPERADMIN": "to be used for the owner of the application (customer)",
                 "SYSTEM_ADMIN": "to be used for managing system only,not exposed"
             },
-            "x-enum-descriptions": [
-                "to be used for managing system only,not exposed",
-                "to be used by developer, only read access in PROD",
-                "to be used for the owner of the application (customer)",
-                "to be used by the application administrator",
-                "",
-                "",
-                ""
-            ],
             "x-enum-varnames": [
                 "SYSTEM_ADMIN",
                 "DEV",
@@ -3815,101 +5010,6 @@
                 }
             }
         },
-        "errs.ErrorType": {
-            "type": "string",
-            "enum": [
-                "OTHER",
-                "INVALID",
-                "IO",
-                "EXIST",
-                "NOT_EXIST",
-                "PRIVATE",
-                "INTERNAL",
-                "BROKEN_LINK",
-                "DATABASE",
-                "VALIDATION",
-                "UNANTICIPATED",
-                "INVALID_REQUEST",
-                "SMTP_ERROR",
-                "EMAIL_ERROR",
-                "STORAGE",
-                "INSUFFICIENT_ACCESS",
-                "CUSTOMER_DUPLICATE_TRANSACTION"
-            ],
-            "x-enum-comments": {
-                "BROKEN_LINK": "Link target does not exist.",
-                "CUSTOMER_DUPLICATE_TRANSACTION": "Duplicate Transaction",
-                "DATABASE": "Error from database.",
-                "EMAILERROR": "SMTP Error",
-                "EXIST": "Item already exists.",
-                "INSUFFICIENT_ACCESS": "Insufficient Access",
-                "INTERNAL": "Internal error or inconsistency.",
-                "INVALID": "Invalid operation for this type of item.",
-                "INVALID_REQUEST": "Invalid Request",
-                "IO": "External I/O error such as network failure.",
-                "NOT_EXIST": "Item does not exist.",
-                "OTHER": "Unclassified error. This value is not printed in the error message.",
-                "PRIVATE": "Information withheld.",
-                "SMTPERROR": "SMTP Error",
-                "STORAGE": "Storage Error",
-                "UNANTICIPATED": "Unanticipated error.",
-                "VALIDATION": "Input validation error."
-            },
-            "x-enum-descriptions": [
-                "Unclassified error. This value is not printed in the error message.",
-                "Invalid operation for this type of item.",
-                "External I/O error such as network failure.",
-                "Item already exists.",
-                "Item does not exist.",
-                "Information withheld.",
-                "Internal error or inconsistency.",
-                "Link target does not exist.",
-                "Error from database.",
-                "Input validation error.",
-                "Unanticipated error.",
-                "Invalid Request",
-                "SMTP Error",
-                "SMTP Error",
-                "Storage Error",
-                "Insufficient Access",
-                "Duplicate Transaction"
-            ],
-            "x-enum-varnames": [
-                "OTHER",
-                "INVALID",
-                "IO",
-                "EXIST",
-                "NOT_EXIST",
-                "PRIVATE",
-                "INTERNAL",
-                "BROKEN_LINK",
-                "DATABASE",
-                "VALIDATION",
-                "UNANTICIPATED",
-                "INVALID_REQUEST",
-                "SMTPERROR",
-                "EMAILERROR",
-                "STORAGE",
-                "INSUFFICIENT_ACCESS",
-                "CUSTOMER_DUPLICATE_TRANSACTION"
-            ]
-        },
-        "errs.XError": {
-            "type": "object",
-            "properties": {
-                "error": {},
-                "errorCode": {
-                    "type": "string"
-                },
-                "errorType": {
-                    "$ref": "#/definitions/errs.ErrorType"
-                },
-                "params": {
-                    "type": "array",
-                    "items": {}
-                }
-            }
-        },
         "requestModel.BulkMeasurementItem": {
             "type": "object",
             "properties": {
@@ -3935,6 +5035,20 @@
                 },
                 "personId": {
                     "type": "integer"
+                }
+            }
+        },
+        "requestModel.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -4111,14 +5225,43 @@
                 }
             }
         },
+        "requestModel.ExpenseDetail": {
+            "type": "object",
+            "properties": {
+                "expenseId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
         "requestModel.ExpenseTracker": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "type": "number"
+                },
                 "billNumber": {
                     "type": "string"
                 },
                 "companyName": {
                     "type": "string"
+                },
+                "expenseDetails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/requestModel.ExpenseDetail"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -4140,6 +5283,23 @@
                 },
                 "purchaseDate": {
                     "type": "string"
+                }
+            }
+        },
+        "requestModel.Inventory": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "lowStockThreshold": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
                 }
             }
         },
@@ -4395,6 +5555,69 @@
                 }
             }
         },
+        "requestModel.Product": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "integer"
+                },
+                "costPrice": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "lowStockThreshold": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sellingPrice": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "requestModel.StockMovementRequest": {
+            "type": "object",
+            "required": [
+                "changeType",
+                "productId",
+                "quantity",
+                "reason"
+            ],
+            "properties": {
+                "adminOverride": {
+                    "description": "Allow OUT even if stock insufficient",
+                    "type": "boolean"
+                },
+                "changeType": {
+                    "description": "IN, OUT, ADJUST",
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "requestModel.SwitchBranch": {
             "type": "object",
             "properties": {
@@ -4437,6 +5660,10 @@
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {
@@ -4592,53 +5819,19 @@
                 }
             }
         },
-        "response.DataResponse": {
+        "responseModel.AssigneeTaskCount": {
             "type": "object",
             "properties": {
-                "data": {},
-                "error": {
-                    "$ref": "#/definitions/errs.XError"
+                "incomplete": {
+                    "type": "integer"
                 },
-                "message": {
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
                     "type": "string"
-                },
-                "pageMetaData": {
-                    "$ref": "#/definitions/db.Pagination"
-                },
-                "type": {
-                    "$ref": "#/definitions/response.ResponseType"
                 }
             }
-        },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "$ref": "#/definitions/errs.XError"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "pageMetaData": {
-                    "$ref": "#/definitions/db.Pagination"
-                },
-                "type": {
-                    "$ref": "#/definitions/response.ResponseType"
-                }
-            }
-        },
-        "response.ResponseType": {
-            "type": "string",
-            "enum": [
-                "Success",
-                "Failure",
-                "Warning"
-            ],
-            "x-enum-varnames": [
-                "SUCCESS",
-                "FAILURE",
-                "WARNING"
-            ]
         },
         "responseModel.AuditFields": {
             "type": "object",
@@ -4653,6 +5846,38 @@
                     "type": "string"
                 },
                 "updatedBy": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.Category": {
+            "type": "object",
+            "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "productCount": {
+                    "description": "Count of products in this category",
+                    "type": "integer"
+                }
+            }
+        },
+        "responseModel.CategoryAutoComplete": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -4724,17 +5949,39 @@
                 }
             }
         },
+        "responseModel.CompletionRateStat": {
+            "type": "object",
+            "properties": {
+                "last30Days": {
+                    "$ref": "#/definitions/responseModel.CompletionRateWindow"
+                },
+                "last7Days": {
+                    "$ref": "#/definitions/responseModel.CompletionRateWindow"
+                }
+            }
+        },
+        "responseModel.CompletionRateWindow": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "integer"
+                },
+                "percent": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "responseModel.Customer": {
             "type": "object",
             "properties": {
                 "address": {
                     "type": "string"
                 },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "email": {
                     "type": "string"
@@ -4772,12 +6019,6 @@
                 "phoneNumber": {
                     "type": "string"
                 },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
-                },
                 "whatsappNumber": {
                     "type": "string"
                 }
@@ -4803,14 +6044,25 @@
                 }
             }
         },
+        "responseModel.DataResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {},
+                "message": {
+                    "type": "string"
+                },
+                "pageMetaData": {},
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.DressType": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "description": {
                     "type": "string"
@@ -4826,23 +6078,14 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
         "responseModel.Enquiry": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
                 "customer": {
                     "$ref": "#/definitions/responseModel.Customer"
@@ -4873,25 +6116,27 @@
                 },
                 "subject": {
                     "type": "string"
+                }
+            }
+        },
+        "responseModel.EnquiryConversionStat": {
+            "type": "object",
+            "properties": {
+                "enquiriesInPeriod": {
+                    "type": "integer"
                 },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
+                "ordersFromEnquiry": {
+                    "type": "integer"
                 }
             }
         },
         "responseModel.EnquiryHistory": {
             "type": "object",
             "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
                 "callBackDate": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "customerComment": {
@@ -4933,13 +6178,30 @@
                 "status": {
                     "type": "string"
                 },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
-                },
                 "visitingDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.ExpenseDetail": {
+            "type": "object",
+            "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "expenseId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "source": {
                     "type": "string"
                 }
             }
@@ -4950,11 +6212,20 @@
                 "auditFields": {
                     "$ref": "#/definitions/responseModel.AuditFields"
                 },
+                "balance": {
+                    "type": "number"
+                },
                 "billNumber": {
                     "type": "string"
                 },
                 "companyName": {
                     "type": "string"
+                },
+                "expenseDetails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.ExpenseDetail"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -4975,6 +6246,130 @@
                     "type": "number"
                 },
                 "purchaseDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.Inventory": {
+            "type": "object",
+            "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isLowStock": {
+                    "type": "boolean"
+                },
+                "lowStockThreshold": {
+                    "type": "integer"
+                },
+                "product": {
+                    "description": "Related data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.Product"
+                        }
+                    ]
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productSku": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.InventoryLog": {
+            "type": "object",
+            "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "changeType": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "loggedAt": {
+                    "type": "string"
+                },
+                "loggedByName": {
+                    "description": "User who logged",
+                    "type": "string"
+                },
+                "netChange": {
+                    "description": "e.g. \"0(+20)\" = 0 before, +20 added; \"20(-5)\" = 20 before, -5",
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "product": {
+                    "description": "Related data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.Product"
+                        }
+                    ]
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productSku": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "stockAfter": {
+                    "description": "Stock quantity after this movement",
+                    "type": "integer"
+                }
+            }
+        },
+        "responseModel.LowStockItem": {
+            "type": "object",
+            "properties": {
+                "categoryName": {
+                    "type": "string"
+                },
+                "currentStock": {
+                    "type": "integer"
+                },
+                "lowStockThreshold": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "productSku": {
                     "type": "string"
                 }
             }
@@ -5046,7 +6441,7 @@
                 "updatedAt": {
                     "type": "string"
                 },
-                "updatedById": {
+                "updatedBy": {
                     "type": "string"
                 }
             }
@@ -5057,13 +6452,10 @@
                 "action": {
                     "type": "string"
                 },
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
+                },
                 "changedValues": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "id": {
@@ -5092,12 +6484,6 @@
                 },
                 "performedById": {
                     "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
                 }
             }
         },
@@ -5161,7 +6547,7 @@
                 }
             }
         },
-        "responseModel.OrderHistory": {
+        "responseModel.OrderActivityItem": {
             "type": "object",
             "properties": {
                 "action": {
@@ -5170,10 +6556,99 @@
                 "changedFields": {
                     "type": "string"
                 },
-                "createdAt": {
+                "id": {
+                    "type": "integer"
+                },
+                "orderId": {
+                    "type": "integer"
+                },
+                "performedAt": {
                     "type": "string"
                 },
-                "createdBy": {
+                "performedBy": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.OrderDashboardList": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "orders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.OrderSummary"
+                    }
+                }
+            }
+        },
+        "responseModel.OrderDashboardResponse": {
+            "type": "object",
+            "properties": {
+                "deliveriesDueThisWeek": {
+                    "description": "by ExpectedDeliveryDate",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.OrderDashboardList"
+                        }
+                    ]
+                },
+                "orderCountInPeriod": {
+                    "description": "last 7/30 days",
+                    "type": "integer"
+                },
+                "ordersByStatus": {
+                    "description": "count per status DRAFT → DELIVERED, CANCELLED",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.StatusCountStat"
+                    }
+                },
+                "ordersByTakenBy": {
+                    "description": "count per OrderTakenById",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.UserOrderCount"
+                    }
+                },
+                "overdueAtRiskOrders": {
+                    "description": "ExpectedDeliveryDate passed or soon, not DELIVERED",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.OrderDashboardList"
+                        }
+                    ]
+                },
+                "recentDeliveries": {
+                    "description": "DeliveredDate last 7/30 days",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.OrderDashboardList"
+                        }
+                    ]
+                },
+                "recentOrderActivity": {
+                    "description": "from OrderHistory",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.OrderActivityItem"
+                    }
+                },
+                "revenueInPeriod": {
+                    "description": "sum OrderValue + AdditionalCharges in period",
+                    "type": "number"
+                }
+            }
+        },
+        "responseModel.OrderHistory": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "changedFields": {
                     "type": "string"
                 },
                 "deliveredDate": {
@@ -5211,12 +6686,6 @@
                     "type": "integer"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
                     "type": "string"
                 }
             }
@@ -5274,17 +6743,43 @@
                 }
             }
         },
+        "responseModel.OrderSummary": {
+            "type": "object",
+            "properties": {
+                "additionalCharges": {
+                    "type": "number"
+                },
+                "customerName": {
+                    "type": "string"
+                },
+                "deliveredDate": {
+                    "type": "string"
+                },
+                "expectedDeliveryDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "orderTakenBy": {
+                    "type": "string"
+                },
+                "orderTakenById": {
+                    "type": "integer"
+                },
+                "orderValue": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.Person": {
             "type": "object",
             "properties": {
                 "age": {
                     "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
                 },
                 "customer": {
                     "$ref": "#/definitions/responseModel.Customer"
@@ -5312,12 +6807,218 @@
                     "items": {
                         "$ref": "#/definitions/responseModel.Measurement"
                     }
+                }
+            }
+        },
+        "responseModel.Product": {
+            "type": "object",
+            "properties": {
+                "auditFields": {
+                    "$ref": "#/definitions/responseModel.AuditFields"
                 },
-                "updatedAt": {
+                "category": {
+                    "description": "Related data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.Category"
+                        }
+                    ]
+                },
+                "categoryId": {
+                    "type": "integer"
+                },
+                "categoryName": {
+                    "description": "Flattened category name",
                     "type": "string"
                 },
-                "updatedBy": {
+                "costPrice": {
+                    "type": "number"
+                },
+                "currentStock": {
+                    "description": "From inventory",
+                    "type": "integer"
+                },
+                "description": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inventory": {
+                    "$ref": "#/definitions/responseModel.Inventory"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isLowStock": {
+                    "description": "Stock alert flag",
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sellingPrice": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.ProductAutoComplete": {
+            "type": "object",
+            "properties": {
+                "currentStock": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isLowStock": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.ReferrerCountStat": {
+            "type": "object",
+            "properties": {
+                "enquiriesCount": {
+                    "type": "integer"
+                },
+                "referrer": {
+                    "type": "string"
+                },
+                "referrerPhone": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.Response": {
+            "type": "object",
+            "properties": {
+                "error": {},
+                "message": {
+                    "type": "string"
+                },
+                "pageMetaData": {},
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.SourceCountStat": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.StatsDashboardResponse": {
+            "type": "object",
+            "properties": {
+                "enquiriesBySource": {
+                    "description": "Enquiry.Source",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.SourceCountStat"
+                    }
+                },
+                "enquiriesByStatus": {
+                    "description": "new / accepted / callback / closed",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.StatusCountStat"
+                    }
+                },
+                "enquiryOrderConversion": {
+                    "description": "orders linked to customers who had enquiries in period",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.EnquiryConversionStat"
+                        }
+                    ]
+                },
+                "expenseTotalInPeriod": {
+                    "description": "Expense.PurchaseDate + Price",
+                    "type": "number"
+                },
+                "lowStockItems": {
+                    "description": "Inventory.Quantity \u003c= LowStockThreshold",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.LowStockItem"
+                    }
+                },
+                "newCustomersInPeriod": {
+                    "description": "Customer.CreatedAt in range",
+                    "type": "integer"
+                },
+                "orderPipelineValue": {
+                    "description": "sum value for orders not CANCELLED/DELIVERED",
+                    "type": "number"
+                },
+                "revenueInPeriod": {
+                    "description": "delivered orders in period",
+                    "type": "number"
+                },
+                "taskCompletionInPeriod": {
+                    "description": "completed vs created in period",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.CompletionRateStat"
+                        }
+                    ]
+                },
+                "topReferrers": {
+                    "description": "Enquiry.ReferredBy + count",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.ReferrerCountStat"
+                    }
+                }
+            }
+        },
+        "responseModel.StatusCountStat": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.StockMovementResponse": {
+            "type": "object",
+            "properties": {
+                "changeAmount": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "newStock": {
+                    "type": "integer"
+                },
+                "previousStock": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
@@ -5354,6 +7055,124 @@
                 "reminderDate": {
                     "type": "string"
                 },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.TaskDashboardResponse": {
+            "type": "object",
+            "properties": {
+                "completionRate": {
+                    "description": "% completed in last 7/30 days",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.CompletionRateStat"
+                        }
+                    ]
+                },
+                "dueNext7Days": {
+                    "description": "due in next 7 days",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
+                        }
+                    ]
+                },
+                "dueToday": {
+                    "description": "due today",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
+                        }
+                    ]
+                },
+                "highPriorityIncomplete": {
+                    "description": "Priority set, not done",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
+                        }
+                    ]
+                },
+                "incompleteByAssignee": {
+                    "description": "count per user",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.AssigneeTaskCount"
+                    }
+                },
+                "overdueTasks": {
+                    "description": "DueDate \u003c today, IsCompleted = false",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
+                        }
+                    ]
+                },
+                "recentCompletions": {
+                    "description": "last N tasks with CompletedAt",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.TaskSummary"
+                    }
+                },
+                "upcomingReminders": {
+                    "description": "ReminderDate in next 24–48h",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
+                        }
+                    ]
+                }
+            }
+        },
+        "responseModel.TaskDashboardTaskList": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.TaskSummary"
+                    }
+                }
+            }
+        },
+        "responseModel.TaskSummary": {
+            "type": "object",
+            "properties": {
+                "assignedTo": {
+                    "description": "display name",
+                    "type": "string"
+                },
+                "assignedToId": {
+                    "type": "integer"
+                },
+                "completedAt": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isCompleted": {
+                    "type": "boolean"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "reminderDate": {
+                    "type": "string"
+                },
                 "title": {
                     "type": "string"
                 }
@@ -5362,12 +7181,6 @@
         "responseModel.User": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
-                },
                 "department": {
                     "type": "string"
                 },
@@ -5413,12 +7226,6 @@
                 "role": {
                     "type": "string"
                 },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "string"
-                },
                 "userChannelDetails": {
                     "type": "array",
                     "items": {
@@ -5440,6 +7247,27 @@
                     "type": "string"
                 }
             }
+        },
+        "responseModel.UserOrderCount": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Token",
+            "in": "header"
         }
     }
 }

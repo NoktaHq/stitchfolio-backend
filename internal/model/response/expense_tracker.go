@@ -11,7 +11,21 @@ type ExpenseTracker struct {
 	CompanyName  string     `json:"companyName,omitempty"`
 	Material     string     `json:"material,omitempty"`
 	Price        float64    `json:"price,omitempty"`
+	Balance      float64    `json:"balance,omitempty"`
 	Location     *string    `json:"location,omitempty"`
 	Notes        *string    `json:"notes,omitempty"`
-	AuditFields  `json:"auditFields"`
+
+	ExpenseDetails []ExpenseDetail `json:"expenseDetails,omitempty"`
+
+	AuditFields `json:"auditFields,omitempty"`
+}
+
+type ExpenseDetail struct {
+	ID        uint    `json:"id,omitempty"`
+	IsActive  bool    `json:"isActive,omitempty"`
+	Source    string  `json:"source,omitempty"`
+	Price     float64 `json:"price,omitempty"`
+	ExpenseId uint    `json:"expenseId,omitempty"`
+
+	AuditFields `json:"auditFields,omitempty"`
 }

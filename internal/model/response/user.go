@@ -22,8 +22,6 @@ type User struct {
 	Experience          string     `json:"experience,omitempty"`
 	Department          string     `json:"department,omitempty"`
 
-	AuditFields
-
 	UserChannelDetails []UserChannelDetail `json:"userChannelDetails,omitempty"`
 }
 

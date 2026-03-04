@@ -65,7 +65,7 @@ func (Customer) TableNameForQuery() string {
 **Key Points:**
 - Embed `*Model` for common fields (ID, timestamps, audit fields, channel_id)
 - Use GORM tags for relations and constraints
-- Implement `TableNameForQuery()` for custom table names with schema prefix
+- Implement `TableNameForQuery()` only when raw SQL is used; it returns schema-qualified name with alias `E`. For normal GORM use `.Model()`, not `.Table()`. When using raw SQL with `TableNameForQuery()`, pass `scopes.Channel("E")` and `scopes.IsActive("E")`.
 
 ### 2. Models Layer (`internal/model/`)
 
@@ -248,7 +248,7 @@ func (cr *customerRepository) Get(ctx *context.Context, id uint) (*entities.Cust
 // GetAll (with scopes)
 func (cr *customerRepository) GetAll(ctx *context.Context, search string) ([]entities.Customer, *errs.XError) {
     var customers []entities.Customer
-    res := cr.WithDB(ctx).Table(entities.Customer{}.TableNameForQuery()).
+    res := cr.WithDB(ctx).Model(entities.Customer{}).
         Scopes(scopes.Channel(), scopes.IsActive()).
         Scopes(scopes.ILike(search, "first_name", "last_name", "email", "phone_number")).
         Scopes(db.Paginate(ctx)).
@@ -333,11 +333,19 @@ func ILike(query string, params ...string) func(db *gorm.DB) *gorm.DB {
 }
 ```
 
-**Usage in Repository:**
+**Usage in Repository (normal GORM - use .Model):**
 ```go
-res := cr.WithDB(ctx).Table(entities.Customer{}.TableNameForQuery()).
+res := cr.WithDB(ctx).Model(entities.Customer{}).
     Scopes(scopes.Channel(), scopes.IsActive()).
     Scopes(scopes.ILike(search, "first_name", "last_name", "email")).
+    Find(&customers)
+```
+
+**When using raw SQL** (e.g. `.Table(entity.TableNameForQuery())`), pass alias `"E"` so Channel and IsActive resolve columns correctly:
+```go
+res := cr.WithDB(ctx).Table(entities.Customer{}.TableNameForQuery()).
+    Scopes(scopes.Channel("E"), scopes.IsActive("E")).
+    // ... raw conditions
     Find(&customers)
 ```
 
@@ -775,6 +783,8 @@ func (Product) TableNameForQuery() string {
 }
 ```
 
+(Use `TableNameForQuery()` only when raw SQL is involved; for normal GORM use `.Model()`.)
+
 ### Step 2: Request Model
 **File:** `internal/model/request/product.go`
 
@@ -949,7 +959,7 @@ func (pr *productRepository) Get(ctx *context.Context, id uint) (*entities.Produ
 
 func (pr *productRepository) GetAll(ctx *context.Context, search string) ([]entities.Product, *errs.XError) {
     var products []entities.Product
-    res := pr.WithDB(ctx).Table(entities.Product{}.TableNameForQuery()).
+    res := pr.WithDB(ctx).Model(entities.Product{}).
         Scopes(scopes.Channel(), scopes.IsActive()).
         Scopes(scopes.ILike(search, "name", "description", "sku")).
         Scopes(db.Paginate(ctx)).
@@ -1365,8 +1375,8 @@ res := cr.WithDB(ctx).Create(&customer)
 search := ctx.Query("search")
 search = util.EncloseWithSingleQuote(search)
 
-// In Repository
-res := cr.WithDB(ctx).Table(entities.Customer{}.TableNameForQuery()).
+// In Repository (normal GORM - use .Model)
+res := cr.WithDB(ctx).Model(entities.Customer{}).
     Scopes(scopes.Channel(), scopes.IsActive()).
     Scopes(scopes.ILike(search, "first_name", "last_name", "email")).
     Scopes(db.Paginate(ctx)).

@@ -39,7 +39,7 @@ func (oir *orderItemRepository) Update(ctx *context.Context, orderItem *entities
 
 func (oir *orderItemRepository) Get(ctx *context.Context, id uint) (*entities.OrderItem, *errs.XError) {
 	orderItem := entities.OrderItem{}
-	res := oir.WithDB(ctx).
+	res := oir.WithDB(ctx).Model(orderItem).
 		Scopes(scopes.WithAuditInfo()).
 		Preload("Order").Find(&orderItem, id)
 	if res.Error != nil {

@@ -28,9 +28,9 @@ func ProvideOrderHandler(svc service.OrderService) *OrderHandler {
 //	@Description	Saves an instance of Order
 //	@Tags			Order
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			order	body		requestModel.Order	true	"order"
 //	@Router			/order [post]
 func (h OrderHandler) SaveOrder(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h OrderHandler) SaveOrder(ctx *gin.Context) {
 //	@Description	Updates an instance of Order
 //	@Tags			Order
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			order	body		requestModel.Order	true	"order"
 //	@Param			id		path		int					true	"Order id"
 //	@Router			/order/{id} [put]
@@ -91,7 +91,7 @@ func (h OrderHandler) UpdateOrder(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Order
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Order id"
 //	@Router			/order/{id} [get]
 func (h OrderHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h OrderHandler) Get(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Order
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Param			filters	query		string	false	"filters (e.g., name eq 'Shirt', status eq 'Active')"
 //	@Router			/order [get]
@@ -140,8 +140,8 @@ func (h OrderHandler) GetAllOrders(ctx *gin.Context) {
 //	@Description	Deletes an instance of Order
 //	@Tags			Order
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"order id"
 //
 //	@Router			/order/{id} [delete]

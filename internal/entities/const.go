@@ -16,6 +16,8 @@ const (
 	Entity_Measurement          EntityName = "Measurement"
 	Entity_Order                EntityName = "Order"
 	Entity_OrderItem            EntityName = "OrderItem"
+	Entity_ExpenseDetail        EntityName = "ExpenseDetail"
+	Entity_Expense              EntityName = "Expense"
 )
 
 // string to entity name

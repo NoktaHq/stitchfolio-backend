@@ -41,12 +41,13 @@ func (or *orderRepository) Update(ctx *context.Context, order *entities.Order) *
 
 func (or *orderRepository) Get(ctx *context.Context, id uint) (*entities.Order, *errs.XError) {
 	order := entities.Order{}
-	res := or.WithDB(ctx).Model(&entities.Order{}).
+	res := or.WithDB(ctx).Model(order).
 		Select(`"stich"."Orders".*,
 			(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems"
 			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_quantity,
 			(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems"
 			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`).
+		Scopes(scopes.WithAuditInfo()).
 		Preload("Customer").
 		Scopes(scopes.WithAuditInfo()).
 		Preload("OrderTakenBy", scopes.SelectFields("first_name", "last_name")).
@@ -70,11 +71,14 @@ func (or *orderRepository) GetAll(ctx *context.Context, search string) ([]entiti
 	}
 
 	res := or.WithDB(ctx).Model(&entities.Order{}).
+		Joins(`LEFT JOIN "stich"."Users" cu ON cu.id = "stich"."Orders".created_by_id`).
+		Joins(`LEFT JOIN "stich"."Users" uu ON uu.id = "stich"."Orders".updated_by_id`).
 		Select(`"stich"."Orders".*,
-			(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems" 
-			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_quantity,
-			(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" 
-			 WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) as order_value`).
+			COALESCE(cu.first_name || ' ' || cu.last_name, '') AS created_by,
+			COALESCE(uu.first_name || ' ' || uu.last_name, '') AS updated_by,
+			(SELECT COALESCE(SUM(quantity), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) AS order_quantity,
+			(SELECT COALESCE(SUM(total), 0) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) AS order_value,
+			(SELECT MIN(expected_delivery_date) FROM "stich"."OrderItems" WHERE "stich"."OrderItems".order_id = "stich"."Orders".id) AS expected_delivery_date`).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.GetOrders_Search(search)).
 		Scopes(scopes.GetOrders_Filter(filter)).

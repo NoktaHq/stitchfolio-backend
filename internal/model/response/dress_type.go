@@ -8,5 +8,5 @@ type DressType struct {
 	Description  string `json:"description,omitempty"`
 	Measurements string `json:"measurements,omitempty"`
 
-	AuditFields
+	AuditFields `json:"auditFields,omitempty"`
 }

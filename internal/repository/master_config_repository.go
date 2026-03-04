@@ -40,7 +40,7 @@ func (repo *masterConfigRepository) Update(ctx *context.Context, config *entitie
 
 func (repo *masterConfigRepository) Get(ctx *context.Context, id uint) (*entities.MasterConfig, *errs.XError) {
 	config := entities.MasterConfig{}
-	res := repo.WithDB(ctx).
+	res := repo.WithDB(ctx).Model(config).
 		Scopes(scopes.WithAuditInfo()).
 		Scopes(scopes.Channel()).
 		Find(&config, id)
@@ -81,9 +81,10 @@ func (repo *masterConfigRepository) LoadAll(ctx *context.Context) ([]entities.Ma
 
 func (repo *masterConfigRepository) GetForBrowse(ctx *context.Context, search string) ([]entities.MasterConfig, *errs.XError) {
 	var configs []entities.MasterConfig
-	res := repo.WithDB(ctx).
+	res := repo.WithDB(ctx).Model(entities.MasterConfig{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.ILike(search, "name", "type")).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(db.Paginate(ctx)).
 		Find(&configs)
 

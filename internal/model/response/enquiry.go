@@ -13,5 +13,5 @@ type Enquiry struct {
 	ReferredBy          string `json:"referredBy,omitempty"`
 	ReferrerPhoneNumber string `json:"referrerPhoneNumber,omitempty"`
 
-	AuditFields
+	AuditFields `json:"auditFields,omitempty"`
 }

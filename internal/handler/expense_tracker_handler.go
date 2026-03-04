@@ -28,9 +28,9 @@ func ProvideExpenseTrackerHandler(svc service.ExpenseTrackerService) *ExpenseTra
 //	@Description	Saves an instance of ExpenseTracker
 //	@Tags			ExpenseTracker
 //	@Accept			json
-//	@Success		201				{object}	response.Response
-//	@Failure		400				{object}	response.Response
-//	@Failure		501				{object}	response.Response
+//	@Success		201				{object}	responseModel.Response
+//	@Failure		400				{object}	responseModel.Response
+//	@Failure		501				{object}	responseModel.Response
 //	@Param			expenseTracker	body		requestModel.ExpenseTracker	true	"expenseTracker"
 //	@Router			/expense-tracker [post]
 func (h ExpenseTrackerHandler) SaveExpenseTracker(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h ExpenseTrackerHandler) SaveExpenseTracker(ctx *gin.Context) {
 //	@Description	Updates an instance of ExpenseTracker
 //	@Tags			ExpenseTracker
 //	@Accept			json
-//	@Success		201				{object}	response.Response
-//	@Failure		400				{object}	response.Response
-//	@Failure		501				{object}	response.Response
+//	@Success		201				{object}	responseModel.Response
+//	@Failure		400				{object}	responseModel.Response
+//	@Failure		501				{object}	responseModel.Response
 //	@Param			expenseTracker	body		requestModel.ExpenseTracker	true	"expenseTracker"
 //	@Param			id				path		int							true	"ExpenseTracker id"
 //	@Router			/expense-tracker/{id} [put]
@@ -91,7 +91,7 @@ func (h ExpenseTrackerHandler) UpdateExpenseTracker(ctx *gin.Context) {
 //	@Tags			ExpenseTracker
 //	@Accept			json
 //	@Success		200	{object}	responseModel.ExpenseTracker
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"ExpenseTracker id"
 //	@Router			/expense-tracker/{id} [get]
 func (h ExpenseTrackerHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h ExpenseTrackerHandler) Get(ctx *gin.Context) {
 //	@Tags			ExpenseTracker
 //	@Accept			json
 //	@Success		200		{object}	responseModel.ExpenseTracker
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/expense-tracker [get]
 func (h ExpenseTrackerHandler) GetAllExpenseTrackers(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h ExpenseTrackerHandler) GetAllExpenseTrackers(ctx *gin.Context) {
 //	@Description	Deletes an instance of ExpenseTracker
 //	@Tags			ExpenseTracker
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"expenseTracker id"
 //
 //	@Router			/expense-tracker/{id} [delete]

@@ -1,20 +1,7 @@
 basePath: /api/sf/v1
+security:
+  - BearerAuth: []
 definitions:
-  db.Pagination:
-    properties:
-      currentPage:
-        type: integer
-      size:
-        type: integer
-      skipPagination:
-        type: boolean
-      sort:
-        type: string
-      totalPages:
-        type: integer
-      totalRecords:
-        type: integer
-    type: object
   entities.Channel:
     properties:
       ID:
@@ -62,14 +49,6 @@ definitions:
       DEV: to be used by developer, only read access in PROD
       SUPERADMIN: to be used for the owner of the application (customer)
       SYSTEM_ADMIN: to be used for managing system only,not exposed
-    x-enum-descriptions:
-    - to be used for managing system only,not exposed
-    - to be used by developer, only read access in PROD
-    - to be used for the owner of the application (customer)
-    - to be used by the application administrator
-    - ""
-    - ""
-    - ""
     x-enum-varnames:
     - SYSTEM_ADMIN
     - DEV
@@ -197,91 +176,6 @@ definitions:
       updatedById:
         type: integer
     type: object
-  errs.ErrorType:
-    enum:
-    - OTHER
-    - INVALID
-    - IO
-    - EXIST
-    - NOT_EXIST
-    - PRIVATE
-    - INTERNAL
-    - BROKEN_LINK
-    - DATABASE
-    - VALIDATION
-    - UNANTICIPATED
-    - INVALID_REQUEST
-    - SMTP_ERROR
-    - EMAIL_ERROR
-    - STORAGE
-    - INSUFFICIENT_ACCESS
-    - CUSTOMER_DUPLICATE_TRANSACTION
-    type: string
-    x-enum-comments:
-      BROKEN_LINK: Link target does not exist.
-      CUSTOMER_DUPLICATE_TRANSACTION: Duplicate Transaction
-      DATABASE: Error from database.
-      EMAILERROR: SMTP Error
-      EXIST: Item already exists.
-      INSUFFICIENT_ACCESS: Insufficient Access
-      INTERNAL: Internal error or inconsistency.
-      INVALID: Invalid operation for this type of item.
-      INVALID_REQUEST: Invalid Request
-      IO: External I/O error such as network failure.
-      NOT_EXIST: Item does not exist.
-      OTHER: Unclassified error. This value is not printed in the error message.
-      PRIVATE: Information withheld.
-      SMTPERROR: SMTP Error
-      STORAGE: Storage Error
-      UNANTICIPATED: Unanticipated error.
-      VALIDATION: Input validation error.
-    x-enum-descriptions:
-    - Unclassified error. This value is not printed in the error message.
-    - Invalid operation for this type of item.
-    - External I/O error such as network failure.
-    - Item already exists.
-    - Item does not exist.
-    - Information withheld.
-    - Internal error or inconsistency.
-    - Link target does not exist.
-    - Error from database.
-    - Input validation error.
-    - Unanticipated error.
-    - Invalid Request
-    - SMTP Error
-    - SMTP Error
-    - Storage Error
-    - Insufficient Access
-    - Duplicate Transaction
-    x-enum-varnames:
-    - OTHER
-    - INVALID
-    - IO
-    - EXIST
-    - NOT_EXIST
-    - PRIVATE
-    - INTERNAL
-    - BROKEN_LINK
-    - DATABASE
-    - VALIDATION
-    - UNANTICIPATED
-    - INVALID_REQUEST
-    - SMTPERROR
-    - EMAILERROR
-    - STORAGE
-    - INSUFFICIENT_ACCESS
-    - CUSTOMER_DUPLICATE_TRANSACTION
-  errs.XError:
-    properties:
-      error: {}
-      errorCode:
-        type: string
-      errorType:
-        $ref: '#/definitions/errs.ErrorType'
-      params:
-        items: {}
-        type: array
-    type: object
   requestModel.BulkMeasurementItem:
     properties:
       dressTypeId:
@@ -299,6 +193,15 @@ definitions:
         type: array
       personId:
         type: integer
+    type: object
+  requestModel.Category:
+    properties:
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      name:
+        type: string
     type: object
   requestModel.Channel:
     properties:
@@ -414,12 +317,31 @@ definitions:
       visitingDate:
         type: string
     type: object
+  requestModel.ExpenseDetail:
+    properties:
+      expenseId:
+        type: integer
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      price:
+        type: number
+      source:
+        type: string
+    type: object
   requestModel.ExpenseTracker:
     properties:
+      balance:
+        type: number
       billNumber:
         type: string
       companyName:
         type: string
+      expenseDetails:
+        items:
+          $ref: '#/definitions/requestModel.ExpenseDetail'
+        type: array
       id:
         type: integer
       isActive:
@@ -434,6 +356,17 @@ definitions:
         type: number
       purchaseDate:
         type: string
+    type: object
+  requestModel.Inventory:
+    properties:
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      lowStockThreshold:
+        type: integer
+      productId:
+        type: integer
     type: object
   requestModel.Login:
     properties:
@@ -601,6 +534,49 @@ definitions:
       lastName:
         type: string
     type: object
+  requestModel.Product:
+    properties:
+      categoryId:
+        type: integer
+      costPrice:
+        type: number
+      description:
+        type: string
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      lowStockThreshold:
+        type: integer
+      name:
+        type: string
+      sellingPrice:
+        type: number
+      sku:
+        type: string
+    type: object
+  requestModel.StockMovementRequest:
+    properties:
+      adminOverride:
+        description: Allow OUT even if stock insufficient
+        type: boolean
+      changeType:
+        description: IN, OUT, ADJUST
+        type: string
+      notes:
+        type: string
+      productId:
+        type: integer
+      quantity:
+        type: integer
+      reason:
+        type: string
+    required:
+    - changeType
+    - productId
+    - quantity
+    - reason
+    type: object
   requestModel.SwitchBranch:
     properties:
       enquiryId:
@@ -629,6 +605,9 @@ definitions:
       priority:
         type: integer
       reminderDate:
+        type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         type: string
       title:
         type: string
@@ -731,39 +710,15 @@ definitions:
       userID:
         type: integer
     type: object
-  response.DataResponse:
+  responseModel.AssigneeTaskCount:
     properties:
-      data: {}
-      error:
-        $ref: '#/definitions/errs.XError'
-      message:
+      incomplete:
+        type: integer
+      userId:
+        type: integer
+      userName:
         type: string
-      pageMetaData:
-        $ref: '#/definitions/db.Pagination'
-      type:
-        $ref: '#/definitions/response.ResponseType'
     type: object
-  response.Response:
-    properties:
-      error:
-        $ref: '#/definitions/errs.XError'
-      message:
-        type: string
-      pageMetaData:
-        $ref: '#/definitions/db.Pagination'
-      type:
-        $ref: '#/definitions/response.ResponseType'
-    type: object
-  response.ResponseType:
-    enum:
-    - Success
-    - Failure
-    - Warning
-    type: string
-    x-enum-varnames:
-    - SUCCESS
-    - FAILURE
-    - WARNING
   responseModel.AuditFields:
     properties:
       createdAt:
@@ -773,6 +728,27 @@ definitions:
       updatedAt:
         type: string
       updatedBy:
+        type: string
+    type: object
+  responseModel.Category:
+    properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      name:
+        type: string
+      productCount:
+        description: Count of products in this category
+        type: integer
+    type: object
+  responseModel.CategoryAutoComplete:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
   responseModel.Channel:
@@ -822,14 +798,28 @@ definitions:
       name:
         type: string
     type: object
+  responseModel.CompletionRateStat:
+    properties:
+      last7Days:
+        $ref: '#/definitions/responseModel.CompletionRateWindow'
+      last30Days:
+        $ref: '#/definitions/responseModel.CompletionRateWindow'
+    type: object
+  responseModel.CompletionRateWindow:
+    properties:
+      completed:
+        type: integer
+      percent:
+        type: number
+      total:
+        type: integer
+    type: object
   responseModel.Customer:
     properties:
       address:
         type: string
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       email:
         type: string
       enquiries:
@@ -854,10 +844,6 @@ definitions:
         type: array
       phoneNumber:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
       whatsappNumber:
         type: string
     type: object
@@ -874,12 +860,20 @@ definitions:
       phoneNumber:
         type: string
     type: object
+  responseModel.DataResponse:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      pageMetaData: {}
+      type:
+        type: string
+    type: object
   responseModel.DressType:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       description:
         type: string
       id:
@@ -890,17 +884,11 @@ definitions:
         type: string
       name:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.Enquiry:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       customer:
         $ref: '#/definitions/responseModel.Customer'
       customerId:
@@ -921,18 +909,19 @@ definitions:
         type: string
       subject:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
+    type: object
+  responseModel.EnquiryConversionStat:
+    properties:
+      enquiriesInPeriod:
+        type: integer
+      ordersFromEnquiry:
+        type: integer
     type: object
   responseModel.EnquiryHistory:
     properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       callBackDate:
-        type: string
-      createdAt:
-        type: string
-      createdBy:
         type: string
       customerComment:
         type: string
@@ -960,21 +949,38 @@ definitions:
         type: string
       status:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
       visitingDate:
+        type: string
+    type: object
+  responseModel.ExpenseDetail:
+    properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
+      expenseId:
+        type: integer
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      price:
+        type: number
+      source:
         type: string
     type: object
   responseModel.ExpenseTracker:
     properties:
       auditFields:
         $ref: '#/definitions/responseModel.AuditFields'
+      balance:
+        type: number
       billNumber:
         type: string
       companyName:
         type: string
+      expenseDetails:
+        items:
+          $ref: '#/definitions/responseModel.ExpenseDetail'
+        type: array
       id:
         type: integer
       isActive:
@@ -988,6 +994,86 @@ definitions:
       price:
         type: number
       purchaseDate:
+        type: string
+    type: object
+  responseModel.Inventory:
+    properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      isLowStock:
+        type: boolean
+      lowStockThreshold:
+        type: integer
+      product:
+        allOf:
+        - $ref: '#/definitions/responseModel.Product'
+        description: Related data
+      productId:
+        type: integer
+      productName:
+        type: string
+      productSku:
+        type: string
+      quantity:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  responseModel.InventoryLog:
+    properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
+      changeType:
+        type: string
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      loggedAt:
+        type: string
+      loggedByName:
+        description: User who logged
+        type: string
+      netChange:
+        description: e.g. "0(+20)" = 0 before, +20 added; "20(-5)" = 20 before, -5
+        type: string
+      notes:
+        type: string
+      product:
+        allOf:
+        - $ref: '#/definitions/responseModel.Product'
+        description: Related data
+      productId:
+        type: integer
+      productName:
+        type: string
+      productSku:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+      stockAfter:
+        description: Stock quantity after this movement
+        type: integer
+    type: object
+  responseModel.LowStockItem:
+    properties:
+      categoryName:
+        type: string
+      currentStock:
+        type: integer
+      lowStockThreshold:
+        type: integer
+      productId:
+        type: integer
+      productName:
+        type: string
+      productSku:
         type: string
     type: object
   responseModel.Measurement:
@@ -1035,18 +1121,16 @@ definitions:
         type: string
       updatedAt:
         type: string
-      updatedById:
+      updatedBy:
         type: string
     type: object
   responseModel.MeasurementHistory:
     properties:
       action:
         type: string
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
       changedValues:
-        type: string
-      createdAt:
-        type: string
-      createdBy:
         type: string
       id:
         type: integer
@@ -1066,10 +1150,6 @@ definitions:
         $ref: '#/definitions/responseModel.User'
       performedById:
         type: integer
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
     type: object
   responseModel.Order:
     properties:
@@ -1112,15 +1192,71 @@ definitions:
       status:
         type: string
     type: object
-  responseModel.OrderHistory:
+  responseModel.OrderActivityItem:
     properties:
       action:
         type: string
       changedFields:
         type: string
-      createdAt:
+      id:
+        type: integer
+      orderId:
+        type: integer
+      performedAt:
         type: string
-      createdBy:
+      performedBy:
+        type: string
+    type: object
+  responseModel.OrderDashboardList:
+    properties:
+      count:
+        type: integer
+      orders:
+        items:
+          $ref: '#/definitions/responseModel.OrderSummary'
+        type: array
+    type: object
+  responseModel.OrderDashboardResponse:
+    properties:
+      deliveriesDueThisWeek:
+        allOf:
+        - $ref: '#/definitions/responseModel.OrderDashboardList'
+        description: by ExpectedDeliveryDate
+      orderCountInPeriod:
+        description: last 7/30 days
+        type: integer
+      ordersByStatus:
+        description: count per status DRAFT → DELIVERED, CANCELLED
+        items:
+          $ref: '#/definitions/responseModel.StatusCountStat'
+        type: array
+      ordersByTakenBy:
+        description: count per OrderTakenById
+        items:
+          $ref: '#/definitions/responseModel.UserOrderCount'
+        type: array
+      overdueAtRiskOrders:
+        allOf:
+        - $ref: '#/definitions/responseModel.OrderDashboardList'
+        description: ExpectedDeliveryDate passed or soon, not DELIVERED
+      recentDeliveries:
+        allOf:
+        - $ref: '#/definitions/responseModel.OrderDashboardList'
+        description: DeliveredDate last 7/30 days
+      recentOrderActivity:
+        description: from OrderHistory
+        items:
+          $ref: '#/definitions/responseModel.OrderActivityItem'
+        type: array
+      revenueInPeriod:
+        description: sum OrderValue + AdditionalCharges in period
+        type: number
+    type: object
+  responseModel.OrderHistory:
+    properties:
+      action:
+        type: string
+      changedFields:
         type: string
       deliveredDate:
         type: string
@@ -1146,10 +1282,6 @@ definitions:
       performedById:
         type: integer
       status:
-        type: string
-      updatedAt:
-        type: string
-      updatedBy:
         type: string
     type: object
   responseModel.OrderItem:
@@ -1187,14 +1319,31 @@ definitions:
       total:
         type: number
     type: object
+  responseModel.OrderSummary:
+    properties:
+      additionalCharges:
+        type: number
+      customerName:
+        type: string
+      deliveredDate:
+        type: string
+      expectedDeliveryDate:
+        type: string
+      id:
+        type: integer
+      orderTakenBy:
+        type: string
+      orderTakenById:
+        type: integer
+      orderValue:
+        type: number
+      status:
+        type: string
+    type: object
   responseModel.Person:
     properties:
       age:
         type: integer
-      createdAt:
-        type: string
-      createdBy:
-        type: string
       customer:
         $ref: '#/definitions/responseModel.Customer'
       customerId:
@@ -1213,10 +1362,145 @@ definitions:
         items:
           $ref: '#/definitions/responseModel.Measurement'
         type: array
-      updatedAt:
+    type: object
+  responseModel.Product:
+    properties:
+      auditFields:
+        $ref: '#/definitions/responseModel.AuditFields'
+      category:
+        allOf:
+        - $ref: '#/definitions/responseModel.Category'
+        description: Related data
+      categoryId:
+        type: integer
+      categoryName:
+        description: Flattened category name
         type: string
-      updatedBy:
+      costPrice:
+        type: number
+      currentStock:
+        description: From inventory
+        type: integer
+      description:
         type: string
+      id:
+        type: integer
+      inventory:
+        $ref: '#/definitions/responseModel.Inventory'
+      isActive:
+        type: boolean
+      isLowStock:
+        description: Stock alert flag
+        type: boolean
+      name:
+        type: string
+      sellingPrice:
+        type: number
+      sku:
+        type: string
+    type: object
+  responseModel.ProductAutoComplete:
+    properties:
+      currentStock:
+        type: integer
+      id:
+        type: integer
+      isLowStock:
+        type: boolean
+      name:
+        type: string
+      sku:
+        type: string
+    type: object
+  responseModel.ReferrerCountStat:
+    properties:
+      enquiriesCount:
+        type: integer
+      referrer:
+        type: string
+      referrerPhone:
+        type: string
+    type: object
+  responseModel.Response:
+    properties:
+      error: {}
+      message:
+        type: string
+      pageMetaData: {}
+      type:
+        type: string
+    type: object
+  responseModel.SourceCountStat:
+    properties:
+      count:
+        type: integer
+      source:
+        type: string
+    type: object
+  responseModel.StatsDashboardResponse:
+    properties:
+      enquiriesBySource:
+        description: Enquiry.Source
+        items:
+          $ref: '#/definitions/responseModel.SourceCountStat'
+        type: array
+      enquiriesByStatus:
+        description: new / accepted / callback / closed
+        items:
+          $ref: '#/definitions/responseModel.StatusCountStat'
+        type: array
+      enquiryOrderConversion:
+        allOf:
+        - $ref: '#/definitions/responseModel.EnquiryConversionStat'
+        description: orders linked to customers who had enquiries in period
+      expenseTotalInPeriod:
+        description: Expense.PurchaseDate + Price
+        type: number
+      lowStockItems:
+        description: Inventory.Quantity <= LowStockThreshold
+        items:
+          $ref: '#/definitions/responseModel.LowStockItem'
+        type: array
+      newCustomersInPeriod:
+        description: Customer.CreatedAt in range
+        type: integer
+      orderPipelineValue:
+        description: sum value for orders not CANCELLED/DELIVERED
+        type: number
+      revenueInPeriod:
+        description: delivered orders in period
+        type: number
+      taskCompletionInPeriod:
+        allOf:
+        - $ref: '#/definitions/responseModel.CompletionRateStat'
+        description: completed vs created in period
+      topReferrers:
+        description: Enquiry.ReferredBy + count
+        items:
+          $ref: '#/definitions/responseModel.ReferrerCountStat'
+        type: array
+    type: object
+  responseModel.StatusCountStat:
+    properties:
+      count:
+        type: integer
+      status:
+        type: string
+    type: object
+  responseModel.StockMovementResponse:
+    properties:
+      changeAmount:
+        type: integer
+      message:
+        type: string
+      newStock:
+        type: integer
+      previousStock:
+        type: integer
+      productId:
+        type: integer
+      success:
+        type: boolean
     type: object
   responseModel.Task:
     properties:
@@ -1240,15 +1524,82 @@ definitions:
         type: integer
       reminderDate:
         type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+        type: string
+      title:
+        type: string
+    type: object
+  responseModel.TaskDashboardResponse:
+    properties:
+      completionRate:
+        allOf:
+        - $ref: '#/definitions/responseModel.CompletionRateStat'
+        description: '% completed in last 7/30 days'
+      dueNext7Days:
+        allOf:
+        - $ref: '#/definitions/responseModel.TaskDashboardTaskList'
+        description: due in next 7 days
+      dueToday:
+        allOf:
+        - $ref: '#/definitions/responseModel.TaskDashboardTaskList'
+        description: due today
+      highPriorityIncomplete:
+        allOf:
+        - $ref: '#/definitions/responseModel.TaskDashboardTaskList'
+        description: Priority set, not done
+      incompleteByAssignee:
+        description: count per user
+        items:
+          $ref: '#/definitions/responseModel.AssigneeTaskCount'
+        type: array
+      overdueTasks:
+        allOf:
+        - $ref: '#/definitions/responseModel.TaskDashboardTaskList'
+        description: DueDate < today, IsCompleted = false
+      recentCompletions:
+        description: last N tasks with CompletedAt
+        items:
+          $ref: '#/definitions/responseModel.TaskSummary'
+        type: array
+      upcomingReminders:
+        allOf:
+        - $ref: '#/definitions/responseModel.TaskDashboardTaskList'
+        description: ReminderDate in next 24–48h
+    type: object
+  responseModel.TaskDashboardTaskList:
+    properties:
+      count:
+        type: integer
+      tasks:
+        items:
+          $ref: '#/definitions/responseModel.TaskSummary'
+        type: array
+    type: object
+  responseModel.TaskSummary:
+    properties:
+      assignedTo:
+        description: display name
+        type: string
+      assignedToId:
+        type: integer
+      completedAt:
+        type: string
+      dueDate:
+        type: string
+      id:
+        type: integer
+      isCompleted:
+        type: boolean
+      priority:
+        type: integer
+      reminderDate:
+        type: string
       title:
         type: string
     type: object
   responseModel.User:
     properties:
-      createdAt:
-        type: string
-      createdBy:
-        type: string
       department:
         type: string
       email:
@@ -1279,10 +1630,6 @@ definitions:
         type: string
       role:
         type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: string
       userChannelDetails:
         items:
           $ref: '#/definitions/responseModel.UserChannelDetail'
@@ -1296,6 +1643,15 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  responseModel.UserOrderCount:
+    properties:
+      count:
+        type: integer
+      name:
+        type: string
+      userId:
+        type: integer
     type: object
 host: localhost:9000
 info:
@@ -1320,18 +1676,166 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Switch a record from one channel to another
       tags:
       - Admin
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: Get all active categories
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get all active categories
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: Saves an instance of Category
+      parameters:
+      - description: category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.Category'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Save Category
+      tags:
+      - Category
+  /category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an instance of Category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Delete Category
+      tags:
+      - Category
+    get:
+      consumes:
+      - application/json
+      description: Get an instance of Category
+      parameters:
+      - description: Category id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get a specific Category
+      tags:
+      - Category
+    put:
+      consumes:
+      - application/json
+      description: Updates an instance of Category
+      parameters:
+      - description: category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.Category'
+      - description: Category id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Update Category
+      tags:
+      - Category
+  /category/autocomplete:
+    get:
+      consumes:
+      - application/json
+      description: Autocomplete for categories
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.CategoryAutoComplete'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Autocomplete for categories
+      tags:
+      - Category
   /channel:
     get:
       consumes:
@@ -1350,7 +1854,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active channels
       tags:
       - Channel
@@ -1369,15 +1873,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Channel
       tags:
       - Channel
@@ -1396,11 +1900,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Channel
       tags:
       - Channel
@@ -1422,7 +1926,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific  Channel
       tags:
       - Channel
@@ -1446,15 +1950,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Channel
       tags:
       - Channel
@@ -1476,7 +1980,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Autocomplete for channels
       tags:
       - Channel
@@ -1498,7 +2002,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active customers
       tags:
       - Customer
@@ -1517,15 +2021,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Customer
       tags:
       - Customer
@@ -1544,11 +2048,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Customer
       tags:
       - Customer
@@ -1570,7 +2074,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific Customer
       tags:
       - Customer
@@ -1594,15 +2098,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Customer
       tags:
       - Customer
@@ -1624,10 +2128,88 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Autocomplete for customers
       tags:
       - Customer
+  /dashboard/order:
+    get:
+      consumes:
+      - application/json
+      description: 'Returns order dashboard: by status, overdue/at-risk, revenue,
+        deliveries due, recent deliveries, by taken-by, count in period, recent activity.'
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.OrderDashboardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Order dashboard
+      tags:
+      - Dashboard
+  /dashboard/stats:
+    get:
+      consumes:
+      - application/json
+      description: 'Returns stats dashboard: revenue, pipeline value, enquiries by
+        status/source, conversion, expenses, new customers, task completion, low stock,
+        top referrers.'
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.StatsDashboardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Stats dashboard
+      tags:
+      - Dashboard
+  /dashboard/task:
+    get:
+      consumes:
+      - application/json
+      description: 'Returns task dashboard: overdue, due today/next 7 days, by assignee,
+        high priority, reminders, completion rate, recent completions.'
+      parameters:
+      - description: Filter by assignee user ID
+        in: query
+        name: assigneeId
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.TaskDashboardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Task dashboard
+      tags:
+      - Dashboard
   /dress-type:
     get:
       consumes:
@@ -1646,7 +2228,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active dress types
       tags:
       - DressType
@@ -1665,15 +2247,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save DressType
       tags:
       - DressType
@@ -1692,11 +2274,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete DressType
       tags:
       - DressType
@@ -1718,7 +2300,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific DressType
       tags:
       - DressType
@@ -1742,15 +2324,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update DressType
       tags:
       - DressType
@@ -1772,7 +2354,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active enquiries
       tags:
       - Enquiry
@@ -1791,15 +2373,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Enquiry
       tags:
       - Enquiry
@@ -1821,7 +2403,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active enquiry histories
       tags:
       - EnquiryHistory
@@ -1840,15 +2422,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save EnquiryHistory
       tags:
       - EnquiryHistory
@@ -1871,7 +2453,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific EnquiryHistory
       tags:
       - EnquiryHistory
@@ -1894,7 +2476,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get enquiry histories by enquiry id
       tags:
       - EnquiryHistory
@@ -1913,11 +2495,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Enquiry
       tags:
       - Enquiry
@@ -1939,7 +2521,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific Enquiry
       tags:
       - Enquiry
@@ -1963,15 +2545,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Enquiry
       tags:
       - Enquiry
@@ -1996,18 +2578,91 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Enquiry and Customer
       tags:
       - Enquiry
+  /expense-detail/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an expense detail
+      parameters:
+      - description: ExpenseDetail id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Delete ExpenseDetail
+      tags:
+      - ExpenseDetail
+    get:
+      consumes:
+      - application/json
+      description: Get an expense detail by id
+      parameters:
+      - description: ExpenseDetail id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.ExpenseDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get ExpenseDetail
+      tags:
+      - ExpenseDetail
+    put:
+      consumes:
+      - application/json
+      description: Updates an expense detail
+      parameters:
+      - description: ExpenseDetail id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: expense detail
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.ExpenseDetail'
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Update ExpenseDetail
+      tags:
+      - ExpenseDetail
   /expense-tracker:
     get:
       consumes:
@@ -2026,7 +2681,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active expense trackers
       tags:
       - ExpenseTracker
@@ -2045,18 +2700,71 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save ExpenseTracker
       tags:
       - ExpenseTracker
+  /expense-tracker/{expenseId}/expense-detail:
+    get:
+      consumes:
+      - application/json
+      description: Get all expense details for an expense
+      parameters:
+      - description: Expense id
+        in: path
+        name: expenseId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.ExpenseDetail'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get expense details by expense id
+      tags:
+      - ExpenseDetail
+    post:
+      consumes:
+      - application/json
+      description: Saves an expense detail for an expense
+      parameters:
+      - description: Expense id
+        in: path
+        name: expenseId
+        required: true
+        type: integer
+      - description: expense detail
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.ExpenseDetail'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Save ExpenseDetail
+      tags:
+      - ExpenseDetail
   /expense-tracker/{id}:
     delete:
       consumes:
@@ -2072,11 +2780,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete ExpenseTracker
       tags:
       - ExpenseTracker
@@ -2098,7 +2806,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific ExpenseTracker
       tags:
       - ExpenseTracker
@@ -2122,15 +2830,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update ExpenseTracker
       tags:
       - ExpenseTracker
@@ -2145,6 +2853,273 @@ paths:
       summary: Health endpoint
       tags:
       - Health
+  /inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory records
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Inventory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get all inventories
+      tags:
+      - Inventory
+  /inventory-log:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory log records
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.InventoryLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get all inventory logs
+      tags:
+      - InventoryLog
+  /inventory-log/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an instance of Inventory Log
+      parameters:
+      - description: Inventory Log id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.InventoryLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get a specific Inventory Log
+      tags:
+      - InventoryLog
+  /inventory-log/change-type:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory logs filtered by change type (IN, OUT, ADJUST)
+      parameters:
+      - description: Change Type
+        enum:
+        - IN
+        - OUT
+        - ADJUST
+        in: query
+        name: changeType
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.InventoryLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get inventory logs by change type
+      tags:
+      - InventoryLog
+  /inventory-log/date-range:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory logs within a date range
+      parameters:
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: startDate
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: endDate
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.InventoryLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get inventory logs by date range
+      tags:
+      - InventoryLog
+  /inventory-log/product/{productId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory logs for a specific product
+      parameters:
+      - description: Product ID
+        in: path
+        name: productId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.InventoryLog'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get inventory logs by product ID
+      tags:
+      - InventoryLog
+  /inventory/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an instance of Inventory
+      parameters:
+      - description: Inventory id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Inventory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get a specific Inventory
+      tags:
+      - Inventory
+  /inventory/{id}/threshold:
+    put:
+      consumes:
+      - application/json
+      description: Update the low stock threshold for a product
+      parameters:
+      - description: inventory
+        in: body
+        name: inventory
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.Inventory'
+      - description: Inventory id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Update low stock threshold
+      tags:
+      - Inventory
+  /inventory/low-stock:
+    get:
+      consumes:
+      - application/json
+      description: Get all items with stock below threshold
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.LowStockItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get low stock items
+      tags:
+      - Inventory
+  /inventory/movement:
+    post:
+      consumes:
+      - application/json
+      description: Record a stock IN, OUT, or ADJUST movement
+      parameters:
+      - description: stock movement
+        in: body
+        name: movement
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.StockMovementRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responseModel.StockMovementResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Record stock movement
+      tags:
+      - Inventory
+  /inventory/product/{productId}:
+    get:
+      consumes:
+      - application/json
+      description: Get inventory for a specific product
+      parameters:
+      - description: Product ID
+        in: path
+        name: productId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Inventory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get inventory by product ID
+      tags:
+      - Inventory
   /masterConfig:
     post:
       consumes:
@@ -2161,15 +3136,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Create Master Config
       tags:
       - MasterConfig
@@ -2188,11 +3163,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Get Master Config
       tags:
       - MasterConfig
@@ -2216,15 +3191,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Master Config
       tags:
       - MasterConfig
@@ -2242,11 +3217,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Get Master Config for browse
       tags:
       - MasterConfig
@@ -2265,11 +3240,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Get Master Config by Name
       tags:
       - MasterConfig
@@ -2291,11 +3266,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Get Multiple Master Config Values
       tags:
       - MasterConfig
@@ -2318,7 +3293,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active measurements grouped by PersonId
       tags:
       - Measurement
@@ -2337,15 +3312,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Measurement
       tags:
       - Measurement
@@ -2367,7 +3342,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active measurement histories
       tags:
       - MeasurementHistory
@@ -2386,15 +3361,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save MeasurementHistory
       tags:
       - MeasurementHistory
@@ -2417,7 +3392,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific MeasurementHistory
       tags:
       - MeasurementHistory
@@ -2440,7 +3415,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get measurement histories by measurement id
       tags:
       - MeasurementHistory
@@ -2459,11 +3434,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Measurement
       tags:
       - Measurement
@@ -2485,7 +3460,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific Measurement
       tags:
       - Measurement
@@ -2509,15 +3484,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Measurement
       tags:
       - Measurement
@@ -2539,15 +3514,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Bulk Measurements
       tags:
       - Measurement
@@ -2568,15 +3543,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Bulk Update Measurements
       tags:
       - Measurement
@@ -2602,7 +3577,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active orders
       tags:
       - Order
@@ -2621,15 +3596,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Order
       tags:
       - Order
@@ -2651,7 +3626,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active order histories
       tags:
       - OrderHistory
@@ -2670,15 +3645,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save OrderHistory
       tags:
       - OrderHistory
@@ -2701,7 +3676,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific OrderHistory
       tags:
       - OrderHistory
@@ -2724,7 +3699,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get order histories by order id
       tags:
       - OrderHistory
@@ -2746,7 +3721,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active order items
       tags:
       - OrderItem
@@ -2765,15 +3740,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save OrderItem
       tags:
       - OrderItem
@@ -2792,11 +3767,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete OrderItem
       tags:
       - OrderItem
@@ -2818,7 +3793,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific OrderItem
       tags:
       - OrderItem
@@ -2842,15 +3817,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update OrderItem
       tags:
       - OrderItem
@@ -2869,11 +3844,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Order
       tags:
       - Order
@@ -2895,7 +3870,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific Order
       tags:
       - Order
@@ -2919,15 +3894,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Order
       tags:
       - Order
@@ -2949,7 +3924,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active persons
       tags:
       - Person
@@ -2968,15 +3943,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Person
       tags:
       - Person
@@ -2995,11 +3970,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Person
       tags:
       - Person
@@ -3021,7 +3996,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific Person
       tags:
       - Person
@@ -3045,15 +4020,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Person
       tags:
       - Person
@@ -3076,10 +4051,198 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get persons by customer id
       tags:
       - Person
+  /product:
+    get:
+      consumes:
+      - application/json
+      description: Get all active products with current stock
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get all active products
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: Saves an instance of Product
+      parameters:
+      - description: product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.Product'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Save Product
+      tags:
+      - Product
+  /product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an instance of Product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Delete Product
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Get an instance of Product with inventory
+      parameters:
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get a specific Product
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Updates an instance of Product
+      parameters:
+      - description: product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.Product'
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.Response'
+      summary: Update Product
+      tags:
+      - Product
+  /product/autocomplete:
+    get:
+      consumes:
+      - application/json
+      description: Autocomplete for products with stock info
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.ProductAutoComplete'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Autocomplete for products
+      tags:
+      - Product
+  /product/low-stock:
+    get:
+      consumes:
+      - application/json
+      description: Get all products with stock below threshold
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get low stock products
+      tags:
+      - Product
+  /product/sku:
+    get:
+      consumes:
+      - application/json
+      description: Get product details by SKU
+      parameters:
+      - description: Product SKU
+        in: query
+        name: sku
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseModel.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      summary: Get product by SKU
+      tags:
+      - Product
   /task:
     get:
       consumes:
@@ -3100,7 +4263,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active tasks
       tags:
       - Task
@@ -3119,15 +4282,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save Task
       tags:
       - Task
@@ -3146,11 +4309,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete Task
       tags:
       - Task
@@ -3172,7 +4335,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific Task
       tags:
       - Task
@@ -3196,15 +4359,15 @@ paths:
         "202":
           description: Accepted
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update Task
       tags:
       - Task
@@ -3226,7 +4389,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get all active users
       tags:
       - User
@@ -3245,15 +4408,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save User
       tags:
       - User
@@ -3272,11 +4435,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete User
       tags:
       - User
@@ -3298,7 +4461,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific  User
       tags:
       - User
@@ -3322,15 +4485,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update User
       tags:
       - User
@@ -3376,15 +4539,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save User Channel Detail
       tags:
       - UserChannelDetail
@@ -3403,11 +4566,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Delete User Channel Detail
       tags:
       - UserChannelDetail
@@ -3431,15 +4594,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update User Channel Detail
       tags:
       - UserChannelDetail
@@ -3474,15 +4637,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Save User Config
       tags:
       - UserConfig
@@ -3505,7 +4668,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.DataResponse'
+            $ref: '#/definitions/responseModel.DataResponse'
       summary: Get a specific  UserConfig
       tags:
       - UserConfig
@@ -3530,15 +4693,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "501":
           description: Not Implemented
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update User Config
       tags:
       - UserConfig
@@ -3555,11 +4718,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Reset User Password
       tags:
       - User
@@ -3579,7 +4742,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Login User
       tags:
       - User
@@ -3610,11 +4773,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/responseModel.Response'
       summary: Update User Password
       tags:
       - User
@@ -3633,4 +4796,9 @@ paths:
       summary: Refresh JWT Token and Switches the Channel
       tags:
       - User
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Token
+    type: apiKey
 swagger: "2.0"

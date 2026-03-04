@@ -106,7 +106,7 @@
             "program": "main.go",
             "mode": "debug",
             "args": ["--configFile","./config/prod.yaml"],
-            "envFile": "${workspaceFolder}/env/prod.env"
+            "envFile": "${workspaceFolder}/env/prod.env"            
         },
     ]
 }

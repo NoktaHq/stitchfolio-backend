@@ -28,9 +28,9 @@ func ProvideCustomerHandler(svc service.CustomerService) *CustomerHandler {
 //	@Description	Saves an instance of Customer
 //	@Tags			Customer
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			customer	body		requestModel.Customer	true	"customer"
 //	@Router			/customer [post]
 func (h CustomerHandler) SaveCustomer(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h CustomerHandler) SaveCustomer(ctx *gin.Context) {
 //	@Description	Updates an instance of Customer
 //	@Tags			Customer
 //	@Accept			json
-//	@Success		201			{object}	response.Response
-//	@Failure		400			{object}	response.Response
-//	@Failure		501			{object}	response.Response
+//	@Success		201			{object}	responseModel.Response
+//	@Failure		400			{object}	responseModel.Response
+//	@Failure		501			{object}	responseModel.Response
 //	@Param			customer	body		requestModel.Customer	true	"customer"
 //	@Param			id			path		int						true	"Customer id"
 //	@Router			/customer/{id} [put]
@@ -91,7 +91,7 @@ func (h CustomerHandler) UpdateCustomer(ctx *gin.Context) {
 //	@Tags			Customer
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Customer
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Customer id"
 //	@Router			/customer/{id} [get]
 func (h CustomerHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h CustomerHandler) Get(ctx *gin.Context) {
 //	@Tags			Customer
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Customer
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/customer [get]
 func (h CustomerHandler) GetAllCustomers(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h CustomerHandler) GetAllCustomers(ctx *gin.Context) {
 //	@Description	Deletes an instance of Customer
 //	@Tags			Customer
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"customer id"
 //
 //	@Router			/customer/{id} [delete]
@@ -164,7 +164,7 @@ func (h CustomerHandler) Delete(ctx *gin.Context) {
 //	@Tags			Customer
 //	@Accept			json
 //	@Success		200		{object}	responseModel.CustomerAutoComplete
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/customer/autocomplete [get]
 func (h CustomerHandler) AutocompleteCustomer(ctx *gin.Context) {

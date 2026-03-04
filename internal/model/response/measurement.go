@@ -1,14 +1,14 @@
 package responseModel
 
 import (
-	"encoding/json"
+	entitiy_types "github.com/imkarthi24/sf-backend/internal/entities/types"
 )
 
 type Measurement struct {
 	ID       uint `json:"id,omitempty"`
 	IsActive bool `json:"isActive,omitempty"`
 
-	Values json.RawMessage `json:"values,omitempty"`
+	Values entitiy_types.JSON `json:"values,omitempty"`
 
 	PersonId   *uint   `json:"personId,omitempty"`
 	Person     *Person `json:"person,omitempty"`
@@ -20,7 +20,7 @@ type Measurement struct {
 	TakenById *uint  `json:"takenById,omitempty"`
 	TakenBy   string `json:"takenBy,omitempty"` // first_name + last_name
 
-	AuditFields `json:"auditFields"`
+	AuditFields `json:"auditFields,omitempty"`
 }
 
 type MeasurementBrowse struct {
@@ -31,5 +31,5 @@ type MeasurementBrowse struct {
 	CustomerId uint   `json:"customerId"`
 	DressTypes string `json:"dressTypes"` // CSV of DressType names
 	UpdatedAt  string `json:"updatedAt,omitempty"`
-	UpdatedBy  string `json:"updatedById,omitempty"`
+	UpdatedBy  string `json:"updatedBy,omitempty"`
 }

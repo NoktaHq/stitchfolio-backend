@@ -28,9 +28,9 @@ func ProvideChannelHandler(svc service.ChannelService) *ChannelHandler {
 //	@Description	Saves an instance of Channel
 //	@Tags			Channel
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			channel	body		requestModel.Channel	true	"channel"
 //	@Router			/channel [post]
 func (h ChannelHandler) SaveChannel(ctx *gin.Context) {
@@ -60,9 +60,9 @@ func (h ChannelHandler) SaveChannel(ctx *gin.Context) {
 //	@Description	Updates an instance of Channel
 //	@Tags			Channel
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			channel	body		requestModel.Channel	true	"channel"
 //	@Param			id		path		int						true	"Channel id"
 //	@Router			/channel/{id} [put]
@@ -96,7 +96,7 @@ func (h ChannelHandler) UpdateChannel(ctx *gin.Context) {
 //	@Tags			Channel
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Channel
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Channel id"
 //	@Router			/channel/{id} [get]
 func (h ChannelHandler) Get(ctx *gin.Context) {
@@ -121,7 +121,7 @@ func (h ChannelHandler) Get(ctx *gin.Context) {
 //	@Tags			Channel
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Channel
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			name	query		string	false	"name"
 //	@Router			/channel [get]
 func (h ChannelHandler) GetAllChannels(ctx *gin.Context) {
@@ -147,7 +147,7 @@ func (h ChannelHandler) GetAllChannels(ctx *gin.Context) {
 //	@Tags			Channel
 //	@Accept			json
 //	@Success		200		{object}	responseModel.ChannelAutoComplete
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			name	query		string	false	"name"
 //	@Router			/channel/autocomplete [get]
 func (h ChannelHandler) ChannelAutoComplete(ctx *gin.Context) {
@@ -172,8 +172,8 @@ func (h ChannelHandler) ChannelAutoComplete(ctx *gin.Context) {
 //	@Description	Deletes an instance of Channel
 //	@Tags			Channel
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"Channel id"
 //
 //	@Router			/channel/{id} [delete]

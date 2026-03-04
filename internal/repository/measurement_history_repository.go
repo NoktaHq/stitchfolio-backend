@@ -46,7 +46,7 @@ func (mhr *measurementHistoryRepository) Get(ctx *context.Context, id uint) (*en
 
 func (mhr *measurementHistoryRepository) GetAll(ctx *context.Context, search string) ([]entities.MeasurementHistory, *errs.XError) {
 	var measurementHistories []entities.MeasurementHistory
-	res := mhr.WithDB(ctx).Table(entities.MeasurementHistory{}.TableNameForQuery()).
+	res := mhr.WithDB(ctx).Model(entities.MeasurementHistory{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(db.Paginate(ctx)).
 		Preload("Measurement").

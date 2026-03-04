@@ -53,7 +53,7 @@ func (pr *personRepository) Get(ctx *context.Context, id uint) (*entities.Person
 
 func (pr *personRepository) GetAll(ctx *context.Context, search string) ([]entities.Person, *errs.XError) {
 	var persons []entities.Person
-	res := pr.WithDB(ctx).Table(entities.Person{}.TableNameForQuery()).
+	res := pr.WithDB(ctx).Model(entities.Person{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.ILike(search, "first_name", "last_name")).
 		Scopes(db.Paginate(ctx)).

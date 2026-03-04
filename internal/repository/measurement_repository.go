@@ -77,7 +77,7 @@ func (mr *measurementRepository) BatchUpdate(ctx *context.Context, measurements 
 
 func (mr *measurementRepository) Get(ctx *context.Context, id uint) (*entities.Measurement, *errs.XError) {
 	measurement := entities.Measurement{}
-	res := mr.WithDB(ctx).
+	res := mr.WithDB(ctx).Model(measurement).
 		Preload("Person").
 		Preload("DressType").
 		Preload("TakenBy", scopes.SelectFields("first_name", "last_name")).
@@ -119,7 +119,7 @@ func (mr *measurementRepository) GetAll(
 			updated_at,
 			taken_by_id
 		`).
-		Scopes(scopes.IsActive(), scopes.Channel()).
+		Scopes(scopes.IsActive(), scopes.Channel("E")).
 		Order(`person_id, updated_at DESC`)
 
 	query := mr.WithDB(ctx).

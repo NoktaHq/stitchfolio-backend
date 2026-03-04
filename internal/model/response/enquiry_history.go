@@ -19,5 +19,5 @@ type EnquiryHistory struct {
 	PerformedById   uint      `json:"performedById,omitempty"`
 	PerformedBy     *User     `json:"performedBy,omitempty"`
 
-	AuditFields
+	AuditFields `json:"auditFields"`
 }

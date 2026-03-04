@@ -62,11 +62,12 @@ func (er *enquiryRepository) Get(ctx *context.Context, id uint) (*entities.Enqui
 
 func (er *enquiryRepository) GetAll(ctx *context.Context, search string) ([]entities.Enquiry, *errs.XError) {
 	var enquiries []entities.Enquiry
-	res := er.WithDB(ctx).
+	res := er.WithDB(ctx).Model(entities.Enquiry{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.ILike(search, "subject", "notes", "status")).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(db.Paginate(ctx)).
-		Preload("Customer").
+		Preload("Customer", scopes.SelectFields("first_name", "last_name", "phone_number")).
 		Find(&enquiries)
 	if res.Error != nil {
 		return nil, errs.NewXError(errs.DATABASE, "Unable to find enquiries", res.Error)

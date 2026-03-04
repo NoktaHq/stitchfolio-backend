@@ -43,7 +43,8 @@ func (cr *customerRepository) Update(ctx *context.Context, customer *entities.Cu
 
 func (cr *customerRepository) Get(ctx *context.Context, id uint) (*entities.Customer, *errs.XError) {
 	customer := entities.Customer{}
-	res := cr.WithDB(ctx).
+	res := cr.WithDB(ctx).Model(customer).
+		Scopes(scopes.WithAuditInfo()).
 		Preload("Persons").
 		Preload("Persons.Measurements").
 		Preload("Persons.Measurements.DressType").
@@ -58,9 +59,10 @@ func (cr *customerRepository) Get(ctx *context.Context, id uint) (*entities.Cust
 
 func (cr *customerRepository) GetAll(ctx *context.Context, search string) ([]entities.Customer, *errs.XError) {
 	var customers []entities.Customer
-	res := cr.WithDB(ctx).Table(entities.Customer{}.TableNameForQuery()).
+	res := cr.WithDB(ctx).Model(entities.Customer{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(scopes.ILike(search, "first_name", "last_name", "email", "phone_number")).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(db.Paginate(ctx)).
 		Find(&customers)
 	if res.Error != nil {

@@ -28,9 +28,9 @@ func ProvidePersonHandler(svc service.PersonService) *PersonHandler {
 //	@Description	Saves an instance of Person
 //	@Tags			Person
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			person	body		requestModel.Person	true	"person"
 //	@Router			/person [post]
 func (h PersonHandler) SavePerson(ctx *gin.Context) {
@@ -58,9 +58,9 @@ func (h PersonHandler) SavePerson(ctx *gin.Context) {
 //	@Description	Updates an instance of Person
 //	@Tags			Person
 //	@Accept			json
-//	@Success		201		{object}	response.Response
-//	@Failure		400		{object}	response.Response
-//	@Failure		501		{object}	response.Response
+//	@Success		201		{object}	responseModel.Response
+//	@Failure		400		{object}	responseModel.Response
+//	@Failure		501		{object}	responseModel.Response
 //	@Param			person	body		requestModel.Person	true	"person"
 //	@Param			id		path		int					true	"Person id"
 //	@Router			/person/{id} [put]
@@ -91,7 +91,7 @@ func (h PersonHandler) UpdatePerson(ctx *gin.Context) {
 //	@Tags			Person
 //	@Accept			json
 //	@Success		200	{object}	responseModel.Person
-//	@Failure		400	{object}	response.DataResponse
+//	@Failure		400	{object}	responseModel.DataResponse
 //	@Param			id	path		int	true	"Person id"
 //	@Router			/person/{id} [get]
 func (h PersonHandler) Get(ctx *gin.Context) {
@@ -115,7 +115,7 @@ func (h PersonHandler) Get(ctx *gin.Context) {
 //	@Tags			Person
 //	@Accept			json
 //	@Success		200		{object}	responseModel.Person
-//	@Failure		400		{object}	response.DataResponse
+//	@Failure		400		{object}	responseModel.DataResponse
 //	@Param			search	query		string	false	"search"
 //	@Router			/person [get]
 func (h PersonHandler) GetAllPersons(ctx *gin.Context) {
@@ -139,8 +139,8 @@ func (h PersonHandler) GetAllPersons(ctx *gin.Context) {
 //	@Description	Deletes an instance of Person
 //	@Tags			Person
 //	@Accept			json
-//	@Success		200	{object}	response.Response
-//	@Failure		400	{object}	response.Response
+//	@Success		200	{object}	responseModel.Response
+//	@Failure		400	{object}	responseModel.Response
 //	@Param			id	path		int	true	"person id"
 //
 //	@Router			/person/{id} [delete]
@@ -164,7 +164,7 @@ func (h PersonHandler) Delete(ctx *gin.Context) {
 //	@Tags			Person
 //	@Accept			json
 //	@Success		200			{object}	responseModel.Person
-//	@Failure		400			{object}	response.DataResponse
+//	@Failure		400			{object}	responseModel.DataResponse
 //	@Param			customerId	path		int	true	"customer id"
 //	@Router			/person/customer/{customerId} [get]
 func (h PersonHandler) GetByCustomerId(ctx *gin.Context) {

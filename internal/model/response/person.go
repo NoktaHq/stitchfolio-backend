@@ -12,7 +12,5 @@ type Person struct {
 	CustomerId *uint     `json:"customerId,omitempty"`
 	Customer   *Customer `json:"customer,omitempty"`
 
-	AuditFields
-
 	Measurements []Measurement `json:"measurements,omitempty"`
 }

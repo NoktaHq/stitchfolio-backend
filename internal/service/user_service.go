@@ -146,7 +146,7 @@ func (svc userService) Login(ctx *context.Context, login requestModel.Login) (st
 	}
 
 	//User not present
-	if user.Email != login.Email {
+	if user.Email != login.Email || !user.IsActive {
 		return "", errs.NewXError(errs.INVALID, errs.INVALID_USER, nil)
 	}
 

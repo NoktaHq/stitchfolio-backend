@@ -46,7 +46,7 @@ func (ehr *enquiryHistoryRepository) Get(ctx *context.Context, id uint) (*entiti
 
 func (ehr *enquiryHistoryRepository) GetAll(ctx *context.Context, search string) ([]entities.EnquiryHistory, *errs.XError) {
 	var enquiryHistories []entities.EnquiryHistory
-	res := ehr.WithDB(ctx).Table(entities.EnquiryHistory{}.TableNameForQuery()).
+	res := ehr.WithDB(ctx).Model(entities.EnquiryHistory{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
 		Scopes(db.Paginate(ctx)).
 		Preload("Employee", scopes.SelectFields("first_name", "last_name")).

@@ -31,7 +31,7 @@ Always implement in this exact order:
 
 #### All Entities Must:
 - Embed `*Model` for common fields
-- Implement `TableNameForQuery()` returning `"\"stich\".\"TableName\" E"`
+- Implement `TableNameForQuery()` only when raw SQL is used; it must return `"\"stich\".\"TableName\" E"` (alias `E`). For normal GORM operations use `.Model()` and do not use `.Table()`.
 - Use GORM tags for relations: `gorm:"foreignKey:FieldId;constraint:OnDelete:CASCADE"`
 
 #### All Request Models Must:
@@ -48,7 +48,8 @@ Always implement in this exact order:
 - Embed `GormDAL`
 - Implement interface with standard methods: Create, Update, Get, GetAll, Delete
 - Use `WithDB(ctx)` for all database operations
-- Apply `scopes.Channel()` and `scopes.IsActive()` in GetAll
+- Use `.Model(&entities.T{})` for normal GORM (Get, GetAll with scopes); do not use `.Table()` for these. Use `.Table(entity.TableNameForQuery())` only when raw SQL is involved; then apply `scopes.Channel("E")` and `scopes.IsActive("E")`.
+- Apply `scopes.Channel()` and `scopes.IsActive()` in GetAll (no args when using `.Model()`)
 - Use `scopes.ILike(search, "field1", "field2")` for search
 - Apply `db.Paginate(ctx)` for list endpoints
 - Return `*errs.XError` for errors
@@ -130,12 +131,13 @@ func ProvideCustomerRepository(customDB GormDAL) CustomerRepository
 **Important:** Place specific routes before generic ones (e.g., `/autocomplete` before `/:id`)
 
 ### Scopes Usage
-Always apply these scopes in GetAll:
+Always apply these scopes in GetAll when using `.Model()`:
 ```go
 Scopes(scopes.Channel(), scopes.IsActive())
 Scopes(scopes.ILike(search, "field1", "field2"))
 Scopes(db.Paginate(ctx))
 ```
+When using raw SQL with `.Table(entity.TableNameForQuery())`, pass alias `"E"`: `scopes.Channel("E")`, `scopes.IsActive("E")`.
 
 ### Error Handling
 - Repository: `errs.NewXError(errs.DATABASE, "message", err)`
