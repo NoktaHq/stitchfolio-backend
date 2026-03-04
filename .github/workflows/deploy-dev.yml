@@ -62,7 +62,7 @@ jobs:
             echo "CONFIG_FILE=${{ env.CONFIG_FILE }}" >> .env
             echo "COMPOSE_PROJECT=${{ env.COMPOSE_PROJECT }}" >> .env
             echo "TRAEFIK_ROUTER_NAME=${{ env.TRAEFIK_ROUTER_NAME }}" >> .env
-            echo "TRAEFIK_RULE=${{ env.TRAEFIK_RULE }}" >> .env
+            printf 'TRAEFIK_RULE=%s\n' '${{ env.TRAEFIK_RULE }}' >> .env
 
             echo "Building and starting backend (Traefik routes /api/sf/dev/v1)..."
             docker compose -p ${{ env.COMPOSE_PROJECT }} -f docker-compose.yml -f docker-compose.dev.yml build --no-cache
