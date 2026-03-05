@@ -88,7 +88,7 @@ func InitApp(ctx *context.Context) (*app.App, error) {
 	expenseTrackerService := service.ProvideExpenseTrackerService(expenseTrackerRepository, mapperMapper, responseMapper)
 	expenseTrackerHandler := handler.ProvideExpenseTrackerHandler(expenseTrackerService)
 	expenseDetailRepository := repository.ProvideExpenseDetailRepository(gormDAL)
-	expenseDetailService := service.ProvideExpenseDetailService(expenseDetailRepository, mapperMapper, responseMapper)
+	expenseDetailService := service.ProvideExpenseDetailService(expenseDetailRepository, expenseTrackerRepository, mapperMapper, responseMapper)
 	expenseDetailHandler := handler.ProvideExpenseDetailHandler(expenseDetailService)
 	taskRepository := repository.ProvideTaskRepository(gormDAL)
 	taskService := service.ProvideTaskService(taskRepository, mapperMapper, responseMapper)

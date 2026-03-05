@@ -5,7 +5,7 @@ type Task struct {
 	IsActive     *bool   `json:"isActive,omitempty"`
 	Title        string  `json:"title"`
 	Description  *string `json:"description,omitempty"`
-	IsCompleted  bool    `json:"isCompleted"`
+	Status       string  `json:"status,omitempty"` // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
 	Priority     *int    `json:"priority,omitempty"`
 	DueDate      *string `json:"dueDate,omitempty"`
 	ReminderDate *string `json:"reminderDate,omitempty"`

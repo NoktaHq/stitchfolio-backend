@@ -5248,6 +5248,9 @@
         "requestModel.ExpenseTracker": {
             "type": "object",
             "properties": {
+                "balance": {
+                    "type": "number"
+                },
                 "billNumber": {
                     "type": "string"
                 },
@@ -5650,13 +5653,14 @@
                 "isActive": {
                     "type": "boolean"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {
@@ -6204,6 +6208,9 @@
             "properties": {
                 "auditFields": {
                     "$ref": "#/definitions/responseModel.AuditFields"
+                },
+                "balance": {
+                    "type": "number"
                 },
                 "billNumber": {
                     "type": "string"
@@ -7036,13 +7043,14 @@
                 "isActive": {
                     "type": "boolean"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {
@@ -7093,7 +7101,7 @@
                     }
                 },
                 "overdueTasks": {
-                    "description": "DueDate \u003c today, IsCompleted = false",
+                    "description": "DueDate \u003c today, status != COMPLETED",
                     "allOf": [
                         {
                             "$ref": "#/definitions/responseModel.TaskDashboardTaskList"
@@ -7105,6 +7113,13 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/responseModel.TaskSummary"
+                    }
+                },
+                "tasksByStatus": {
+                    "description": "count per status PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.StatusCountStat"
                     }
                 },
                 "upcomingReminders": {
@@ -7150,13 +7165,14 @@
                 "id": {
                     "type": "integer"
                 },
-                "isCompleted": {
-                    "type": "boolean"
-                },
                 "priority": {
                     "type": "integer"
                 },
                 "reminderDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
                     "type": "string"
                 },
                 "title": {

@@ -1,14 +1,14 @@
 package responseModel
 
 import (
-	"encoding/json"
+	entitiy_types "github.com/imkarthi24/sf-backend/internal/entities/types"
 )
 
 type Measurement struct {
 	ID       uint `json:"id,omitempty"`
 	IsActive bool `json:"isActive,omitempty"`
 
-	Values json.RawMessage `json:"values,omitempty"`
+	Values entitiy_types.JSON `json:"values,omitempty"`
 
 	PersonId   *uint   `json:"personId,omitempty"`
 	Person     *Person `json:"person,omitempty"`

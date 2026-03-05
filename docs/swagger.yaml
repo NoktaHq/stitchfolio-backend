@@ -332,6 +332,8 @@ definitions:
     type: object
   requestModel.ExpenseTracker:
     properties:
+      balance:
+        type: number
       billNumber:
         type: string
       companyName:
@@ -598,11 +600,12 @@ definitions:
         type: integer
       isActive:
         type: boolean
-      isCompleted:
-        type: boolean
       priority:
         type: integer
       reminderDate:
+        type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         type: string
       title:
         type: string
@@ -966,6 +969,8 @@ definitions:
     properties:
       auditFields:
         $ref: '#/definitions/responseModel.AuditFields'
+      balance:
+        type: number
       billNumber:
         type: string
       companyName:
@@ -1511,11 +1516,12 @@ definitions:
         type: integer
       isActive:
         type: boolean
-      isCompleted:
-        type: boolean
       priority:
         type: integer
       reminderDate:
+        type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         type: string
       title:
         type: string
@@ -1546,11 +1552,16 @@ definitions:
       overdueTasks:
         allOf:
         - $ref: '#/definitions/responseModel.TaskDashboardTaskList'
-        description: DueDate < today, IsCompleted = false
+        description: DueDate < today, status != COMPLETED
       recentCompletions:
         description: last N tasks with CompletedAt
         items:
           $ref: '#/definitions/responseModel.TaskSummary'
+        type: array
+      tasksByStatus:
+        description: count per status PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+        items:
+          $ref: '#/definitions/responseModel.StatusCountStat'
         type: array
       upcomingReminders:
         allOf:
@@ -1579,11 +1590,12 @@ definitions:
         type: string
       id:
         type: integer
-      isCompleted:
-        type: boolean
       priority:
         type: integer
       reminderDate:
+        type: string
+      status:
+        description: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
         type: string
       title:
         type: string

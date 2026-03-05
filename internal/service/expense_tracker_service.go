@@ -42,8 +42,7 @@ func (svc expenseTrackerService) SaveExpenseTracker(ctx *context.Context, expens
 	if errr != nil {
 		return errr
 	}
-
-	return nil
+	return svc.expenseTrackerRepo.RecalculateAndUpdateBalance(ctx, dbExpenseTracker.ID)
 }
 
 func (svc expenseTrackerService) UpdateExpenseTracker(ctx *context.Context, expenseTracker requestModel.ExpenseTracker, id uint) *errs.XError {
@@ -57,7 +56,7 @@ func (svc expenseTrackerService) UpdateExpenseTracker(ctx *context.Context, expe
 	if errr != nil {
 		return errr
 	}
-	return nil
+	return svc.expenseTrackerRepo.RecalculateAndUpdateBalance(ctx, id)
 }
 
 func (svc expenseTrackerService) Get(ctx *context.Context, id uint) (*responseModel.ExpenseTracker, *errs.XError) {

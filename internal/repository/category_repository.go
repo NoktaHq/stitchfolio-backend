@@ -54,6 +54,7 @@ func (cr *categoryRepository) GetAll(ctx *context.Context, search string) ([]ent
 	var categories []entities.Category
 	res := cr.WithDB(ctx).Model(entities.Category{}).
 		Scopes(scopes.Channel(), scopes.IsActive()).
+		Scopes(scopes.WithAuditInfo()).
 		Scopes(scopes.ILike(search, "name")).
 		Scopes(db.Paginate(ctx)).
 		Find(&categories)

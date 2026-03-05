@@ -9,6 +9,7 @@ type ExpenseTracker struct {
 	CompanyName  string  `json:"companyName"`
 	Material     string  `json:"material"`
 	Price        float64 `json:"price,omitempty"`
+	Balance      float64 `json:"balance,omitempty"`
 	Location     *string `json:"location,omitempty"`
 	Notes        *string `json:"notes,omitempty"`
 
