@@ -1,0 +1,29 @@
+#!/bin/sh
+# Pre-push hook: only allow pushing to main, dev, or feat/* branches.
+# Override with: git push --no-verify
+
+ALLOWED_PREFIXES="main dev feat/"
+
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+# Read the remote refs being pushed from stdin (format: <local ref> <local sha> <remote ref> <remote sha>)
+while read local_ref local_sha remote_ref remote_sha; do
+  branch=$(echo "$remote_ref" | sed 's|refs/heads/||')
+
+  case "$branch" in
+    main|dev) continue ;;
+    feat/*) continue ;;
+    *)
+      echo ""
+      echo "  [pre-push] Blocked: '$branch' does not follow the branch naming convention."
+      echo "  Allowed branches: main, dev, feat/<slug>"
+      echo ""
+      echo "  To bypass this check (use sparingly):"
+      echo "    git push --no-verify"
+      echo ""
+      exit 1
+      ;;
+  esac
+done
+
+exit 0
