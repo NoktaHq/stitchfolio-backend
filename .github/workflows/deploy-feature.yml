@@ -1,12 +1,12 @@
 # Deploy Stitchfolio backend for feature branches.
-# Push to feature/** → spins up an isolated container routed at /api/sf/feature/<slug>/v1.
-# Delete feature/** branch → tears down the container and cleans up the deploy directory.
+# Push to feat/** → spins up an isolated container routed at /api/sf/feat/<slug>/v1.
+# Delete feat/** branch → tears down the container and cleans up the deploy directory.
 
 name: Deploy Feature Branch
 
 on:
   push:
-    branches: ['feature/**']
+    branches: ['feat/**']
   delete:
 
 env:
@@ -45,13 +45,13 @@ jobs:
               exit 1
             fi
 
-            # Derive a URL/Docker-safe slug from the branch name (feature/my-thing -> my-thing).
-            SLUG=$(echo "$BRANCH" | sed 's|feature/||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-25)
+            # Derive a URL/Docker-safe slug from the branch name (feat/my-thing -> my-thing).
+            SLUG=$(echo "$BRANCH" | sed 's|feat/||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-25)
 
-            DEPLOY_PATH="/stitchfolio/backend-feature-${SLUG}"
+            DEPLOY_PATH="/stitchfolio/backend-feat-${SLUG}"
             COMPOSE_PROJECT="sf-feat-${SLUG}"
             TRAEFIK_ROUTER_NAME="stitchfolio-feat-${SLUG}"
-            SLUG_PATH="/api/sf/feature/${SLUG}/v1"
+            SLUG_PATH="/api/sf/feat/${SLUG}/v1"
 
             if [ ! -d "$DEPLOY_PATH" ]; then
               mkdir -p /stitchfolio
@@ -81,7 +81,7 @@ jobs:
             echo "Feature branch deployed at ${SLUG_PATH}"
 
   cleanup:
-    if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'feature/')
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'feat/')
     runs-on: ubuntu-latest
     steps:
       - name: Teardown feature branch
@@ -97,9 +97,9 @@ jobs:
             set -e
             export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:$PATH"
 
-            SLUG=$(echo "$BRANCH" | sed 's|feature/||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-25)
+            SLUG=$(echo "$BRANCH" | sed 's|feat/||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-25)
 
-            DEPLOY_PATH="/stitchfolio/backend-feature-${SLUG}"
+            DEPLOY_PATH="/stitchfolio/backend-feat-${SLUG}"
             COMPOSE_PROJECT="sf-feat-${SLUG}"
 
             if [ -d "$DEPLOY_PATH" ]; then

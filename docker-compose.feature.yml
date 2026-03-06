@@ -1,5 +1,5 @@
-# Override for Stitchfolio feature branches: strip /api/sf/feature/<slug>/v1 -> /api/sf/v1 so app sees same path.
-# TRAEFIK_STRIP_REGEX is written to .env by CI (e.g. ^/api/sf/feature/my-feature/v1(.*)).
+# Override for Stitchfolio feature branches: strip /api/sf/feat/<slug>/v1 -> /api/sf/v1 so app sees same path.
+# TRAEFIK_STRIP_REGEX is written to .env by CI (e.g. ^/api/sf/feat/my-feature/v1(.*)).
 # Use: docker compose -f docker-compose.yml -f docker-compose.feature.yml up -d
 
 services:
