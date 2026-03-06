@@ -1,0 +1,50 @@
+---
+description: How to use Pixie in consumer apps (shareable rule for app-layer projects)
+globs: **/*.go
+alwaysApply: false
+---
+
+# Using Pixie in Your App
+
+This project depends on **Pixie** (`github.com/loop-kar/pixie`) as its core framework. Use Pixie's packages instead of reimplementing config, DB, errors, responses, storage, or logging.
+
+## Dependency
+
+- Add: `go get github.com/loop-kar/pixie`
+- Import pixie packages where needed; do not duplicate their behavior in the app.
+
+## Errors
+
+- Use `errs.XError` for API and domain errors, not raw `error` or `fmt.Errorf` for user-facing paths.
+- Use `errs.NewXError(kind, message, err)` or `errs.NewParamsXError`; use `errs.Wrap(err, msg)` to wrap underlying errors.
+- Use `errs.ErrorType` and constants (e.g. `errs.VALIDATION`, `errs.DATABASE`). Set HTTP status when needed: `err.SetCode(http.StatusBadRequest)`.
+
+## HTTP responses
+
+- Use `response.Response`, `response.DataResponse`, or `response.FileResponse` from pixie.
+- Always call `response.FormatAndSend(appCtx, ctx, statusCode)` so transactions are committed/rolled back and pagination is attached; pass the same `*context.Context` used for the transaction.
+
+## Config and context
+
+- Load config with `config.LoadConfig(reader, envVarBindings, &appConfig)` (YAML + Viper).
+- Use `constants.TRANSACTION_KEY`, `constants.PAGINATION_KEY`, etc. for context keys; use `util.ReadValueFromContext` / `util.NewContextWithValue` to read/write context values.
+
+## Database
+
+- Use `db.ProvideDatabase(params)` for GORM. Use `db.DBTransactionManager.WithTransaction(ctx)` and store the returned `*gorm.DB` in context so `response.FormatAndSend` can dispose the transaction.
+
+## Storage
+
+- Depend on `storage.StorageProvider` or `storage.CloudStorageProvider` (e.g. from `storage/client`: `ProvideCloudStorageClient` / `ProvideLocalStorageClient`, `GetClient()`). Use Upload, Download, Delete, Copy, CopyAndDeleteSource, List, Exists; for cloud, also GetURL, GetCurrentOrRenewedURL. Prefer injecting the provider in app wiring rather than constructing S3 or other backends in handlers.
+
+## Logging and middleware
+
+- Use `log` (Plog: Zap + New Relic) with `log.InitLogger` / `log.MustInitLogger`. Use `middleware` for security, CORS, request parsing, and New Relic.
+
+## Other packages
+
+- Use `task` for job/task runners (`ITaskRunner`, `IBaseTask`), `cache` for caching, `service` for service struct and options, `entity` for Excel export/import, and `util` for JWT, Excel, password, model, query, string, date, and context helpers.
+
+## Naming and style
+
+- Use existing constants from `constants` and `errs` instead of new magic strings for context keys and error types.
