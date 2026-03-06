@@ -302,6 +302,12 @@ func InitRouter(handler baseHandler.BaseHandler, newRelic *newrelic.Application,
 			dashboardEndpoints.GET("order", handler.DashboardHandler.GetOrderDashboard)
 			dashboardEndpoints.GET("stats", handler.DashboardHandler.GetStatsDashboard)
 		}
+
+		fileStoreEndpoints := appRouter.Group("file-store", router.VerifyJWT(srvConfig.JwtSecretKey))
+		{
+			fileStoreEndpoints.POST("temp", handler.FileStoreHandler.UploadTemp)
+			fileStoreEndpoints.POST("temp/bulk", handler.FileStoreHandler.UploadTempBulk)
+		}
 	}
 	return g
 }

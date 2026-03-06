@@ -85,7 +85,13 @@ func InitApp(ctx *context.Context) (*app.App, error) {
 	enquiryHistoryService := service.ProvideEnquiryHistoryService(enquiryHistoryRepository, mapperMapper, responseMapper)
 	enquiryHistoryHandler := handler.ProvideEnquiryHistoryHandler(enquiryHistoryService)
 	expenseTrackerRepository := repository.ProvideExpenseTrackerRepository(gormDAL)
-	expenseTrackerService := service.ProvideExpenseTrackerService(expenseTrackerRepository, mapperMapper, responseMapper)
+	fileStoreRepository := repository.ProvideFileStoreRepository(gormDAL)
+	cloudStorageProvider, err := ProvideCloudStorageProvider(appConfig)
+	if err != nil {
+		return nil, err
+	}
+	fileStoreService := service.ProvideFileStoreService(fileStoreRepository, cloudStorageProvider, mapperMapper, appConfig, responseMapper)
+	expenseTrackerService := service.ProvideExpenseTrackerService(expenseTrackerRepository, mapperMapper, responseMapper, fileStoreService)
 	expenseTrackerHandler := handler.ProvideExpenseTrackerHandler(expenseTrackerService)
 	expenseDetailRepository := repository.ProvideExpenseDetailRepository(gormDAL)
 	expenseDetailService := service.ProvideExpenseDetailService(expenseDetailRepository, expenseTrackerRepository, mapperMapper, responseMapper)
@@ -108,7 +114,8 @@ func InitApp(ctx *context.Context) (*app.App, error) {
 	dashboardRepository := repository.ProvideDashboardRepository(gormDAL)
 	dashboardService := service.ProvideDashboardService(dashboardRepository)
 	dashboardHandler := handler.ProvideDashboardHandler(dashboardService)
-	baseHandler := base.ProvideBaseHandler(health, userHandler, channelHandler, masterConfigHandler, adminHandler, customerHandler, enquiryHandler, orderHandler, orderItemHandler, measurementHandler, personHandler, dressTypeHandler, orderHistoryHandler, measurementHistoryHandler, enquiryHistoryHandler, expenseTrackerHandler, expenseDetailHandler, taskHandler, categoryHandler, productHandler, inventoryHandler, inventoryLogHandler, dashboardHandler)
+	fileStoreHandler := handler.ProvideFileStoreHandler(fileStoreService)
+	baseHandler := base.ProvideBaseHandler(health, userHandler, channelHandler, masterConfigHandler, adminHandler, customerHandler, enquiryHandler, orderHandler, orderItemHandler, measurementHandler, personHandler, dressTypeHandler, orderHistoryHandler, measurementHistoryHandler, enquiryHistoryHandler, expenseTrackerHandler, expenseDetailHandler, taskHandler, categoryHandler, productHandler, inventoryHandler, inventoryLogHandler, dashboardHandler, fileStoreHandler)
 	application := ProvideNewRelic(appConfig)
 	serverConfig := appConfig.Server
 	engine := router.InitRouter(baseHandler, application, serverConfig)
@@ -166,7 +173,13 @@ func InitJobService(ctx *context.Context) (*app.Task, error) {
 	orderHistoryService := service.ProvideOrderHistoryService(orderHistoryRepository, mapperMapper, responseMapper)
 	measurementHistoryService := service.ProvideMeasurementHistoryService(measurementHistoryRepository, mapperMapper, responseMapper)
 	expenseTrackerRepository := repository.ProvideExpenseTrackerRepository(gormDAL)
-	expenseTrackerService := service.ProvideExpenseTrackerService(expenseTrackerRepository, mapperMapper, responseMapper)
+	fileStoreRepository := repository.ProvideFileStoreRepository(gormDAL)
+	cloudStorageProvider, err := ProvideCloudStorageProvider(appConfig)
+	if err != nil {
+		return nil, err
+	}
+	fileStoreService := service.ProvideFileStoreService(fileStoreRepository, cloudStorageProvider, mapperMapper, appConfig, responseMapper)
+	expenseTrackerService := service.ProvideExpenseTrackerService(expenseTrackerRepository, mapperMapper, responseMapper, fileStoreService)
 	taskRepository := repository.ProvideTaskRepository(gormDAL)
 	taskService := service.ProvideTaskService(taskRepository, mapperMapper, responseMapper)
 	baseService := base2.ProvideBaseService(userService, notificationService, channelService, masterConfigService, customerService, enquiryService, orderService, orderItemService, measurementService, personService, dressTypeService, orderHistoryService, measurementHistoryService, expenseTrackerService, taskService)
@@ -190,7 +203,7 @@ var pkgServiceSet = wire.NewSet(
 	ProvideServiceContainer, wire.FieldsOf(new(*service2.Service), "EmailService"),
 )
 
-var handlerSet = wire.NewSet(base.ProvideHealthHandler, base.ProvideBaseHandler, handler.ProvideUserHandler, handler.ProvideChannelHandler, handler.ProvideMasterConfigHandler, handler.ProvideAdminHandler, handler.ProvideCustomerHandler, handler.ProvideEnquiryHandler, handler.ProvideOrderHandler, handler.ProvideOrderItemHandler, handler.ProvideMeasurementHandler, handler.ProvidePersonHandler, handler.ProvideDressTypeHandler, handler.ProvideOrderHistoryHandler, handler.ProvideMeasurementHistoryHandler, handler.ProvideEnquiryHistoryHandler, handler.ProvideExpenseTrackerHandler, handler.ProvideExpenseDetailHandler, handler.ProvideTaskHandler, handler.ProvideCategoryHandler, handler.ProvideProductHandler, handler.ProvideInventoryHandler, handler.ProvideInventoryLogHandler, handler.ProvideDashboardHandler)
+var handlerSet = wire.NewSet(base.ProvideHealthHandler, base.ProvideBaseHandler, handler.ProvideUserHandler, handler.ProvideChannelHandler, handler.ProvideMasterConfigHandler, handler.ProvideAdminHandler, handler.ProvideCustomerHandler, handler.ProvideEnquiryHandler, handler.ProvideOrderHandler, handler.ProvideOrderItemHandler, handler.ProvideMeasurementHandler, handler.ProvidePersonHandler, handler.ProvideDressTypeHandler, handler.ProvideOrderHistoryHandler, handler.ProvideMeasurementHistoryHandler, handler.ProvideEnquiryHistoryHandler, handler.ProvideExpenseTrackerHandler, handler.ProvideExpenseDetailHandler, handler.ProvideTaskHandler, handler.ProvideCategoryHandler, handler.ProvideProductHandler, handler.ProvideInventoryHandler, handler.ProvideInventoryLogHandler, handler.ProvideDashboardHandler, handler.ProvideFileStoreHandler)
 
 var logSet = wire.NewSet(
 	ProvideNewRelic,
@@ -204,10 +217,14 @@ var dbSet = wire.NewSet(
 
 var mapperSet = wire.NewSet(mapper.ProvideMapper, mapper.ProvideResponseMapper)
 
-var svcSet = wire.NewSet(service.ProvideUserService, service.ProvideNotificationService, service.ProvideChannelService, service.ProvideMasterConfigService, service.ProvideAdminService, service.ProvideCustomerService, service.ProvideEnquiryService, service.ProvideOrderService, service.ProvideOrderItemService, service.ProvideMeasurementService, service.ProvidePersonService, service.ProvideDressTypeService, service.ProvideOrderHistoryService, service.ProvideMeasurementHistoryService, service.ProvideEnquiryHistoryService, service.ProvideExpenseTrackerService, service.ProvideExpenseDetailService, service.ProvideTaskService, service.ProvideCategoryService, service.ProvideProductService, service.ProvideInventoryService, service.ProvideInventoryLogService, service.ProvideDashboardService)
+var svcSet = wire.NewSet(service.ProvideUserService, service.ProvideNotificationService, service.ProvideChannelService, service.ProvideMasterConfigService, service.ProvideAdminService, service.ProvideCustomerService, service.ProvideEnquiryService, service.ProvideOrderService, service.ProvideOrderItemService, service.ProvideMeasurementService, service.ProvidePersonService, service.ProvideDressTypeService, service.ProvideOrderHistoryService, service.ProvideMeasurementHistoryService, service.ProvideEnquiryHistoryService, service.ProvideExpenseTrackerService, service.ProvideExpenseDetailService, service.ProvideTaskService, service.ProvideCategoryService, service.ProvideProductService, service.ProvideInventoryService, service.ProvideInventoryLogService, service.ProvideDashboardService, service.ProvideFileStoreService)
 
 var baseSvc = wire.NewSet(base2.ProvideBaseService)
 
-var repoSet = wire.NewSet(repository.ProvideGormDAL, repository.ProvideUserRepository, repository.ProvideNotificationRepository, repository.ProvideChannelRepository, repository.ProvideMasterConfigRepository, repository.ProvideAdminRepository, repository.ProvideCustomerRepository, repository.ProvideEnquiryRepository, repository.ProvideOrderRepository, repository.ProvideOrderItemRepository, repository.ProvideMeasurementRepository, repository.ProvidePersonRepository, repository.ProvideDressTypeRepository, repository.ProvideOrderHistoryRepository, repository.ProvideMeasurementHistoryRepository, repository.ProvideEnquiryHistoryRepository, repository.ProvideExpenseTrackerRepository, repository.ProvideExpenseDetailRepository, repository.ProvideTaskRepository, repository.ProvideCategoryRepository, repository.ProvideProductRepository, repository.ProvideInventoryRepository, repository.ProvideInventoryLogRepository, repository.ProvideDashboardRepository)
+var repoSet = wire.NewSet(repository.ProvideGormDAL, repository.ProvideUserRepository, repository.ProvideNotificationRepository, repository.ProvideChannelRepository, repository.ProvideMasterConfigRepository, repository.ProvideAdminRepository, repository.ProvideCustomerRepository, repository.ProvideEnquiryRepository, repository.ProvideOrderRepository, repository.ProvideOrderItemRepository, repository.ProvideMeasurementRepository, repository.ProvidePersonRepository, repository.ProvideDressTypeRepository, repository.ProvideOrderHistoryRepository, repository.ProvideMeasurementHistoryRepository, repository.ProvideEnquiryHistoryRepository, repository.ProvideExpenseTrackerRepository, repository.ProvideExpenseDetailRepository, repository.ProvideTaskRepository, repository.ProvideCategoryRepository, repository.ProvideProductRepository, repository.ProvideInventoryRepository, repository.ProvideInventoryLogRepository, repository.ProvideDashboardRepository, repository.ProvideFileStoreRepository)
 
 var cronSet = wire.NewSet(cron.ProvideCron)
+
+var storageSet = wire.NewSet(
+	ProvideCloudStorageProvider,
+)

@@ -6,6 +6,9 @@ import (
 
 	"github.com/imkarthi24/sf-backend/internal/config"
 	"github.com/loop-kar/pixie/db"
+	"github.com/loop-kar/pixie/storage"
+	"github.com/loop-kar/pixie/storage/client"
+	"github.com/loop-kar/pixie/storage/s3"
 	pkgservice "github.com/loop-kar/pixie/service"
 	pkgemail "github.com/loop-kar/pixie/service/email"
 	"github.com/newrelic/go-agent/v3/newrelic"
@@ -58,4 +61,18 @@ func ProvideNewRelic(appConfig config.AppConfig) *newrelic.Application {
 	}
 
 	return app
+}
+
+// ProvideCloudStorageProvider returns a CloudStorageProvider from the app's S3 config (for file-store and entity-document flows).
+func ProvideCloudStorageProvider(appConfig config.AppConfig) (storage.CloudStorageProvider, error) {
+	cfg := s3.S3Config{
+		Region:          appConfig.S3Config.Region,
+		Bucket:          appConfig.S3Config.Bucket,
+		AccessKeyID:     appConfig.S3Config.AccessKeyID,
+		SecretAccessKey: appConfig.S3Config.SecretAccessKey,
+		Endpoint:        appConfig.S3Config.Endpoint,
+		UsePathStyle:    appConfig.S3Config.UsePathStyle,
+		ForceHTTPS:      appConfig.S3Config.ForceHTTPS,
+	}
+	return client.ProvideCloudStorageClient(cfg)
 }

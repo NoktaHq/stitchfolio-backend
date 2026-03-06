@@ -25,8 +25,9 @@ type BaseHandler struct {
 	ProductHandler            *handler.ProductHandler
 	InventoryHandler          *handler.InventoryHandler
 	InventoryLogHandler       *handler.InventoryLogHandler
-	DashboardHandler          *handler.DashboardHandler
-}
+		DashboardHandler          *handler.DashboardHandler
+		FileStoreHandler          *handler.FileStoreHandler
+	}
 
 func ProvideBaseHandler(health Health,
 	user *handler.UserHandler,
@@ -51,6 +52,7 @@ func ProvideBaseHandler(health Health,
 	inventoryHandler *handler.InventoryHandler,
 	inventoryLogHandler *handler.InventoryLogHandler,
 	dashboardHandler *handler.DashboardHandler,
+	fileStoreHandler *handler.FileStoreHandler,
 ) BaseHandler {
 	return BaseHandler{
 		HealthHandler:             health,
@@ -76,5 +78,6 @@ func ProvideBaseHandler(health Health,
 		InventoryHandler:          inventoryHandler,
 		InventoryLogHandler:       inventoryLogHandler,
 		DashboardHandler:          dashboardHandler,
+		FileStoreHandler:          fileStoreHandler,
 	}
 }

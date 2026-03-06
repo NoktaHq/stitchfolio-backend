@@ -22,13 +22,15 @@ type expenseTrackerService struct {
 	expenseTrackerRepo repository.ExpenseTrackerRepository
 	mapper             mapper.Mapper
 	respMapper         mapper.ResponseMapper
+	fileStoreService   FileStoreService
 }
 
-func ProvideExpenseTrackerService(repo repository.ExpenseTrackerRepository, mapper mapper.Mapper, respMapper mapper.ResponseMapper) ExpenseTrackerService {
+func ProvideExpenseTrackerService(repo repository.ExpenseTrackerRepository, mapper mapper.Mapper, respMapper mapper.ResponseMapper, fileStoreService FileStoreService) ExpenseTrackerService {
 	return expenseTrackerService{
 		expenseTrackerRepo: repo,
 		mapper:             mapper,
 		respMapper:         respMapper,
+		fileStoreService:   fileStoreService,
 	}
 }
 

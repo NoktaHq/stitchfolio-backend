@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/imkarthi24/sf-backend/internal/config"
 	"github.com/imkarthi24/sf-backend/internal/mapper"
 	"github.com/imkarthi24/sf-backend/internal/model/models"
@@ -14,6 +15,13 @@ import (
 	"github.com/loop-kar/pixie/errs"
 	"github.com/loop-kar/pixie/storage"
 )
+
+const entityTypeTemp = "temp"
+
+// getTempKey returns a unique S3 key for a temp upload: temp/{guid}
+func getTempKey() string {
+	return fmt.Sprintf("temp/%s", uuid.New().String())
+}
 
 var defaultContentType string = "application/octet-stream"
 
@@ -25,8 +33,12 @@ type FileStoreService interface {
 
 	GetFileStoreMetadataByKey(ctx *context.Context, entityName string, entityId uint, kind string) (*responseModel.FileStoreMetadata, *errs.XError)
 	GetFileKey(ctx *context.Context, entityName string, entityId uint, fileType string) string
-	Upload(ctx *context.Context, file models.FileUpload) *errs.XError
 	GetFileMetadataIfExists(ctx *context.Context, entityType string, id uint, kind string) (bool, *responseModel.FileStoreMetadata, *errs.XError)
+
+	Upload(ctx *context.Context, file models.FileUpload) *errs.XError
+	UploadTemp(ctx *context.Context, file models.FileUpload) (*responseModel.TempFileUpload, *errs.XError)
+	// ConfirmTempUpload moves a file from the temp key to the final key (copy then delete source).
+	ConfirmTempUpload(ctx *context.Context, existingTempKey, newKey string) *errs.XError
 }
 
 type fileStoreService struct {
@@ -159,6 +171,60 @@ func (svc fileStoreService) Upload(ctx *context.Context, file models.FileUpload)
 
 	return nil
 
+}
+
+func (svc fileStoreService) UploadTemp(ctx *context.Context, file models.FileUpload) (*responseModel.TempFileUpload, *errs.XError) {
+	if file.Content == nil {
+		return nil, errs.NewXError(errs.VALIDATION, "File content is required", nil)
+	}
+	defer file.Content.Close()
+
+	tempKey := getTempKey()
+
+	contentType := defaultContentType
+	if file.Metadata.Header != nil {
+		if contentTypes, ok := file.Metadata.Header["Content-Type"]; ok && len(contentTypes) > 0 {
+			contentType = contentTypes[0]
+		}
+	}
+
+	if err := svc.s3Storage.Upload(*ctx, tempKey, file.Content, contentType); err != nil {
+		return nil, errs.NewXError(errs.STORAGE, fmt.Sprintf("Failed to upload temp file to S3: %v", err), err)
+	}
+
+	fileStoreMetadata := requestModel.FileStoreMetadata{
+		IsActive:   true,
+		FileName:   file.Metadata.Filename,
+		FileSize:   file.Metadata.Size,
+		FileType:   contentType,
+		EntityId:   0,
+		EntityType: entityTypeTemp,
+		FileKey:    tempKey,
+		FileBucket: svc.s3Storage.GetBucket(),
+	}
+	id, xerr := svc.SaveFileStoreMetadata(ctx, fileStoreMetadata)
+	if xerr != nil {
+		return nil, xerr
+	}
+
+	return &responseModel.TempFileUpload{
+		Id:          id,
+		TempFileKey: tempKey,
+		FileName:    fileStoreMetadata.FileName,
+	}, nil
+}
+
+func (svc fileStoreService) ConfirmTempUpload(ctx *context.Context, existingTempKey, newKey string) *errs.XError {
+	if existingTempKey == "" || newKey == "" {
+		return errs.NewXError(errs.VALIDATION, "existingTempKey and newKey are required", nil)
+	}
+	if len(existingTempKey) < 5 || existingTempKey[:5] != "temp/" {
+		return errs.NewXError(errs.VALIDATION, "existingTempKey must be a temp key (prefix temp/)", nil)
+	}
+	if err := svc.s3Storage.CopyAndDeleteSource(*ctx, existingTempKey, newKey); err != nil {
+		return errs.NewXError(errs.STORAGE, fmt.Sprintf("Failed to confirm temp upload: %v", err), err)
+	}
+	return nil
 }
 
 func (svc fileStoreService) GetFileKey(ctx *context.Context, entityName string, entityId uint, fileType string) string {
