@@ -22,16 +22,17 @@ type ReferrerCountStat struct {
 }
 
 // TaskDashboardResponse is the API response for the task dashboard.
-// Filter by ChannelId (and optionally assignee). Uses DueDate, ReminderDate, IsCompleted, CompletedAt, AssignedToId, Priority.
+// Filter by ChannelId (and optionally assignee). Uses DueDate, ReminderDate, Status, CompletedAt, AssignedToId, Priority.
 type TaskDashboardResponse struct {
-	OverdueTasks          TaskDashboardTaskList `json:"overdueTasks"`                    // DueDate < today, IsCompleted = false
-	DueToday              TaskDashboardTaskList `json:"dueToday"`                         // due today
-	DueNext7Days          TaskDashboardTaskList `json:"dueNext7Days"`                     // due in next 7 days
-	IncompleteByAssignee  []AssigneeTaskCount   `json:"incompleteByAssignee"`             // count per user
-	HighPriorityIncomplete TaskDashboardTaskList `json:"highPriorityIncomplete"`         // Priority set, not done
-	UpcomingReminders    TaskDashboardTaskList `json:"upcomingReminders"`                // ReminderDate in next 24–48h
-	CompletionRate       CompletionRateStat    `json:"completionRate"`                   // % completed in last 7/30 days
-	RecentCompletions    []TaskSummary         `json:"recentCompletions"`                // last N tasks with CompletedAt
+	TasksByStatus         []StatusCountStat    `json:"tasksByStatus"`         // count per status PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+	OverdueTasks          TaskDashboardTaskList `json:"overdueTasks"`          // DueDate < today, status != COMPLETED
+	DueToday              TaskDashboardTaskList `json:"dueToday"`              // due today
+	DueNext7Days          TaskDashboardTaskList `json:"dueNext7Days"`          // due in next 7 days
+	IncompleteByAssignee  []AssigneeTaskCount   `json:"incompleteByAssignee"`  // count per user
+	HighPriorityIncomplete TaskDashboardTaskList `json:"highPriorityIncomplete"` // Priority set, not done
+	UpcomingReminders    TaskDashboardTaskList `json:"upcomingReminders"`     // ReminderDate in next 24–48h
+	CompletionRate       CompletionRateStat    `json:"completionRate"`        // % completed in last 7/30 days
+	RecentCompletions    []TaskSummary         `json:"recentCompletions"`     // last N tasks with CompletedAt
 }
 
 type TaskDashboardTaskList struct {
@@ -45,7 +46,7 @@ type TaskSummary struct {
 	DueDate      *time.Time `json:"dueDate,omitempty"`
 	ReminderDate *time.Time `json:"reminderDate,omitempty"`
 	Priority     *int       `json:"priority,omitempty"`
-	IsCompleted  bool       `json:"isCompleted"`
+	Status       string     `json:"status,omitempty"` // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
 	CompletedAt  *time.Time `json:"completedAt,omitempty"`
 	AssignedToId *uint      `json:"assignedToId,omitempty"`
 	AssignedTo   string     `json:"assignedTo,omitempty"` // display name

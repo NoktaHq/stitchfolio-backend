@@ -60,9 +60,9 @@ func GetTasks_Filter(filters string) func(db *gorm.DB) *gorm.DB {
 	}
 
 	fieldMap := map[string]string{
-		"IsCompleted": "is_completed",
-		"Priority":    "priority",
-		"DueDate":     "due_date",
+		"Status":     "status",
+		"Priority":   "priority",
+		"DueDate":    "due_date",
 		"CompletedAt": "completed_at",
 	}
 

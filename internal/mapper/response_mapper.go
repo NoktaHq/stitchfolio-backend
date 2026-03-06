@@ -720,7 +720,6 @@ func (m *responseMapper) Task(e *entities.Task) (*responseModel.Task, error) {
 		IsActive:     e.IsActive,
 		Title:        e.Title,
 		Description:  e.Description,
-		IsCompleted:  e.IsCompleted,
 		Status:       string(e.Status),
 		Priority:     e.Priority,
 		DueDate:      e.DueDate,
