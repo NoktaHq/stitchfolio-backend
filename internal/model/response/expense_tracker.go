@@ -21,11 +21,11 @@ type ExpenseTracker struct {
 }
 
 type ExpenseDetail struct {
-	ID        uint   `json:"id,omitempty"`
-	IsActive  bool   `json:"isActive,omitempty"`
-	Source    string `json:"source,omitempty"`
+	ID        uint    `json:"id,omitempty"`
+	IsActive  bool    `json:"isActive,omitempty"`
+	Source    string  `json:"source,omitempty"`
 	Price     float64 `json:"price,omitempty"`
-	ExpenseId uint   `json:"expenseId,omitempty"`
+	ExpenseId uint    `json:"expenseId,omitempty"`
 
 	AuditFields `json:"auditFields,omitempty"`
 }

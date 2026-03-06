@@ -438,7 +438,7 @@ func (m *mapper) ExpenseTracker(e requestModel.ExpenseTracker) (*entities.Expens
 	}
 
 	return &entities.Expense{
-		Model:           &entities.Model{ID: e.ID, IsActive: isActive},
+		Model:          &entities.Model{ID: e.ID, IsActive: isActive},
 		PurchaseDate:   purchaseDate,
 		BillNumber:     e.BillNumber,
 		CompanyName:    e.CompanyName,
@@ -457,10 +457,10 @@ func (m *mapper) ExpenseDetail(e requestModel.ExpenseDetail) (*entities.ExpenseD
 		isActive = *e.IsActive
 	}
 	return &entities.ExpenseDetail{
-		Model:      &entities.Model{ID: e.ID, IsActive: isActive},
-		Source:     e.Source,
-		Price:      e.Price,
-		ExpenseId:  e.ExpenseId,
+		Model:     &entities.Model{ID: e.ID, IsActive: isActive},
+		Source:    e.Source,
+		Price:     e.Price,
+		ExpenseId: e.ExpenseId,
 	}, nil
 }
 
