@@ -48,17 +48,36 @@ This directory contains comprehensive documentation to help Cursor AI understand
 - File organization
 - Import paths
 
-### 4. `SERVICE_USAGE.md` (Branch / service usage)
+### 4. `FILE_STORE_STRUCTURE.md` (File store: temp upload, confirm, entity_document)
+**Purpose:** Single reference for file store flow, tables, and adding files to entities  
+**Use When:**
+- Implementing or changing file upload (temp → confirm on save/update)
+- Working with OrderItem or ExpenseTracker files
+- Adding files to a new entity
+
+**Contents:**
+- Overview (temp upload → confirm → entity_document + file_store_metadata)
+- Tables: FileStoreMetadata, EntityDocuments
+- Models: ConfirmFile, TempFileUpload, EntityDocument
+- HTTP: POST /file-store/temp, /file-store/temp/bulk
+- Entities with files: OrderItem, Expense (ExpenseTracker)
+- Generic confirm flow and get flow
+- Checklist: adding files to a new entity
+- File locations quick reference
+
+See also **`rules/file-store.mdc`** (Cursor rule when editing file-store/entity_document code).
+
+### 5. `SERVICE_USAGE.md` (Branch / service usage)
 **Purpose:** How to use services and APIs that changed on the current branch  
 **Use When:**
 - Using Task/Dashboard (status, tasksByStatus)
-- Using File Store Service (metadata, upload, keys)
+- Using File Store (temp upload, confirm, OrderItem/Expense files — see FILE_STORE_STRUCTURE.md)
 - Using Expense/ExpenseDetail with Balance
 - Working with Measurement JSON types
 
 **Contents:**
 - Task status and dashboard API
-- File Store Service (in-process usage, Upload, metadata CRUD)
+- File Store (temp upload → confirm; entity_document + file_store_metadata; see FILE_STORE_STRUCTURE.md)
 - Expense Balance and RecalculateAndUpdateBalance
 - Measurement/MeasurementHistory JSON type
 - Branch-specific notes and quick reference
@@ -241,6 +260,7 @@ When adding a new feature, implement in this exact order:
 
 | Need | Document | Section |
 |------|----------|---------|
+| File store (temp upload, confirm, entity_document) | FILE_STORE_STRUCTURE.md | Full doc |
 | Task/Dashboard/FileStore/Expense usage | SERVICE_USAGE.md | Per-service sections |
 | Complete entity example | ARCHITECTURE_GUIDE.md | Entities Layer |
 | Repository patterns | ARCHITECTURE_GUIDE.md | Repository Layer |

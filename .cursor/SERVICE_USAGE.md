@@ -52,64 +52,34 @@ See `docs/dashboard-response-fields.md` for exact field calculations.
 
 ---
 
-## 2. File Store Service
+## 2. File Store (Temp Upload → Confirm → Entity Document)
 
-The **File Store Service** stores file metadata in the DB and files in S3. It is used **in-process** by other services (e.g. when uploading a file for an entity). There is no dedicated HTTP handler; wire injects `FileStoreService` where needed.
+The **file store** supports **temp upload** of files, then **confirm on save/update** of an entity (OrderItem, Expense). Full structure, tables, and flows are documented in **`.cursor/FILE_STORE_STRUCTURE.md`**. Summary below.
 
-**Location:** `internal/service/file_store_service.go`  
-**Repository:** `internal/repository/file_store_repository.go`  
-**Request/Response:** `internal/model/request/file_store_metadata.go`, `internal/model/response/file_store_metadata.go`
+### Flow
 
-### Interface
+1. **Temp upload:** Client calls `POST /file-store/temp` (or `/file-store/temp/bulk`) with `multipart/form-data` (field `file` or `files`). Response: `{ data: { id, tempFileKey, fileName } }` per file.
+2. **Confirm:** Client includes in the entity payload a **`files`** array of **ConfirmFile**: `{ id, fileKey, kind, description }` (id/fileKey from step 1). On **Save** or **Update** of that entity, the backend:
+   - Inserts **entity_document** (type, documentType = kind, entityName, entityId, description).
+   - Moves file from temp S3 key to final key `{entityName}/{entityId}/{kind}`.
+   - Updates **file_store_metadata** (entityId, entityType, fileKey, fileUrl).
+3. **Get:** When getting the entity, backend loads **entity_document** for that entity and resolves file URLs from **file_store_metadata**; response includes **`files`** (`[]EntityDocument` with `document.fileUrl`).
 
-```go
-type FileStoreService interface {
-    SaveFileStoreMetadata(*context.Context, requestModel.FileStoreMetadata) (uint, *errs.XError)
-    UpdateFileStoreMetadata(*context.Context, requestModel.FileStoreMetadata, uint) *errs.XError
-    GetFileStoreMetadata(*context.Context, uint) (*responseModel.FileStoreMetadata, *errs.XError)
-    DeleteFileStoreMetadata(*context.Context, uint) *errs.XError
+### Entities with files
 
-    GetFileStoreMetadataByKey(ctx *context.Context, entityName string, entityId uint, kind string) (*responseModel.FileStoreMetadata, *errs.XError)
-    GetFileKey(ctx *context.Context, entityName string, entityId uint, fileType string) string
-    Upload(ctx *context.Context, file models.FileUpload) *errs.XError
-    GetFileMetadataIfExists(ctx *context.Context, entityType string, id uint, kind string) (bool, *responseModel.FileStoreMetadata, *errs.XError)
-}
-```
+- **OrderItem:** `Order.OrderItems[].Files` (request: `[]ConfirmFile`, response: `[]EntityDocument`). Confirm on SaveOrder/UpdateOrder; fill on Get/GetAll Order.
+- **Expense (ExpenseTracker):** `ExpenseTracker.Files`. Confirm on SaveExpenseTracker/UpdateExpenseTracker; fill on Get/GetAll.
 
-### How to use
+### Key services
 
-**1. Upload a file (recommended)**  
-- Call **`Upload(ctx, file)`** with `models.FileUpload` containing:
-  - `EntityType` (e.g. `"Expense"`, `"Order"`),
-  - `EntityId`,
-  - `Kind` (file type/key suffix),
-  - `Content` (bytes),
-  - `Metadata` (e.g. `Filename`, `Size`, `Header` for Content-Type).
-- The service will:
-  - Upload to S3 using key `{entityType}/{entityId}/{kind}`.
-  - Create or update `FileStoreMetadata` with presigned URL and metadata.
-- Use this when the client uploads a file for a known entity.
+- **FileStoreService:** `UploadTemp`, `ConfirmTempUpload` (returns newUrl), `UpdateEntityIdAndKey`, `GetFileKey`.
+- **EntityDocumentService:** `SaveEntityDocument`, `GetEntityDocumentsByEntity` (resolves file URL per row using entityName/entityId/type).
 
-**2. Metadata-only (no S3 upload)**  
-- **Save:** `SaveFileStoreMetadata(ctx, req)` — returns new ID.  
-- **Update:** `UpdateFileStoreMetadata(ctx, req, id)`.  
-- **Get by ID:** `GetFileStoreMetadata(ctx, id)`.  
-- **Get by entity + kind:** `GetFileStoreMetadataByKey(ctx, entityType, entityId, kind)`.  
-- **Delete:** `DeleteFileStoreMetadata(ctx, id)` (soft delete).
+### Reference
 
-**3. Check if file exists for an entity**  
-- **GetFileMetadataIfExists(ctx, entityType, id, kind)** returns `(exists bool, metadata *FileStoreMetadata, err)`.
-
-**4. Build S3 key for your own logic**  
-- **GetFileKey(ctx, entityName, entityId, fileType)** returns `"{entityName}/{entityId}/{fileType}"`.
-
-### Request model (`requestModel.FileStoreMetadata`)
-
-- `ID`, `IsActive`
-- `FileName`, `FileSize`, `FileType`, `FileUrl`, `FileKey`, `FileBucket`
-- `EntityId`, `EntityType` (e.g. order, expense)
-
-Metadata is scoped by **channel** in the repository. Ensure context has channel set (e.g. from auth middleware).
+- **Full structure, tables, models, and “add files to new entity”:** `.cursor/FILE_STORE_STRUCTURE.md`
+- **Handler:** `internal/handler/file_store_handler.go` (UploadTemp, UploadTempBulk)
+- **Models:** `internal/model/models/file.go` (ConfirmFile), response EntityDocument in `internal/model/response/entity_documents.go`
 
 ---
 
@@ -163,7 +133,7 @@ If you add/update/delete expense details programmatically, prefer using **Expens
 |------|-------------|----------------|
 | Tasks | `status` instead of `isCompleted` | `entities/task.go`, request/response task models, task_scopes, dashboard_repository |
 | Task dashboard | New `tasksByStatus` | `TaskDashboardResponse`, `GetTaskDashboard` |
-| File Store | Metadata CRUD + Upload, key by entity | `file_store_service.go`, `file_store_repository.go`, request/response FileStoreMetadata |
+| File Store | Temp upload → confirm on save; entity_document + file_store_metadata | `.cursor/FILE_STORE_STRUCTURE.md`, `file_store_service.go`, `order_service.go`, `expense_tracker_service.go` |
 | Expense | Balance + recalc on detail changes | `Expense.Balance`, `ExpenseDetailService`, `RecalculateAndUpdateBalance` |
 | Measurement | JSON type for Values/OldValues | `entities/types/json.go`, request/response measurement models |
 
