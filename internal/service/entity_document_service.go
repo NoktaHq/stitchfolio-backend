@@ -134,12 +134,12 @@ func (svc entityDocumentService) GetEntityDocumentsByEntity(ctx *context.Context
 
 	respEntityDocuments, errr := svc.respMapper.EntityDocuments(entityDocuments)
 	if errr != nil {
-		return nil, err
+		return nil, errs.NewXError(errs.MAPPING_ERROR, "Unable to map entity documents", errr)
 	}
 
-	// Fetch file metadata for each entity document
+	// Fetch file metadata for each entity document using the document's own entity (entityName/entityId/type), so it works for OrderItem and EntityDocuments.
 	for i := range respEntityDocuments {
-		ok, documentMetadata, xerr := svc.fileStoreSvc.GetFileMetadataIfExists(ctx, string(entities.Entity_EntityDocuments), entityDocuments[i].ID, string(entityDocuments[i].Type))
+		ok, documentMetadata, xerr := svc.fileStoreSvc.GetFileMetadataIfExists(ctx, string(entityDocuments[i].EntityName), entityDocuments[i].EntityId, string(entityDocuments[i].Type))
 		if xerr != nil {
 			return nil, xerr
 		}

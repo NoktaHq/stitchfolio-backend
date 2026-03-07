@@ -51,5 +51,7 @@ type OrderItem struct {
 	OrderId uint   `json:"orderId,omitempty"`
 	Order   *Order `json:"order,omitempty"`
 
+	Files []EntityDocument `json:"files,omitempty"`
+
 	AuditFields `json:"auditFields,omitempty"`
 }

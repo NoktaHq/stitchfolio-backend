@@ -113,6 +113,18 @@ func (svc orderService) confirmTempFileForOrderItem(ctx *context.Context, confir
 	return svc.fileStoreSvc.UpdateEntityIdAndKey(ctx, confirmFile.Id, orderItemId, entityName, newKey, newUrl)
 }
 
+// fillOrderItemFiles populates Files for each order item using entity_document + file_store_metadata (OrderItem/id/type).
+func (svc orderService) fillOrderItemFiles(ctx *context.Context, order *responseModel.Order) *errs.XError {
+	for i := range order.OrderItems {
+		files, xerr := svc.entityDocumentSvc.GetEntityDocumentsByEntity(ctx, order.OrderItems[i].ID, entities.Entity_OrderItem, entities.EntityDocumentsType(""))
+		if xerr != nil {
+			return xerr
+		}
+		order.OrderItems[i].Files = files
+	}
+	return nil
+}
+
 func (svc orderService) UpdateOrder(ctx *context.Context, order requestModel.Order, id uint) *errs.XError {
 	// Get the old order before updating
 	oldOrder, err := svc.orderRepo.Get(ctx, id)
@@ -135,6 +147,22 @@ func (svc orderService) UpdateOrder(ctx *context.Context, order requestModel.Ord
 	errr := svc.orderRepo.Update(ctx, dbOrder)
 	if errr != nil {
 		return errr
+	}
+
+	// Confirm temp uploads for each order item's files (same as on create)
+	for i := range order.OrderItems {
+		if len(order.OrderItems[i].Files) == 0 {
+			continue
+		}
+		if i >= len(dbOrder.OrderItems) {
+			break
+		}
+		orderItemId := dbOrder.OrderItems[i].ID
+		for _, f := range order.OrderItems[i].Files {
+			if xerr := svc.confirmTempFileForOrderItem(ctx, f, orderItemId); xerr != nil {
+				return xerr
+			}
+		}
 	}
 
 	// Determine changed fields
@@ -171,6 +199,10 @@ func (svc orderService) Get(ctx *context.Context, id uint) (*responseModel.Order
 		return nil, errs.NewXError(errs.MAPPING_ERROR, "Failed to map Order data", mapErr)
 	}
 
+	if xerr := svc.fillOrderItemFiles(ctx, mappedOrder); xerr != nil {
+		return nil, xerr
+	}
+
 	return mappedOrder, nil
 }
 
@@ -183,6 +215,12 @@ func (svc orderService) GetAll(ctx *context.Context, search string) ([]responseM
 	mappedOrders, mapErr := svc.respMapper.Orders(orders)
 	if mapErr != nil {
 		return nil, errs.NewXError(errs.MAPPING_ERROR, "Failed to map Order data", mapErr)
+	}
+
+	for i := range mappedOrders {
+		if xerr := svc.fillOrderItemFiles(ctx, &mappedOrders[i]); xerr != nil {
+			return nil, xerr
+		}
 	}
 
 	return mappedOrders, nil
