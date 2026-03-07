@@ -14,6 +14,8 @@ type FileStoreRepository interface {
 	Get(*context.Context, uint) (*entities.FileStoreMetadata, *errs.XError)
 	Delete(*context.Context, uint) *errs.XError
 	GetByKey(*context.Context, string) (*entities.FileStoreMetadata, *errs.XError)
+	// UpdateEntityIdAndKey updates entity_id, entity_type, file_key, and file_url for the given id (e.g. after confirming temp upload).
+	UpdateEntityIdAndKey(*context.Context, uint, uint, string, string, string) *errs.XError
 }
 
 type fileStoreRepository struct {
@@ -67,4 +69,20 @@ func (repo *fileStoreRepository) GetByKey(ctx *context.Context, fileKey string) 
 func (repo *fileStoreRepository) Delete(ctx *context.Context, id uint) *errs.XError {
 	fileStoreMetadata := &entities.FileStoreMetadata{Model: &entities.Model{ID: id, IsActive: false}}
 	return repo.GormDAL.Delete(ctx, fileStoreMetadata)
+}
+
+// UpdateEntityIdAndKey updates entity_id, entity_type, file_key, and file_url for the given id.
+func (repo *fileStoreRepository) UpdateEntityIdAndKey(ctx *context.Context, id uint, entityId uint, entityType, fileKey, fileUrl string) *errs.XError {
+	res := repo.WithDB(ctx).Model(&entities.FileStoreMetadata{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"entity_id":   entityId,
+			"entity_type": entityType,
+			"file_key":   fileKey,
+			"file_url":   fileUrl,
+		})
+	if res.Error != nil {
+		return errs.NewXError(errs.DATABASE, "Unable to update file store metadata", res.Error)
+	}
+	return nil
 }

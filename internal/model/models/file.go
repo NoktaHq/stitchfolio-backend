@@ -17,6 +17,13 @@ type FileUpload struct {
 	Kind       string
 }
 
+type ConfirmFile struct {
+	Id          uint   `json:"id,omitempty"`
+	FileKey     string `json:"fileKey,omitempty"`
+	Kind        string `json:"kind,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 func (f *FileUpload) AddEntityInfo(entityId uint, entityType, kind string) bool {
 	// If there is no content present , then return
 	if f.Content == nil {

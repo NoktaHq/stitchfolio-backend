@@ -19,10 +19,6 @@ type EntityDocuments struct {
 	Description string `json:"description,omitempty"`
 }
 
-func (EntityDocuments) TableName() string {
-	return "EntityDocuments"
-}
-
 func (EntityDocuments) TableNameForQuery() string {
 	return "\"EntityDocuments\" E"
 }

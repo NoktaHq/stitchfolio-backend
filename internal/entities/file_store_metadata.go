@@ -14,10 +14,6 @@ type FileStoreMetadata struct {
 	EntityType string `json:"entityType,omitempty"` // order, expense etc.
 }
 
-func (FileStoreMetadata) TableName() string {
-	return "FileStoreMetadata"
-}
-
 func (FileStoreMetadata) TableNameForQuery() string {
 	return `"stich"."FileStoreMetadata" E`
 }

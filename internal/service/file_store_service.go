@@ -37,8 +37,10 @@ type FileStoreService interface {
 
 	Upload(ctx *context.Context, file models.FileUpload) *errs.XError
 	UploadTemp(ctx *context.Context, file models.FileUpload) (*responseModel.TempFileUpload, *errs.XError)
-	// ConfirmTempUpload moves a file from the temp key to the final key (copy then delete source).
-	ConfirmTempUpload(ctx *context.Context, existingTempKey, newKey string) *errs.XError
+	// ConfirmTempUpload moves a file from the temp key to the final key (copy then delete source). Returns the presigned URL for the new key.
+	ConfirmTempUpload(ctx *context.Context, existingTempKey, newKey string) (newUrl string, xerr *errs.XError)
+	// UpdateEntityIdAndKey updates entity_id, entity_type, file_key, and file_url for the given metadata id (e.g. after confirming a temp upload).
+	UpdateEntityIdAndKey(ctx *context.Context, id, entityId uint, entityType, fileKey, fileUrl string) *errs.XError
 }
 
 type fileStoreService struct {
@@ -208,23 +210,32 @@ func (svc fileStoreService) UploadTemp(ctx *context.Context, file models.FileUpl
 	}
 
 	return &responseModel.TempFileUpload{
-		Id:          id,
-		TempFileKey: tempKey,
-		FileName:    fileStoreMetadata.FileName,
+		Id:       id,
+		FileKey:  tempKey,
+		FileName: fileStoreMetadata.FileName,
 	}, nil
 }
 
-func (svc fileStoreService) ConfirmTempUpload(ctx *context.Context, existingTempKey, newKey string) *errs.XError {
+func (svc fileStoreService) ConfirmTempUpload(ctx *context.Context, existingTempKey, newKey string) (newUrl string, xerr *errs.XError) {
+
 	if existingTempKey == "" || newKey == "" {
-		return errs.NewXError(errs.VALIDATION, "existingTempKey and newKey are required", nil)
+		return "", errs.NewXError(errs.VALIDATION, "existingTempKey and newKey are required", nil)
 	}
 	if len(existingTempKey) < 5 || existingTempKey[:5] != "temp/" {
-		return errs.NewXError(errs.VALIDATION, "existingTempKey must be a temp key (prefix temp/)", nil)
+		return "", errs.NewXError(errs.VALIDATION, "existingTempKey must be a temp key (prefix temp/)", nil)
 	}
 	if err := svc.s3Storage.CopyAndDeleteSource(*ctx, existingTempKey, newKey); err != nil {
-		return errs.NewXError(errs.STORAGE, fmt.Sprintf("Failed to confirm temp upload: %v", err), err)
+		return "", errs.NewXError(errs.STORAGE, fmt.Sprintf("Failed to confirm temp upload: %v", err), err)
 	}
-	return nil
+	url, err := svc.s3Storage.GetURL(*ctx, newKey, 24*3*time.Hour)
+	if err != nil {
+		return "", errs.NewXError(errs.STORAGE, "Failed to get presigned URL for confirmed file", err)
+	}
+	return url, nil
+}
+
+func (svc fileStoreService) UpdateEntityIdAndKey(ctx *context.Context, id, entityId uint, entityType, fileKey, fileUrl string) *errs.XError {
+	return svc.fileStoreRepo.UpdateEntityIdAndKey(ctx, id, entityId, entityType, fileKey, fileUrl)
 }
 
 func (svc fileStoreService) GetFileKey(ctx *context.Context, entityName string, entityId uint, fileType string) string {

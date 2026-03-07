@@ -87,7 +87,7 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 		// &entities.EmailNotification{},
 		// &entities.EnquiryHistory{},
 		// &entities.Enquiry{},
-		&entities.Expense{},
+		// &entities.Expense{},
 		// &entities.MasterConfig{},
 		// &entities.Measurement{},
 		// &entities.MeasurementHistory{},
@@ -106,6 +106,7 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 		// &entities.InventoryLog{},
 		// &entities.Product{},
 		// &entities.Category{},
+		&entities.FileStoreMetadata{},
 	}
 
 	//************************//
@@ -121,5 +122,5 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 
 	//migrator.Migrate(entityList, checkErr)
 
-	migrator.GenerateAlterMigration(entityList, "008_add_expense_balance")
+	migrator.GenerateAlterMigration(entityList, "009_file_store_entity_update")
 }
