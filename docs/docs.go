@@ -5109,6 +5109,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ConfirmFile": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "fileKey": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string"
+                }
+            }
+        },
         "requestModel.BulkMeasurementItem": {
             "type": "object",
             "properties": {
@@ -5362,6 +5379,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/requestModel.ExpenseDetail"
                     }
                 },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConfirmFile"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -5601,6 +5624,12 @@ const docTemplate = `{
                 },
                 "expectedDeliveryDate": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConfirmFile"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -6279,6 +6308,35 @@ const docTemplate = `{
                 }
             }
         },
+        "responseModel.EntityDocument": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document": {
+                    "$ref": "#/definitions/responseModel.FileResponse"
+                },
+                "documentType": {
+                    "type": "string"
+                },
+                "entityId": {
+                    "type": "integer"
+                },
+                "entityName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.ExpenseDetail": {
             "type": "object",
             "properties": {
@@ -6323,6 +6381,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/responseModel.ExpenseDetail"
                     }
                 },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.EntityDocument"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -6342,6 +6406,17 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "purchaseDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.FileResponse": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "type": "string"
+                },
+                "fileUrl": {
                     "type": "string"
                 }
             }
@@ -6803,6 +6878,12 @@ const docTemplate = `{
                 },
                 "expectedDeliveryDate": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.EntityDocument"
+                    }
                 },
                 "id": {
                     "type": "integer"

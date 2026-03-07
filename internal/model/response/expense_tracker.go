@@ -16,6 +16,7 @@ type ExpenseTracker struct {
 	Notes        *string    `json:"notes,omitempty"`
 
 	ExpenseDetails []ExpenseDetail `json:"expenseDetails,omitempty"`
+	Files          []EntityDocument `json:"files,omitempty"`
 
 	AuditFields `json:"auditFields,omitempty"`
 }

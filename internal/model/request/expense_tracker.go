@@ -1,5 +1,7 @@
 package requestModel
 
+import "github.com/imkarthi24/sf-backend/internal/model/models"
+
 type ExpenseTracker struct {
 	ID       uint  `json:"id,omitempty"`
 	IsActive *bool `json:"isActive,omitempty"`
@@ -13,7 +15,8 @@ type ExpenseTracker struct {
 	Location     *string `json:"location,omitempty"`
 	Notes        *string `json:"notes,omitempty"`
 
-	ExpenseDetails []ExpenseDetail `json:"expenseDetails,omitempty"`
+	ExpenseDetails []ExpenseDetail    `json:"expenseDetails,omitempty"`
+	Files          []models.ConfirmFile `json:"files,omitempty"`
 }
 
 type ExpenseDetail struct {

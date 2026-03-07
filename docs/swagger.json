@@ -5103,6 +5103,23 @@
                 }
             }
         },
+        "models.ConfirmFile": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "fileKey": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string"
+                }
+            }
+        },
         "requestModel.BulkMeasurementItem": {
             "type": "object",
             "properties": {
@@ -5356,6 +5373,12 @@
                         "$ref": "#/definitions/requestModel.ExpenseDetail"
                     }
                 },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConfirmFile"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -5595,6 +5618,12 @@
                 },
                 "expectedDeliveryDate": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConfirmFile"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -6273,6 +6302,35 @@
                 }
             }
         },
+        "responseModel.EntityDocument": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document": {
+                    "$ref": "#/definitions/responseModel.FileResponse"
+                },
+                "documentType": {
+                    "type": "string"
+                },
+                "entityId": {
+                    "type": "integer"
+                },
+                "entityName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.ExpenseDetail": {
             "type": "object",
             "properties": {
@@ -6317,6 +6375,12 @@
                         "$ref": "#/definitions/responseModel.ExpenseDetail"
                     }
                 },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.EntityDocument"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -6336,6 +6400,17 @@
                     "type": "number"
                 },
                 "purchaseDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.FileResponse": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "type": "string"
+                },
+                "fileUrl": {
                     "type": "string"
                 }
             }
@@ -6797,6 +6872,12 @@
                 },
                 "expectedDeliveryDate": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.EntityDocument"
+                    }
                 },
                 "id": {
                     "type": "integer"
