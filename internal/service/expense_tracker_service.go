@@ -108,6 +108,12 @@ func (svc expenseTrackerService) GetAll(ctx *context.Context, search string) ([]
 		return nil, errs.NewXError(errs.MAPPING_ERROR, "Failed to map ExpenseTracker data", mapErr)
 	}
 
+	for i := range mappedExpenseTrackers {
+		if xerr := svc.fillExpenseFiles(ctx, &mappedExpenseTrackers[i]); xerr != nil {
+			return nil, xerr
+		}
+	}
+
 	return mappedExpenseTrackers, nil
 }
 

@@ -1,0 +1,113 @@
+# Deploy Stitchfolio backend for feature branches.
+# Push to feat/** → spins up an isolated container routed at /api/sf/feat/<slug>/v1.
+# Delete feat/** branch → tears down the container and cleans up the deploy directory.
+
+name: Deploy Feature Branch
+
+on:
+  push:
+    branches: ['feat/**']
+  delete:
+
+env:
+  SSH_HOST: "31.97.202.6"
+  SSH_USER: "root"
+  # Feature branches share the dev env file and config.
+  ENV_FILE: "/root/stitchfolio_env/dev.env"
+  CONFIG_FILE: "dev.yaml"
+
+jobs:
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Deploy feature branch
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          BRANCH: ${{ github.ref_name }}
+          REPO_URL: "git@github.com:${{ github.repository }}.git"
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: BRANCH,REPO_URL
+          script: |
+            set -e
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:$PATH"
+
+            if ! command -v docker >/dev/null 2>&1; then
+              echo "ERROR: docker not found."
+              exit 1
+            fi
+
+            # Derive a URL/Docker-safe slug from the branch name (feat/my-thing -> my-thing).
+            SLUG=$(echo "$BRANCH" | sed 's|feat/||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-25)
+
+            DEPLOY_PATH="/stitchfolio/backend-feat-${SLUG}"
+            COMPOSE_PROJECT="sf-feat-${SLUG}"
+            TRAEFIK_ROUTER_NAME="stitchfolio-feat-${SLUG}"
+            SLUG_PATH="/api/sf/feat/${SLUG}/v1"
+
+            if [ ! -d "$DEPLOY_PATH" ]; then
+              mkdir -p /stitchfolio
+              git clone "$REPO_URL" "$DEPLOY_PATH"
+              cd "$DEPLOY_PATH"
+              git checkout "$BRANCH"
+            else
+              cd "$DEPLOY_PATH"
+            fi
+
+            git fetch origin "$BRANCH"
+            git checkout "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+
+            echo "Writing .env for compose..."
+            echo "ENV_FILE_PATH=${{ env.ENV_FILE }}" > .env
+            echo "CONFIG_FILE=${{ env.CONFIG_FILE }}" >> .env
+            echo "COMPOSE_PROJECT=${COMPOSE_PROJECT}" >> .env
+            echo "TRAEFIK_ROUTER_NAME=${TRAEFIK_ROUTER_NAME}" >> .env
+            printf 'TRAEFIK_RULE=PathPrefix(`%s`)\n' "${SLUG_PATH}" >> .env
+            printf 'TRAEFIK_STRIP_REGEX=^%s(.*)\n' "${SLUG_PATH}" >> .env
+
+            echo "Building and starting backend (Traefik routes ${SLUG_PATH})..."
+            docker compose -p "${COMPOSE_PROJECT}" -f docker-compose.yml -f docker-compose.feature.yml build --no-cache
+            docker compose -p "${COMPOSE_PROJECT}" -f docker-compose.yml -f docker-compose.feature.yml up -d
+
+            echo "Feature branch deployed at ${SLUG_PATH}"
+
+  cleanup:
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'feat/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Teardown feature branch
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          BRANCH: ${{ github.event.ref }}
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: BRANCH
+          script: |
+            set -e
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:$PATH"
+
+            SLUG=$(echo "$BRANCH" | sed 's|feat/||' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g' | cut -c1-25)
+
+            DEPLOY_PATH="/stitchfolio/backend-feat-${SLUG}"
+            COMPOSE_PROJECT="sf-feat-${SLUG}"
+
+            if [ -d "$DEPLOY_PATH" ]; then
+              cd "$DEPLOY_PATH"
+              docker compose -p "${COMPOSE_PROJECT}" -f docker-compose.yml -f docker-compose.feature.yml down --rmi all --volumes
+              cd /
+              rm -rf "$DEPLOY_PATH"
+              echo "Cleaned up feature branch: ${BRANCH}"
+            else
+              echo "No deployment found for ${BRANCH}, nothing to clean up."
+            fi

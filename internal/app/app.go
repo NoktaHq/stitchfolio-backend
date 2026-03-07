@@ -87,7 +87,7 @@ func (a *App) Migrate(ctx *context.Context, checkErr func(err error)) {
 		// &entities.EmailNotification{},
 		// &entities.EnquiryHistory{},
 		// &entities.Enquiry{},
-		// &entities.Expense{},
+		&entities.Expense{},
 		// &entities.MasterConfig{},
 		// &entities.Measurement{},
 		// &entities.MeasurementHistory{},
