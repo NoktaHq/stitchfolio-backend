@@ -2,9 +2,10 @@ package constants
 
 // Email Template File Name
 const (
-	PASSWORD_RESET_HTML_TEMPLATE         = "passwordReset.htm"
-	PASSWORD_RESET_SUCCESS_HTML_TEMPLATE = "passwordResetSuccess.htm"
-	USER_CREATED_HTML_TEMPLATE           = "userCreated.htm"
+	EMPLOYEE_CREATION_HTML_TEMPLATE   = "employee_creation.html"
+	FORGOT_PASSWORD_HTML_TEMPLATE     = "forgot_password.html"
+	SUPER_ADMIN_ONBOARD_HTML_TEMPLATE = "super_admin_onboard.html"
+	PASSWORD_RESET_CONFIRMATION_HTML  = "password_reset_confirmation.html"
 )
 
 const PASSWORD_RESET_UI_PATH = "reset-password"

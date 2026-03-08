@@ -53,9 +53,10 @@ type userService struct {
 	config      config.AppConfig
 	respMapper  mapper.ResponseMapper
 	emailSvc    email.EmailService
+	notifSvc    NotificationService
 }
 
-func ProvideUserService(repo repository.UserRepository, channelRepo repository.ChannelRepository, mapper mapper.Mapper, config config.AppConfig, respMapper mapper.ResponseMapper, emailSvc email.EmailService) UserService {
+func ProvideUserService(repo repository.UserRepository, channelRepo repository.ChannelRepository, mapper mapper.Mapper, config config.AppConfig, respMapper mapper.ResponseMapper, emailSvc email.EmailService, notifSvc NotificationService) UserService {
 	return userService{
 		userRepo:    repo,
 		channelRepo: channelRepo,
@@ -63,6 +64,7 @@ func ProvideUserService(repo repository.UserRepository, channelRepo repository.C
 		config:      config,
 		respMapper:  respMapper,
 		emailSvc:    emailSvc,
+		notifSvc:    notifSvc,
 	}
 }
 
@@ -93,7 +95,14 @@ func (svc userService) SaveUser(ctx *context.Context, user requestModel.User) *e
 		return errr
 	}
 
-	return svc.sendUserCreatedEmail(ctx, *dbUser, generatedPassword)
+	// Set reset link for "set up your account" email (async send via notification task)
+	resetString := util.GenerateRandom(12)
+	if errr = svc.userRepo.SetPasswordReset(ctx, dbUser.ID, resetString); errr != nil {
+		return errr
+	}
+
+	// Enqueue email asynchronously; mail failure will not affect DB (notification task sends later)
+	return svc.sendUserCreatedEmail(ctx, *dbUser, resetString)
 }
 
 func (svc userService) UpdateUser(ctx *context.Context, user requestModel.User, id uint) *errs.XError {
@@ -246,121 +255,108 @@ func (svc userService) Delete(ctx *context.Context, id uint) *errs.XError {
 	return nil
 }
 
-func (svc userService) sendUserCreatedEmail(ctx *context.Context, user entities.User, password string) *errs.XError {
+func (svc userService) sendUserCreatedEmail(ctx *context.Context, user entities.User, resetString string) *errs.XError {
 
 	siteUrl := utils.GetSiteURL(svc.config.Site)
-	forgotPasswordUrl := fmt.Sprintf("%s%s", siteUrl, constants.FORGOT_PASSWORD_UI_PATH)
+	passwordResetPath := constants.PASSWORD_RESET_UI_PATH
+	resetLink := fmt.Sprintf("%s%s?resetString=%s", siteUrl, passwordResetPath, resetString)
 
-	session := utils.GetSession(ctx)
-	if session == nil {
-		return errs.NewXError(errs.SMTP_ERROR, "Unable to get user session", nil)
-
+	organization := "Stitchfolio"
+	if user.ChannelId != 0 {
+		channel, err := svc.channelRepo.Get(ctx, user.ChannelId)
+		if err == nil {
+			organization = channel.Name
+		}
 	}
 
-	fileName := constants.USER_CREATED_HTML_TEMPLATE
+	var templateName string
+	subject := "Welcome to Stitchfolio"
 
-	welcomeTo := "Stitchfolio - Boutique Management Platform"
-
-	//if the user is created from SysAdmin there wont be a channelName.
-	//So we need to show a generic message
-	if session.ChannelId != 0 {
-		welcomeTo = session.ChannelName
+	if user.Role == entities.SUPERADMIN {
+		templateName = constants.SUPER_ADMIN_ONBOARD_HTML_TEMPLATE
+		subject = "Welcome to Stitchfolio - Super Admin Onboarding"
+	} else {
+		templateName = constants.EMPLOYEE_CREATION_HTML_TEMPLATE
+		subject = fmt.Sprintf("Welcome to %s", organization)
 	}
 
-	subject := fmt.Sprintf("Welcome to %s", welcomeTo)
 	recipients := []string{user.Email}
-	mail := email.EmailContent{
-		To:                   recipients,
-		Subject:              subject,
-		Message:              nil,
-		HtmlTemplateFileName: &fileName,
-		TemplateValueMap: map[string]string{
-			"**COMPANY_NAME**":         session.ChannelName,
-			"**USER_NAME**":            user.FirstName,
-			"**EMAIL**":                user.Email,
-			"**PASSWORD**":             password,
-			"**FORGOT_PASSWORD_LINK**": forgotPasswordUrl,
-			"**LOGINLINK**":            siteUrl,
-			"**SITE_URL**":             siteUrl,
+	templateMap := map[string]string{
+		"**name**":         user.FirstName,
+		"**email**":        user.Email,
+		"**organization**": organization,
+		"**reset_link**":   resetLink,
+	}
+	if user.Role != entities.SUPERADMIN {
+		templateMap["**department**"] = user.Department
+	}
+
+	notif := requestModel.EmaiNotification{
+		Notification: &requestModel.Notification{
+			SourceEntity: "user",
+			EntityId:     user.ID,
+		},
+		EmailContent: &email.EmailContent{
+			To:                   recipients,
+			Subject:              subject,
+			HtmlTemplateFileName: &templateName,
+			TemplateValueMap:     templateMap,
 		},
 	}
-	err := svc.emailSvc.SendEmail(mail)
-	if err != nil {
-		return errs.NewXError(errs.SMTP_ERROR, "Unable to send user created mail.", err)
-	}
-	return nil
-
+	return svc.notifSvc.CreateEmailNotification(ctx, notif)
 }
 
 func (svc userService) sendPasswordResetMail(ctx *context.Context, user entities.User, resetString string) *errs.XError {
 
-	subject := "Password Reset Trigerred"
-
 	siteUrl := utils.GetSiteURL(svc.config.Site)
 	passwordResetPath := constants.PASSWORD_RESET_UI_PATH
-	passwordResetParam := fmt.Sprintf("resetString=%s", resetString)
-	url := fmt.Sprintf("%s%s?%s", siteUrl, passwordResetPath, passwordResetParam)
+	resetLink := fmt.Sprintf("%s%s?resetString=%s", siteUrl, passwordResetPath, resetString)
 
-	fileName := constants.PASSWORD_RESET_HTML_TEMPLATE
-
-	channel, err := svc.channelRepo.Get(ctx, user.ChannelId)
-	if err != nil {
-		return err
-	}
+	templateName := constants.FORGOT_PASSWORD_HTML_TEMPLATE
+	subject := "Reset Your Password - Stitchfolio"
 	recipients := []string{user.Email}
-	mail := email.EmailContent{
-		To:                   recipients,
-		Subject:              subject,
-		Message:              nil,
-		HtmlTemplateFileName: &fileName,
-		TemplateValueMap: map[string]string{
-			"**COMPANY_NAME**":      channel.Name,
-			"**PASSWORDRESETLINK**": url,
-			"**USER_NAME**":         user.FirstName,
-			"**EMAIL**":             user.Email,
-			"**SITE_URL**":          siteUrl,
+	templateMap := map[string]string{
+		"**name**":       user.FirstName,
+		"**reset_link**": resetLink,
+	}
+
+	notif := requestModel.EmaiNotification{
+		Notification: &requestModel.Notification{
+			SourceEntity: "user",
+			EntityId:     user.ID,
+		},
+		EmailContent: &email.EmailContent{
+			To:                   recipients,
+			Subject:              subject,
+			HtmlTemplateFileName: &templateName,
+			TemplateValueMap:     templateMap,
 		},
 	}
-	errr := svc.emailSvc.SendEmail(mail)
-	if errr != nil {
-		return errs.NewXError(errs.SMTP_ERROR, "Unable to send password reset mail.", err)
-	}
-	return nil
-
+	return svc.notifSvc.CreateEmailNotification(ctx, notif)
 }
 
 func (svc userService) sendPasswordResetSuccessMail(ctx *context.Context, user entities.User, resetString string) *errs.XError {
 
-	subject := "Password Reset Success"
-
-	siteUrl := utils.GetSiteURL(svc.config.Site)
-	url := fmt.Sprintf("%s%s", siteUrl, constants.FORGOT_PASSWORD_UI_PATH)
-
-	fileName := constants.PASSWORD_RESET_SUCCESS_HTML_TEMPLATE
-	channel, err := svc.channelRepo.Get(ctx, user.ChannelId)
-	if err != nil {
-		return err
+	templateName := constants.PASSWORD_RESET_CONFIRMATION_HTML
+	subject := "Password Reset Successful - Stitchfolio"
+	recipients := []string{user.Email}
+	templateMap := map[string]string{
+		"**name**": user.FirstName,
 	}
 
-	recipients := []string{user.Email}
-	mail := email.EmailContent{
-		To:                   recipients,
-		Subject:              subject,
-		Message:              nil,
-		HtmlTemplateFileName: &fileName,
-		TemplateValueMap: map[string]string{
-			"**COMPANY_NAME**":         channel.Name,
-			"**FORGOT_PASSWORD_LINK**": url,
-			"**USER_NAME**":            user.FirstName,
-			"**EMAIL**":                user.Email,
+	notif := requestModel.EmaiNotification{
+		Notification: &requestModel.Notification{
+			SourceEntity: "user",
+			EntityId:     user.ID,
+		},
+		EmailContent: &email.EmailContent{
+			To:                   recipients,
+			Subject:              subject,
+			HtmlTemplateFileName: &templateName,
+			TemplateValueMap:     templateMap,
 		},
 	}
-	errr := svc.emailSvc.SendEmail(mail)
-	if errr != nil {
-		return errs.NewXError(errs.SMTP_ERROR, "Unable to send password reset success mail.", err)
-	}
-	return nil
-
+	return svc.notifSvc.CreateEmailNotification(ctx, notif)
 }
 
 func (svc userService) ForgotPassword(ctx *context.Context, mail string) *errs.XError {
@@ -381,12 +377,8 @@ func (svc userService) ForgotPassword(ctx *context.Context, mail string) *errs.X
 		return err
 	}
 
-	err = svc.sendPasswordResetMail(ctx, *user, resetString)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// Enqueue email asynchronously; mail failure will not affect DB
+	return svc.sendPasswordResetMail(ctx, *user, resetString)
 }
 
 func (svc userService) ResetPassword(ctx *context.Context, resetString, password string) *errs.XError {
@@ -396,12 +388,8 @@ func (svc userService) ResetPassword(ctx *context.Context, resetString, password
 		return err
 	}
 
-	err = svc.sendPasswordResetSuccessMail(ctx, *user, resetString)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// Enqueue confirmation email asynchronously; mail failure will not affect DB
+	return svc.sendPasswordResetSuccessMail(ctx, *user, resetString)
 }
 
 func (svc userService) RefreshToken(ctx *context.Context) (string, *errs.XError) {

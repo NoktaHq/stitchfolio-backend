@@ -8,7 +8,6 @@ package di
 
 import (
 	"context"
-
 	"github.com/google/wire"
 	"github.com/imkarthi24/sf-backend/internal/app"
 	"github.com/imkarthi24/sf-backend/internal/config"
@@ -45,7 +44,10 @@ func InitApp(ctx *context.Context) (*app.App, error) {
 	responseMapper := mapper.ProvideResponseMapper()
 	serviceService := ProvideServiceContainer(appConfig)
 	emailService := serviceService.EmailService
-	userService := service.ProvideUserService(userRepository, channelRepository, mapperMapper, appConfig, responseMapper, emailService)
+	notificationRepository := repository.ProvideNotificationRepository(gormDAL)
+	smtpConfig := appConfig.SMTP
+	notificationService := service.ProvideNotificationService(notificationRepository, mapperMapper, smtpConfig, emailService)
+	userService := service.ProvideUserService(userRepository, channelRepository, mapperMapper, appConfig, responseMapper, emailService, notificationService)
 	userHandler := handler.ProvideUserHandler(userService)
 	channelService := service.ProvideChannelService(channelRepository, userRepository, mapperMapper, responseMapper)
 	channelHandler := handler.ProvideChannelHandler(channelService)
@@ -141,10 +143,10 @@ func InitJobService(ctx *context.Context) (*app.Task, error) {
 	responseMapper := mapper.ProvideResponseMapper()
 	serviceService := ProvideServiceContainer(appConfig)
 	emailService := serviceService.EmailService
-	userService := service.ProvideUserService(userRepository, channelRepository, mapperMapper, appConfig, responseMapper, emailService)
 	notificationRepository := repository.ProvideNotificationRepository(gormDAL)
 	smtpConfig := appConfig.SMTP
 	notificationService := service.ProvideNotificationService(notificationRepository, mapperMapper, smtpConfig, emailService)
+	userService := service.ProvideUserService(userRepository, channelRepository, mapperMapper, appConfig, responseMapper, emailService, notificationService)
 	channelService := service.ProvideChannelService(channelRepository, userRepository, mapperMapper, responseMapper)
 	masterConfigRepository := repository.ProvideMasterConfigRepository(gormDAL)
 	masterConfigService := service.ProvideMasterConfigService(masterConfigRepository, mapperMapper, appConfig, responseMapper)

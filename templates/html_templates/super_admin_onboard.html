@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Stitchfolio - Super Admin Onboarding</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #1a2b3c;
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .header {
+            background: linear-gradient(135deg, #4da6ff 0%, #3b82f6 100%);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            text-transform: lowercase;
+        }
+        .logo span {
+            color: #e2e8f0;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #0f172a;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        p {
+            margin-bottom: 16px;
+            color: #475569;
+        }
+        .button-container {
+            margin: 32px 0;
+            text-align: center;
+        }
+        .button {
+            background-color: #3b82f6;
+            color: #ffffff !important;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .footer {
+            background-color: #f1f5f9;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+        .details-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .detail-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .detail-item strong {
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">stitch<span>folio</span></div>
+        </div>
+        <div class="content">
+            <h1>Welcome to the Atelier, Super Admin</h1>
+            <p>Hello **name**,</p>
+            <p>Your journey with <strong>Stitchfolio</strong> begins here. As a Super Admin, you have the master keys to manage your boutique empire, oversee operations, and craft the perfect digital workflow.</p>
+            
+            <div class="details-box">
+                <div class="detail-item"><strong>Role:</strong> Super Admin</div>
+                <div class="detail-item"><strong>Login Email:</strong> **email**</div>
+                <div class="detail-item"><strong>Organization:</strong> **organization**</div>
+            </div>
+
+            <p>To get started and secure your account, please set up your password using the link below:</p>
+            
+            <div class="button-container">
+                <a href="**reset_link**" class="button">Set Up Your Account</a>
+            </div>
+
+            <p>This link will expire in 24 hours. If you didn't expect this invitation, please contact our support team immediately.</p>
+            
+            <p>Best regards,<br>The Stitchfolio Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 Stitchfolio. Co-creating the future of boutique management.</p>
+        </div>
+    </div>
+</body>
+</html>
