@@ -6348,6 +6348,13 @@ const docTemplate = `{
                 "reason": {
                     "type": "string"
                 },
+                "sourceId": {
+                    "type": "integer"
+                },
+                "sourceType": {
+                    "description": "MANUAL, PURCHASE, ADJUSTMENT",
+                    "type": "string"
+                },
                 "stockAfter": {
                     "description": "Stock quantity after this movement",
                     "type": "integer"
