@@ -203,6 +203,7 @@ func (svc inventoryService) RecordStockMovement(ctx *context.Context, request re
 		Reason:     request.Reason,
 		Notes:      request.Notes,
 		LoggedAt:   util.GetLocalTime(),
+		SourceType: entities.InventoryLogSourceTypeMANUAL,
 	}
 
 	errr := svc.inventoryLogRepo.Create(ctx, logEntry)

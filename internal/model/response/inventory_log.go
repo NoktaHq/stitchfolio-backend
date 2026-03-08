@@ -11,6 +11,8 @@ type InventoryLog struct {
 	Reason     string    `json:"reason,omitempty"`
 	Notes      string    `json:"notes,omitempty"`
 	LoggedAt   time.Time `json:"loggedAt,omitempty"`
+	SourceType string    `json:"sourceType,omitempty"` // MANUAL, PURCHASE, ADJUSTMENT
+	SourceId   *uint     `json:"sourceId,omitempty"`
 
 	AuditFields `json:"auditFields,omitempty"`
 

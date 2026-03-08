@@ -296,6 +296,38 @@ func InitRouter(handler baseHandler.BaseHandler, newRelic *newrelic.Application,
 			inventoryLogEndpoints.GET("", handler.InventoryLogHandler.GetAllInventoryLogs)
 		}
 
+		vendorEndpoints := appRouter.Group("vendor", router.VerifyJWT(srvConfig.JwtSecretKey))
+		{
+			vendorEndpoints.POST("", handler.VendorHandler.SaveVendor)
+			vendorEndpoints.PUT(":id", handler.VendorHandler.UpdateVendor)
+			vendorEndpoints.GET("autocomplete", handler.VendorHandler.AutocompleteVendor)
+			vendorEndpoints.GET(":id", handler.VendorHandler.Get)
+			vendorEndpoints.GET("", handler.VendorHandler.GetAllVendors)
+			vendorEndpoints.DELETE(":id", handler.VendorHandler.Delete)
+		}
+
+		purchaseEndpoints := appRouter.Group("purchase", router.VerifyJWT(srvConfig.JwtSecretKey))
+		{
+			purchaseEndpoints.POST("", handler.PurchaseHandler.SavePurchase)
+			purchaseEndpoints.PUT(":id", handler.PurchaseHandler.UpdatePurchase)
+			purchaseEndpoints.POST(":id/receive", handler.PurchaseHandler.ReceivePurchase)
+			purchaseEndpoints.GET(":id", handler.PurchaseHandler.Get)
+			purchaseEndpoints.GET("", handler.PurchaseHandler.GetAllPurchases)
+			purchaseEndpoints.DELETE(":id", handler.PurchaseHandler.Delete)
+
+			purchaseEndpoints.GET(":id/purchase-item", handler.PurchaseItemHandler.GetByPurchaseId)
+			purchaseEndpoints.POST(":id/purchase-item", handler.PurchaseItemHandler.Save)
+			purchaseEndpoints.PUT(":id/purchase-item/:detailId", handler.PurchaseItemHandler.Update)
+			purchaseEndpoints.DELETE(":id/purchase-item/:detailId", handler.PurchaseItemHandler.Delete)
+		}
+
+		purchaseItemEndpoints := appRouter.Group("purchase-item", router.VerifyJWT(srvConfig.JwtSecretKey))
+		{
+			purchaseItemEndpoints.GET(":id", handler.PurchaseItemHandler.Get)
+			purchaseItemEndpoints.PUT(":id", handler.PurchaseItemHandler.Update)
+			purchaseItemEndpoints.DELETE(":id", handler.PurchaseItemHandler.Delete)
+		}
+
 		dashboardEndpoints := appRouter.Group("dashboard", router.VerifyJWT(srvConfig.JwtSecretKey))
 		{
 			dashboardEndpoints.GET("task", handler.DashboardHandler.GetTaskDashboard)

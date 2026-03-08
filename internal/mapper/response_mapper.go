@@ -58,6 +58,12 @@ type ResponseMapper interface {
 	Inventories(items []entities.Inventory) ([]responseModel.Inventory, error)
 	InventoryLog(e *entities.InventoryLog) (*responseModel.InventoryLog, error)
 	InventoryLogs(items []entities.InventoryLog) ([]responseModel.InventoryLog, error)
+	Vendor(e *entities.Vendor) (*responseModel.Vendor, error)
+	Vendors(items []entities.Vendor) ([]responseModel.Vendor, error)
+	Purchase(e *entities.Purchase) (*responseModel.Purchase, error)
+	Purchases(items []entities.Purchase) ([]responseModel.Purchase, error)
+	PurchaseItem(e *entities.PurchaseItem) (*responseModel.PurchaseItem, error)
+	PurchaseItems(items []entities.PurchaseItem) ([]responseModel.PurchaseItem, error)
 }
 
 func ProvideResponseMapper() ResponseMapper {
@@ -933,6 +939,8 @@ func (m *responseMapper) inventoryLogWithStock(e *entities.InventoryLog, stockAf
 		Reason:      e.Reason,
 		Notes:       e.Notes,
 		LoggedAt:    e.LoggedAt,
+		SourceType:  string(e.SourceType),
+		SourceId:   e.SourceId,
 		Product:     product,
 		ProductName: productName,
 		ProductSKU:  productSKU,
@@ -997,6 +1005,140 @@ func (m *responseMapper) InventoryLogs(items []entities.InventoryLog) ([]respons
 			return nil, err
 		}
 		result = append(result, *mappedItem)
+	}
+	return result, nil
+}
+
+func (m *responseMapper) Vendor(e *entities.Vendor) (*responseModel.Vendor, error) {
+	if e == nil {
+		return nil, nil
+	}
+	return &responseModel.Vendor{
+		ID:            e.ID,
+		IsActive:      e.IsActive,
+		Name:          e.Name,
+		ContactPerson: e.ContactPerson,
+		Phone:         e.Phone,
+		Email:         e.Email,
+		Address:       e.Address,
+		PaymentTerms:  e.PaymentTerms,
+		Notes:         e.Notes,
+		AuditFields: responseModel.AuditFields{
+			CreatedAt: e.CreatedAt,
+			UpdatedAt: e.UpdatedAt,
+			CreatedBy: e.CreatedBy,
+			UpdatedBy: e.UpdatedBy,
+		},
+	}, nil
+}
+
+func (m *responseMapper) Vendors(items []entities.Vendor) ([]responseModel.Vendor, error) {
+	result := make([]responseModel.Vendor, 0, len(items))
+	for i := range items {
+		mapped, err := m.Vendor(&items[i])
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *mapped)
+	}
+	return result, nil
+}
+
+func (m *responseMapper) Purchase(e *entities.Purchase) (*responseModel.Purchase, error) {
+	if e == nil {
+		return nil, nil
+	}
+	var vendor *responseModel.Vendor
+	if e.Vendor != nil {
+		v, err := m.Vendor(e.Vendor)
+		if err != nil {
+			return nil, err
+		}
+		vendor = v
+	}
+	var purchaseItems []responseModel.PurchaseItem
+	if len(e.PurchaseItems) > 0 {
+		items, err := m.PurchaseItems(e.PurchaseItems)
+		if err != nil {
+			return nil, err
+		}
+		purchaseItems = items
+	}
+	return &responseModel.Purchase{
+		ID:                    e.ID,
+		IsActive:              e.IsActive,
+		VendorId:              e.VendorId,
+		PurchaseNumber:        e.PurchaseNumber,
+		PurchaseDate:          e.PurchaseDate,
+		Status:                string(e.Status),
+		ExpectedDeliveryDate:  e.ExpectedDeliveryDate,
+		Notes:                 e.Notes,
+		TotalAmount:           e.TotalAmount,
+		PaidAmount:            e.PaidAmount,
+		PaidAt:                e.PaidAt,
+		PaymentMethod:         e.PaymentMethod,
+		Vendor:                vendor,
+		PurchaseItems:         purchaseItems,
+		AuditFields: responseModel.AuditFields{
+			CreatedAt: e.CreatedAt,
+			UpdatedAt: e.UpdatedAt,
+			CreatedBy: e.CreatedBy,
+			UpdatedBy: e.UpdatedBy,
+		},
+	}, nil
+}
+
+func (m *responseMapper) Purchases(items []entities.Purchase) ([]responseModel.Purchase, error) {
+	result := make([]responseModel.Purchase, 0, len(items))
+	for i := range items {
+		mapped, err := m.Purchase(&items[i])
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *mapped)
+	}
+	return result, nil
+}
+
+func (m *responseMapper) PurchaseItem(e *entities.PurchaseItem) (*responseModel.PurchaseItem, error) {
+	if e == nil {
+		return nil, nil
+	}
+	var product *responseModel.Product
+	if e.Product != nil {
+		p, err := m.Product(e.Product)
+		if err != nil {
+			return nil, err
+		}
+		product = p
+	}
+	return &responseModel.PurchaseItem{
+		ID:               e.ID,
+		IsActive:         e.IsActive,
+		PurchaseId:       e.PurchaseId,
+		ProductId:        e.ProductId,
+		QuantityOrdered:  e.QuantityOrdered,
+		QuantityReceived: e.QuantityReceived,
+		UnitCost:         e.UnitCost,
+		LineTotal:        e.LineTotal,
+		Product:          product,
+		AuditFields: responseModel.AuditFields{
+			CreatedAt: e.CreatedAt,
+			UpdatedAt: e.UpdatedAt,
+			CreatedBy: e.CreatedBy,
+			UpdatedBy: e.UpdatedBy,
+		},
+	}, nil
+}
+
+func (m *responseMapper) PurchaseItems(items []entities.PurchaseItem) ([]responseModel.PurchaseItem, error) {
+	result := make([]responseModel.PurchaseItem, 0, len(items))
+	for i := range items {
+		mapped, err := m.PurchaseItem(&items[i])
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *mapped)
 	}
 	return result, nil
 }

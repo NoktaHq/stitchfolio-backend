@@ -59,6 +59,9 @@ var handlerSet = wire.NewSet(
 	handler.ProvideProductHandler,
 	handler.ProvideInventoryHandler,
 	handler.ProvideInventoryLogHandler,
+	handler.ProvideVendorHandler,
+	handler.ProvidePurchaseHandler,
+	handler.ProvidePurchaseItemHandler,
 	handler.ProvideDashboardHandler,
 )
 var logSet = wire.NewSet(
@@ -103,6 +106,9 @@ var svcSet = wire.NewSet(
 	service.ProvideProductService,
 	service.ProvideInventoryService,
 	service.ProvideInventoryLogService,
+	service.ProvideVendorService,
+	service.ProvidePurchaseService,
+	service.ProvidePurchaseItemService,
 	service.ProvideDashboardService,
 )
 
@@ -134,6 +140,9 @@ var repoSet = wire.NewSet(
 	repository.ProvideProductRepository,
 	repository.ProvideInventoryRepository,
 	repository.ProvideInventoryLogRepository,
+	repository.ProvideVendorRepository,
+	repository.ProvidePurchaseRepository,
+	repository.ProvidePurchaseItemRepository,
 	repository.ProvideDashboardRepository,
 )
 

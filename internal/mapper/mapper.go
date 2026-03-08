@@ -34,6 +34,10 @@ type Mapper interface {
 	Product(e requestModel.Product) (*entities.Product, error)
 	Inventory(e requestModel.Inventory) (*entities.Inventory, error)
 	InventoryLog(e requestModel.InventoryLog) (*entities.InventoryLog, error)
+	Vendor(e requestModel.Vendor) (*entities.Vendor, error)
+	Purchase(e requestModel.Purchase) (*entities.Purchase, error)
+	PurchaseItem(e requestModel.PurchaseItem) (*entities.PurchaseItem, error)
+	PurchaseItems(items []requestModel.PurchaseItem) ([]entities.PurchaseItem, error)
 }
 
 type mapper struct{}
@@ -576,4 +580,61 @@ func (m *mapper) InventoryLog(e requestModel.InventoryLog) (*entities.InventoryL
 		Notes:      e.Notes,
 		LoggedAt:   loggedAt,
 	}, nil
+}
+
+func (m *mapper) Vendor(e requestModel.Vendor) (*entities.Vendor, error) {
+	return &entities.Vendor{
+		Model:          &entities.Model{ID: e.ID, IsActive: e.IsActive},
+		Name:           e.Name,
+		ContactPerson:  e.ContactPerson,
+		Phone:          e.Phone,
+		Email:          e.Email,
+		Address:        e.Address,
+		PaymentTerms:   e.PaymentTerms,
+		Notes:          e.Notes,
+	}, nil
+}
+
+func (m *mapper) Purchase(e requestModel.Purchase) (*entities.Purchase, error) {
+	return &entities.Purchase{
+		Model:                 &entities.Model{ID: e.ID, IsActive: e.IsActive},
+		VendorId:              e.VendorId,
+		PurchaseNumber:        e.PurchaseNumber,
+		PurchaseDate:          e.PurchaseDate,
+		Status:                entities.PurchaseStatus(e.Status),
+		ExpectedDeliveryDate:  e.ExpectedDeliveryDate,
+		Notes:                 e.Notes,
+		TotalAmount:           e.TotalAmount,
+		PaidAmount:            e.PaidAmount,
+		PaidAt:                e.PaidAt,
+		PaymentMethod:         e.PaymentMethod,
+	}, nil
+}
+
+func (m *mapper) PurchaseItem(e requestModel.PurchaseItem) (*entities.PurchaseItem, error) {
+	lineTotal := e.LineTotal
+	if lineTotal == 0 && e.QuantityOrdered > 0 && e.UnitCost != 0 {
+		lineTotal = float64(e.QuantityOrdered) * e.UnitCost
+	}
+	return &entities.PurchaseItem{
+		Model:             &entities.Model{ID: e.ID, IsActive: e.IsActive},
+		PurchaseId:       e.PurchaseId,
+		ProductId:        e.ProductId,
+		QuantityOrdered:  e.QuantityOrdered,
+		QuantityReceived:  e.QuantityReceived,
+		UnitCost:         e.UnitCost,
+		LineTotal:        lineTotal,
+	}, nil
+}
+
+func (m *mapper) PurchaseItems(items []requestModel.PurchaseItem) ([]entities.PurchaseItem, error) {
+	result := make([]entities.PurchaseItem, 0, len(items))
+	for _, it := range items {
+		ent, err := m.PurchaseItem(it)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, *ent)
+	}
+	return result, nil
 }

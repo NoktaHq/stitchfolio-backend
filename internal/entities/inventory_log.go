@@ -10,6 +10,15 @@ const (
 	InventoryLogChangeTypeADJUST InventoryLogChangeType = "ADJUST"
 )
 
+// InventoryLogSourceType indicates the document that caused this movement (for audit trail).
+type InventoryLogSourceType string
+
+const (
+	InventoryLogSourceTypeMANUAL    InventoryLogSourceType = "MANUAL"
+	InventoryLogSourceTypePURCHASE   InventoryLogSourceType = "PURCHASE"
+	InventoryLogSourceTypeADJUSTMENT InventoryLogSourceType = "ADJUSTMENT"
+)
+
 type InventoryLog struct {
 	*Model `mapstructure:",squash"`
 
@@ -19,6 +28,10 @@ type InventoryLog struct {
 	Reason     string                 `json:"reason" gorm:"not null"`
 	Notes      string                 `json:"notes"`
 	LoggedAt   time.Time              `json:"loggedAt" gorm:"not null"`
+
+	// Optional source reference (e.g. PurchaseItemId when SourceType = PURCHASE)
+	SourceType InventoryLogSourceType `json:"sourceType" gorm:"type:varchar(30);default:MANUAL"`
+	SourceId   *uint                  `json:"sourceId,omitempty"`
 
 	// Relations
 	Product *Product `gorm:"foreignKey:ProductId" json:"product,omitempty"`
