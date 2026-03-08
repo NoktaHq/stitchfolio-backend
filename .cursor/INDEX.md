@@ -14,11 +14,18 @@ Your `.cursor` directory now contains comprehensive documentation totaling **~11
 | **ARCHITECTURE_GUIDE.md** | 45 KB | Complete architectural reference | Deep dive into patterns |
 | **QUICK_REFERENCE.md** | 9 KB | Implementation checklist | Adding new features |
 | **VISUAL_ARCHITECTURE.md** | 38 KB | Visual diagrams & flows | Understanding system flow |
+| **FILE_STORE_STRUCTURE.md** | ~8 KB | File store: temp upload, confirm, entity_document | File uploads, OrderItem/Expense files |
 | **rules/backend-standards.md** | 9 KB | AI coding rules | Cursor AI enforcement |
+| **rules/file-store.mdc** | — | File store AI rule (globs) | When editing file-store/entity_document code |
 
 **Total:** ~111 KB of comprehensive documentation
 
 ## 🎯 Quick Access by Task
+
+### "I'm working on file uploads / OrderItem or Expense files"
+1. Open **FILE_STORE_STRUCTURE.md** → Full flow, tables, models, confirm/get
+2. Check **SERVICE_USAGE.md** → Section 2 (File Store summary)
+3. **rules/file-store.mdc** applies when editing file-store or entity_document code
 
 ### "I'm adding a new feature"
 1. Open **QUICK_REFERENCE.md** → Follow the 12-step checklist
@@ -194,6 +201,7 @@ Your `.cursor` directory now contains comprehensive documentation totaling **~11
 
 | What You Need | Document | Section |
 |--------------|----------|---------|
+| File store (temp upload, confirm, entity_document) | FILE_STORE_STRUCTURE.md | Full doc |
 | Complete entity example | ARCHITECTURE_GUIDE.md | Entities Layer |
 | Repository CRUD methods | ARCHITECTURE_GUIDE.md | Repository Layer |
 | Service patterns | ARCHITECTURE_GUIDE.md | Service Layer |

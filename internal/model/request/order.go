@@ -1,5 +1,7 @@
 package requestModel
 
+import "github.com/imkarthi24/sf-backend/internal/model/models"
+
 type Order struct {
 	ID       uint `json:"id,omitempty"`
 	IsActive bool `json:"isActive,omitempty"`
@@ -37,4 +39,6 @@ type OrderItem struct {
 	DressTypeId   *uint `json:"dressTypeId,omitempty"`
 
 	OrderId uint `json:"orderId,omitempty"`
+
+	Files []models.ConfirmFile `json:"files,omitempty"`
 }

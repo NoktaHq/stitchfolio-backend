@@ -7,6 +7,7 @@ import (
 
 	"github.com/imkarthi24/sf-backend/internal/entities"
 	"github.com/imkarthi24/sf-backend/internal/mapper"
+	"github.com/imkarthi24/sf-backend/internal/model/models"
 	requestModel "github.com/imkarthi24/sf-backend/internal/model/request"
 	responseModel "github.com/imkarthi24/sf-backend/internal/model/response"
 	"github.com/imkarthi24/sf-backend/internal/repository"
@@ -24,17 +25,21 @@ type OrderService interface {
 }
 
 type orderService struct {
-	orderRepo        repository.OrderRepository
-	orderHistoryRepo repository.OrderHistoryRepository
-	mapper           mapper.Mapper
-	respMapper       mapper.ResponseMapper
+	orderRepo         repository.OrderRepository
+	orderHistoryRepo  repository.OrderHistoryRepository
+	fileStoreSvc      FileStoreService
+	entityDocumentSvc EntityDocumentService
+	mapper            mapper.Mapper
+	respMapper        mapper.ResponseMapper
 }
 
-func ProvideOrderService(repo repository.OrderRepository, orderHistoryRepo repository.OrderHistoryRepository, mapper mapper.Mapper, respMapper mapper.ResponseMapper) OrderService {
+func ProvideOrderService(repo repository.OrderRepository, orderHistoryRepo repository.OrderHistoryRepository, fileStoreSvc FileStoreService, entityDocumentSvc EntityDocumentService, mapper mapper.Mapper, respMapper mapper.ResponseMapper) OrderService {
 	return orderService{
-		orderRepo:        repo,
-		orderHistoryRepo: orderHistoryRepo,
-		mapper:           mapper,
+		orderRepo:         repo,
+		orderHistoryRepo:  orderHistoryRepo,
+		fileStoreSvc:     fileStoreSvc,
+		entityDocumentSvc: entityDocumentSvc,
+		mapper:            mapper,
 		respMapper:       respMapper,
 	}
 }
@@ -56,12 +61,67 @@ func (svc orderService) SaveOrder(ctx *context.Context, order requestModel.Order
 		return errr
 	}
 
+	// Confirm temp uploads for each order item's files: save entity_document and update file_store_metadata
+	for i := range order.OrderItems {
+		if len(order.OrderItems[i].Files) == 0 {
+			continue
+		}
+		// dbOrder.OrderItems is populated in same order by mapper; after Create, IDs are set
+		if i >= len(dbOrder.OrderItems) {
+			break
+		}
+		orderItemId := dbOrder.OrderItems[i].ID
+		for _, f := range order.OrderItems[i].Files {
+			if xerr := svc.confirmTempFileForOrderItem(ctx, f, orderItemId); xerr != nil {
+				return xerr
+			}
+		}
+	}
+
 	// Record order history for CREATED action
 	errr = svc.recordOrderHistory(ctx, dbOrder.ID, entities.OrderHistoryActionCreated, nil, nil, nil, nil)
 	if errr != nil {
 		return errr
 	}
 
+	
+
+	return nil
+}
+
+// confirmTempFileForOrderItem saves entity_document and confirms temp upload (moves file, updates file_store_metadata).
+func (svc orderService) confirmTempFileForOrderItem(ctx *context.Context, confirmFile models.ConfirmFile, orderItemId uint) *errs.XError {
+	const entityName = "OrderItem"
+	// 1. Save entity_document: type=kind, documentType=kind, entityName=OrderItem, entityId=orderItemId, description
+	entityDoc := requestModel.EntityDocuments{
+		IsActive:     true,
+		Type:         confirmFile.Kind,
+		DocumentType: confirmFile.Kind,
+		EntityName:   entityName,
+		EntityId:     orderItemId,
+		Description:  confirmFile.Description,
+	}
+	if xerr := svc.entityDocumentSvc.SaveEntityDocument(ctx, entityDoc); xerr != nil {
+		return xerr
+	}
+	// 2. Confirm temp upload: move file to final key, then update file_store_metadata with entityId, entityType, fileKey, fileUrl
+	newKey := svc.fileStoreSvc.GetFileKey(ctx, entityName, orderItemId, confirmFile.Kind)
+	newUrl, xerr := svc.fileStoreSvc.ConfirmTempUpload(ctx, confirmFile.FileKey, newKey)
+	if xerr != nil {
+		return xerr
+	}
+	return svc.fileStoreSvc.UpdateEntityIdAndKey(ctx, confirmFile.Id, orderItemId, entityName, newKey, newUrl)
+}
+
+// fillOrderItemFiles populates Files for each order item using entity_document + file_store_metadata (OrderItem/id/type).
+func (svc orderService) fillOrderItemFiles(ctx *context.Context, order *responseModel.Order) *errs.XError {
+	for i := range order.OrderItems {
+		files, xerr := svc.entityDocumentSvc.GetEntityDocumentsByEntity(ctx, order.OrderItems[i].ID, entities.Entity_OrderItem, entities.EntityDocumentsType(""))
+		if xerr != nil {
+			return xerr
+		}
+		order.OrderItems[i].Files = files
+	}
 	return nil
 }
 
@@ -87,6 +147,22 @@ func (svc orderService) UpdateOrder(ctx *context.Context, order requestModel.Ord
 	errr := svc.orderRepo.Update(ctx, dbOrder)
 	if errr != nil {
 		return errr
+	}
+
+	// Confirm temp uploads for each order item's files (same as on create)
+	for i := range order.OrderItems {
+		if len(order.OrderItems[i].Files) == 0 {
+			continue
+		}
+		if i >= len(dbOrder.OrderItems) {
+			break
+		}
+		orderItemId := dbOrder.OrderItems[i].ID
+		for _, f := range order.OrderItems[i].Files {
+			if xerr := svc.confirmTempFileForOrderItem(ctx, f, orderItemId); xerr != nil {
+				return xerr
+			}
+		}
 	}
 
 	// Determine changed fields
@@ -123,6 +199,10 @@ func (svc orderService) Get(ctx *context.Context, id uint) (*responseModel.Order
 		return nil, errs.NewXError(errs.MAPPING_ERROR, "Failed to map Order data", mapErr)
 	}
 
+	if xerr := svc.fillOrderItemFiles(ctx, mappedOrder); xerr != nil {
+		return nil, xerr
+	}
+
 	return mappedOrder, nil
 }
 
@@ -135,6 +215,12 @@ func (svc orderService) GetAll(ctx *context.Context, search string) ([]responseM
 	mappedOrders, mapErr := svc.respMapper.Orders(orders)
 	if mapErr != nil {
 		return nil, errs.NewXError(errs.MAPPING_ERROR, "Failed to map Order data", mapErr)
+	}
+
+	for i := range mappedOrders {
+		if xerr := svc.fillOrderItemFiles(ctx, &mappedOrders[i]); xerr != nil {
+			return nil, xerr
+		}
 	}
 
 	return mappedOrders, nil

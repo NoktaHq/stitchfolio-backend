@@ -58,6 +58,11 @@ type ResponseMapper interface {
 	Inventories(items []entities.Inventory) ([]responseModel.Inventory, error)
 	InventoryLog(e *entities.InventoryLog) (*responseModel.InventoryLog, error)
 	InventoryLogs(items []entities.InventoryLog) ([]responseModel.InventoryLog, error)
+
+	FileStoreMetadata(e *entities.FileStoreMetadata) (*responseModel.FileStoreMetadata, error)
+
+	EntityDocument(e *entities.EntityDocuments) (*responseModel.EntityDocument, error)
+	EntityDocuments(items []entities.EntityDocuments) ([]responseModel.EntityDocument, error)
 }
 
 func ProvideResponseMapper() ResponseMapper {
@@ -999,4 +1004,48 @@ func (m *responseMapper) InventoryLogs(items []entities.InventoryLog) ([]respons
 		result = append(result, *mappedItem)
 	}
 	return result, nil
+}
+
+func (m *responseMapper) FileStoreMetadata(e *entities.FileStoreMetadata) (*responseModel.FileStoreMetadata, error) {
+	return &responseModel.FileStoreMetadata{
+		Id:         e.ID,
+		IsActive:   e.IsActive,
+		FileName:   e.FileName,
+		FileSize:   e.FileSize,
+		FileType:   e.FileType,
+		FileUrl:    e.FileUrl,
+		FileKey:    e.FileKey,
+		FileBucket: e.FileBucket,
+
+		EntityId:   e.EntityId,
+		EntityType: e.EntityType,
+	}, nil
+}
+
+func (m *responseMapper) EntityDocument(e *entities.EntityDocuments) (*responseModel.EntityDocument, error) {
+	if e == nil {
+		return nil, nil
+	}
+
+	return &responseModel.EntityDocument{
+		Id:           e.ID,
+		IsActive:     e.IsActive,
+		Type:         string(e.Type),
+		DocumentType: e.DocumentType,
+		Description:  e.Description,
+		EntityName:   string(e.EntityName),
+		EntityId:     e.EntityId,
+	}, nil
+}
+
+func (m *responseMapper) EntityDocuments(items []entities.EntityDocuments) ([]responseModel.EntityDocument, error) {
+	var mappedItems []responseModel.EntityDocument
+	for _, item := range items {
+		mappedItem, err := m.EntityDocument(&item)
+		if err != nil {
+			return nil, err
+		}
+		mappedItems = append(mappedItems, *mappedItem)
+	}
+	return mappedItems, nil
 }

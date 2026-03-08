@@ -1,0 +1,21 @@
+---
+description: File store, temp upload, confirm flow, entity_document, file_store_metadata
+globs: internal/**/file_store*.go, internal/**/entity_document*.go, internal/service/order_service.go, internal/service/expense_tracker_service.go, internal/model/models/file.go, internal/model/request/entity_documents.go, internal/model/request/file_store_metadata.go, internal/entities/file_store_metadata.go, internal/entities/entity_documents.go
+alwaysApply: false
+---
+
+# File store structure
+
+When editing file-store, entity_document, or order/expense file logic:
+
+1. **Read first:** `.cursor/FILE_STORE_STRUCTURE.md` — defines tables (FileStoreMetadata, EntityDocuments), flow (temp upload → confirm on Save/Update), models (ConfirmFile, EntityDocument), and how to add files to a new entity.
+
+2. **Conventions:**
+   - Final S3 key: `{entityName}/{entityId}/{kind}`. Temp key: `temp/{uuid}`.
+   - ConfirmFile.Id is the **file_store_metadata** id from UploadTemp response.
+   - On confirm: save entity_document, then ConfirmTempUpload (returns newUrl), then UpdateEntityIdAndKey.
+   - Use GetEntityDocumentsByEntity to load files for an entity; it resolves URLs using each row's EntityName/EntityId/Type.
+
+3. **Entity names:** Use constants from `entities` (e.g. `Entity_OrderItem`, `Entity_Expense`) for entityName when saving entity_document and when calling GetEntityDocumentsByEntity / GetFileKey.
+
+4. **Services:** FileStoreService (UploadTemp, ConfirmTempUpload, UpdateEntityIdAndKey, GetFileKey) and EntityDocumentService (SaveEntityDocument, GetEntityDocumentsByEntity) are used by OrderService and ExpenseTrackerService; inject both when adding files to another entity.

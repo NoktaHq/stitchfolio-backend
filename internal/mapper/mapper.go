@@ -34,6 +34,9 @@ type Mapper interface {
 	Product(e requestModel.Product) (*entities.Product, error)
 	Inventory(e requestModel.Inventory) (*entities.Inventory, error)
 	InventoryLog(e requestModel.InventoryLog) (*entities.InventoryLog, error)
+
+	EntityDocument(e requestModel.EntityDocuments) (*entities.EntityDocuments, error)
+	FileStoreMetadata(e requestModel.FileStoreMetadata) (*entities.FileStoreMetadata, error)
 }
 
 type mapper struct{}
@@ -575,5 +578,31 @@ func (m *mapper) InventoryLog(e requestModel.InventoryLog) (*entities.InventoryL
 		Reason:     e.Reason,
 		Notes:      e.Notes,
 		LoggedAt:   loggedAt,
+	}, nil
+}
+
+func (m *mapper) FileStoreMetadata(e requestModel.FileStoreMetadata) (*entities.FileStoreMetadata, error) {
+	return &entities.FileStoreMetadata{
+		Model:      &entities.Model{ID: e.ID, IsActive: e.IsActive},
+		FileName:   e.FileName,
+		FileSize:   e.FileSize,
+		FileType:   e.FileType,
+		FileUrl:    e.FileUrl,
+		FileKey:    e.FileKey,
+		FileBucket: e.FileBucket,
+
+		EntityId:   e.EntityId,
+		EntityType: e.EntityType,
+	}, nil
+}
+
+func (m *mapper) EntityDocument(e requestModel.EntityDocuments) (*entities.EntityDocuments, error) {
+	return &entities.EntityDocuments{
+		Model:        &entities.Model{ID: e.ID, IsActive: e.IsActive},
+		Type:         entities.EntityDocumentsType(e.Type),
+		DocumentType: e.DocumentType,
+		Description:  e.Description,
+		EntityName:   entities.EntityName(e.EntityName),
+		EntityId:     e.EntityId,
 	}, nil
 }

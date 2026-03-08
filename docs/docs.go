@@ -14,11 +14,6 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "security": [
-        {
-            "BearerAuth": []
-        }
-    ],
     "paths": {
         "/admin/switch-branch": {
             "post": {
@@ -1805,6 +1800,104 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/responseModel.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/file-store/temp": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Uploads a file to temporary storage. Returns id and tempFileKey to use when committing the file to an entity (e.g. in tempFileRefs).",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FileStore"
+                ],
+                "summary": "Upload file to temp storage",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Returns { data: { id, tempFileKey, fileName } }",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/file-store/temp/bulk": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Uploads multiple files to temporary storage. Response array order matches request order (result[i] = i-th file). Each item includes fileName for matching when names are unique.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FileStore"
+                ],
+                "summary": "Bulk upload files to temp storage",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Files to upload (multiple with same field name 'files')",
+                        "name": "files",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Returns { data: [ { id, tempFileKey, fileName }, ... ] }",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseModel.DataResponse"
                         }
                     }
                 }
@@ -5016,6 +5109,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ConfirmFile": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "fileKey": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string"
+                }
+            }
+        },
         "requestModel.BulkMeasurementItem": {
             "type": "object",
             "properties": {
@@ -5269,6 +5379,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/requestModel.ExpenseDetail"
                     }
                 },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConfirmFile"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -5508,6 +5624,12 @@ const docTemplate = `{
                 },
                 "expectedDeliveryDate": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConfirmFile"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -6186,6 +6308,35 @@ const docTemplate = `{
                 }
             }
         },
+        "responseModel.EntityDocument": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document": {
+                    "$ref": "#/definitions/responseModel.FileResponse"
+                },
+                "documentType": {
+                    "type": "string"
+                },
+                "entityId": {
+                    "type": "integer"
+                },
+                "entityName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.ExpenseDetail": {
             "type": "object",
             "properties": {
@@ -6230,6 +6381,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/responseModel.ExpenseDetail"
                     }
                 },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.EntityDocument"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -6249,6 +6406,17 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "purchaseDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.FileResponse": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "type": "string"
+                },
+                "fileUrl": {
                     "type": "string"
                 }
             }
@@ -6710,6 +6878,12 @@ const docTemplate = `{
                 },
                 "expectedDeliveryDate": {
                     "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.EntityDocument"
+                    }
                 },
                 "id": {
                     "type": "integer"

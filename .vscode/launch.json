@@ -19,7 +19,7 @@
             "name": "Run Dev App",
             "program": "main.go",
             "mode": "debug",
-            "args": ["--configFile","./config/dev.yaml"],
+            "args": ["--configFile","./config/prod.yaml"],
             "envFile": "${workspaceFolder}/env/dev.env"
         },  
         {

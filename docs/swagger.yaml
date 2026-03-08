@@ -1,6 +1,4 @@
 basePath: /api/sf/v1
-security:
-  - BearerAuth: []
 definitions:
   entities.Channel:
     properties:
@@ -176,6 +174,17 @@ definitions:
       updatedById:
         type: integer
     type: object
+  models.ConfirmFile:
+    properties:
+      description:
+        type: string
+      fileKey:
+        type: string
+      id:
+        type: integer
+      kind:
+        type: string
+    type: object
   requestModel.BulkMeasurementItem:
     properties:
       dressTypeId:
@@ -342,6 +351,10 @@ definitions:
         items:
           $ref: '#/definitions/requestModel.ExpenseDetail'
         type: array
+      files:
+        items:
+          $ref: '#/definitions/models.ConfirmFile'
+        type: array
       id:
         type: integer
       isActive:
@@ -500,6 +513,10 @@ definitions:
         type: integer
       expectedDeliveryDate:
         type: string
+      files:
+        items:
+          $ref: '#/definitions/models.ConfirmFile'
+        type: array
       id:
         type: integer
       isActive:
@@ -950,6 +967,25 @@ definitions:
       visitingDate:
         type: string
     type: object
+  responseModel.EntityDocument:
+    properties:
+      description:
+        type: string
+      document:
+        $ref: '#/definitions/responseModel.FileResponse'
+      documentType:
+        type: string
+      entityId:
+        type: integer
+      entityName:
+        type: string
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      type:
+        type: string
+    type: object
   responseModel.ExpenseDetail:
     properties:
       auditFields:
@@ -979,6 +1015,10 @@ definitions:
         items:
           $ref: '#/definitions/responseModel.ExpenseDetail'
         type: array
+      files:
+        items:
+          $ref: '#/definitions/responseModel.EntityDocument'
+        type: array
       id:
         type: integer
       isActive:
@@ -992,6 +1032,13 @@ definitions:
       price:
         type: number
       purchaseDate:
+        type: string
+    type: object
+  responseModel.FileResponse:
+    properties:
+      fileName:
+        type: string
+      fileUrl:
         type: string
     type: object
   responseModel.Inventory:
@@ -1294,6 +1341,10 @@ definitions:
         type: string
       expectedDeliveryDate:
         type: string
+      files:
+        items:
+          $ref: '#/definitions/responseModel.EntityDocument'
+        type: array
       id:
         type: integer
       isActive:
@@ -2844,6 +2895,71 @@ paths:
       summary: Update ExpenseTracker
       tags:
       - ExpenseTracker
+  /file-store/temp:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a file to temporary storage. Returns id and tempFileKey
+        to use when committing the file to an entity (e.g. in tempFileRefs).
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Returns { data: { id, tempFileKey, fileName } }'
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload file to temp storage
+      tags:
+      - FileStore
+  /file-store/temp/bulk:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads multiple files to temporary storage. Response array order
+        matches request order (result[i] = i-th file). Each item includes fileName
+        for matching when names are unique.
+      parameters:
+      - description: Files to upload (multiple with same field name 'files')
+        in: formData
+        name: files
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Returns { data: [ { id, tempFileKey, fileName }, ... ] }'
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseModel.DataResponse'
+      security:
+      - BearerAuth: []
+      summary: Bulk upload files to temp storage
+      tags:
+      - FileStore
   /health:
     get:
       description: get string by ID

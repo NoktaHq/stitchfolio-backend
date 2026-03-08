@@ -60,6 +60,7 @@ var handlerSet = wire.NewSet(
 	handler.ProvideInventoryHandler,
 	handler.ProvideInventoryLogHandler,
 	handler.ProvideDashboardHandler,
+	handler.ProvideFileStoreHandler,
 )
 var logSet = wire.NewSet(
 	ProvideNewRelic,
@@ -90,6 +91,7 @@ var svcSet = wire.NewSet(
 	service.ProvideEnquiryService,
 	service.ProvideOrderService,
 	service.ProvideOrderItemService,
+	service.ProvideEntityDocumentService,
 	service.ProvideMeasurementService,
 	service.ProvidePersonService,
 	service.ProvideDressTypeService,
@@ -104,6 +106,7 @@ var svcSet = wire.NewSet(
 	service.ProvideInventoryService,
 	service.ProvideInventoryLogService,
 	service.ProvideDashboardService,
+	service.ProvideFileStoreService,
 )
 
 var baseSvc = wire.NewSet(
@@ -121,6 +124,7 @@ var repoSet = wire.NewSet(
 	repository.ProvideEnquiryRepository,
 	repository.ProvideOrderRepository,
 	repository.ProvideOrderItemRepository,
+	repository.ProvideEntityDocumentRepository,
 	repository.ProvideMeasurementRepository,
 	repository.ProvidePersonRepository,
 	repository.ProvideDressTypeRepository,
@@ -135,10 +139,15 @@ var repoSet = wire.NewSet(
 	repository.ProvideInventoryRepository,
 	repository.ProvideInventoryLogRepository,
 	repository.ProvideDashboardRepository,
+	repository.ProvideFileStoreRepository,
 )
 
 var cronSet = wire.NewSet(
 	cron.ProvideCron,
+)
+
+var storageSet = wire.NewSet(
+	ProvideCloudStorageProvider,
 )
 
 func InitApp(ctx *context.Context) (*app.App, error) {
@@ -152,6 +161,7 @@ func InitApp(ctx *context.Context) (*app.App, error) {
 		repoSet,
 		svcSet,
 		handlerSet,
+		storageSet,
 		wire.Struct(new(app.App), "*"),
 	)
 	return &app.App{}, nil
@@ -169,6 +179,7 @@ func InitJobService(ctx *context.Context) (*app.Task, error) {
 		baseSvc,
 		svcSet,
 		cronSet,
+		storageSet,
 		wire.Struct(new(app.Task), "*"),
 	)
 	return &app.Task{}, nil
